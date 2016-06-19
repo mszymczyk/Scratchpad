@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  
+  <PropertyGroup>
+    <FxCompilerBin>$(SCRATCHPAD_DIR)Framework\bin\FxCompiler.exe</FxCompilerBin> 
+  </PropertyGroup>
+  
+  <ItemDefinitionGroup>
+  
+    <FxCompilerFile>
+      <!--OutputDirectory>$(IntDir)</OutputDirectory-->
+      <OutputDirectory>$(OutDir)</OutputDirectory>
+      <IntermediateDirectory>$(IntDir)</IntermediateDirectory>
+      <CommandLineTemplate>"$(FxCompilerBin)" [AllOptions] [Inputs]</CommandLineTemplate>
+    </FxCompilerFile>
+	
+  </ItemDefinitionGroup>
+  
+  <ItemGroup />
+  
+</Project>

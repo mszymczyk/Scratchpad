@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<circuit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="2.0" xmlns="http://sony.com/gametech/circuits/1_0">
+	<module xsi:type="materialType" name="Material" x="480" y="224" />
+	<module xsi:type="colorConstantType" name="ColorConstant" x="128" y="224" color="-2090213" />
+	<module xsi:type="colorSwizzleType" name="ColorSwizzle" x="320" y="224" />
+	<module xsi:type="texture2DSampleType" name="Texture2DSample" x="128" y="64" filename="file:///G:/_git/scratchpad/data/Textures/Default.dds" />
+	<connection outputModule="ColorSwizzle" inputModule="Material" />
+	<connection outputModule="ColorConstant" outputPin="3" inputModule="ColorSwizzle" inputPin="2" />
+	<connection outputModule="ColorConstant" outputPin="2" inputModule="ColorSwizzle" inputPin="1" />
+	<connection outputModule="Texture2DSample" outputPin="1" inputModule="ColorSwizzle" />
+	<prototypeFolder />
+	<templateFolder name="_TemplateRoot_" />
+</circuit>

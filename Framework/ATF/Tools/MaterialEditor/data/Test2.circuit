@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<circuit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://sony.com/gametech/circuits/1_0">
+	<module xsi:type="groupTemplateRefType" name="Group" label="Group" x="128" y="256" guidRef="d9b823e9-ca96-40b2-a780-dfb39ccf3cac" />
+	<prototypeFolder />
+	<templateFolder name="_TemplateRoot_">
+		<templateFolder name="Test1" referenceFile="file:///G:/_atf/ATF/Samples/CircuitEditor/data/Test1.circuit" />
+	</templateFolder>
+</circuit>

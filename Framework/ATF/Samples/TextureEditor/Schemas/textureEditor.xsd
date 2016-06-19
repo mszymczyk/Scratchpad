@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema 
+    targetNamespace="TextureEditor"
+    elementFormDefault="qualified"
+    xmlns="TextureEditor"    
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+
+  <!--  sample resource (asset) meta-data types   -->
+  <xs:complexType name="resourceMetadataType">
+    <xs:annotation>
+      <xs:appinfo>
+        <ResourceMetadata  metadataFileExt =".metadata" resourceFileExts =".*"/>
+        <!--scea.dom.editors.attribute
+          name="uri"
+          displayName="URI"
+          description="URI"
+          category="Metadata"/>
+
+        <scea.dom.editors.attribute
+          name="keywords"
+          displayName="Keywords"
+          description="Keywords"
+          category="Metadata"/-->
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:attribute name="uri" type="xs:anyURI" />
+    <xs:attribute name="keywords" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="textureMetadataType">
+    <xs:annotation>
+      <xs:appinfo>
+        <!--ResourceMetadata metadataFileExt =".metadata" resourceFileExts =".dds;.tga;.jpg;.jpeg;.bmp;.png;.tif;.tiff;.gif"/-->
+        <ResourceMetadata metadataFileExt =".metadata" resourceFileExts =".dds;.jpg;.jpeg;.bmp;.png"/>
+        <!--scea.dom.editors.attribute
+          name="compression"
+          displayName="Compression Setting"
+          description="Compression Setting"
+          category="Metadata"
+          editor="Sce.Atf.Controls.PropertyEditing.EnumUITypeEditor,Atf.Gui.WinForms:BC1,BC3,Normal,HDR-32bit,HDR-64bit,PVRT-2bpp,PVRT-4bpp,P4,P8,Uncompressed"/>
+        <scea.dom.editors.attribute
+          name="memoryLayout"
+          displayName="Memory Layout"
+          description="Memory Layout"
+          category="Metadata"
+          editor="Sce.Atf.Controls.PropertyEditing.EnumUITypeEditor,Atf.Gui.WinForms:Linear,Swizzled,Tiled"/>
+        <scea.dom.editors.attribute
+          name="mipMap"
+          displayName="Generate Mip Maps"
+          description="Generate Mip Maps"
+          category="Metadata"
+          editor="Sce.Atf.Controls.PropertyEditing.BoolEditor,Atf.Gui.WinForms"/-->
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="resourceMetadataType">
+        <!-- readonly attributes, fetched from image file >
+        <xs:attribute name="width" type="xs:integer" default="-1" />
+        <xs:attribute name="height" type="xs:integer" default="-1" /-->
+
+        <!-- actual attributes that can be modified by user -->
+        <!--xs:attribute name="intendedUsage" type="xs:string" default="Unspecified" /-->
+        <!--xs:attribute name="compression" type="xs:string" default="Unspecified" /-->
+        <!--xs:attribute name="memoryLayout" type="xs:string" default="Linear" /-->
+        <xs:attribute name="genMipMaps" type="xs:boolean" default="true" />
+        <xs:attribute name="forceSourceSrgb" type="xs:boolean" default="true" />
+        <xs:attribute name="flipY" type="xs:boolean" default="true" />
+        <xs:attribute name="copySourceFile" type="xs:boolean" default="false" />
+        <xs:attribute name="exportToGnf" type="xs:boolean" default="true" />
+        <xs:attribute name="preset" type="xs:string" default="Unknown" />
+        <xs:attribute name="format" type="xs:string" default="Unknown" />
+        <xs:attribute name="width" type="xs:integer" default="-1" />
+        <xs:attribute name="height" type="xs:integer" default="-1" />
+        <!--xs:attribute name="depth" type="xs:integer" default="-1" /-->
+
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="textureMetadata" type="textureMetadataType"/>
+  <xs:element name="resourceMetadata" type="resourceMetadataType"/>
+
+
+  <xs:complexType name="textureMetadataEditorType">
+    <xs:sequence>
+      <xs:element name="textureMetadata" type="textureMetadataType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="textureMetadataEditor" type="textureMetadataEditorType"/>
+  
+  <!-- end of asset metadata -->
+
+</xs:schema>

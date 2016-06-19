@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settingsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" settingsDescFile="Framework\Core\FrameworkSettings\PicoSettings.cs" xmlns="SettingsEditor">
+	<group name="Renderer">
+		<prop name="visibleRenderTarget" type="eval" />
+		<prop name="vsync" type="eval" ival="1" eval="1" />
+		<prop name="displayOrientation" type="eval" />
+		<prop name="msaa" type="eval" ival="1" eval="1" />
+		<prop name="fxaa" type="bval" />
+		<prop name="DebugCamera" type="sval" />
+		<prop name="faderEnabled" type="bval" bval="true" />
+		<prop name="drawFrustumOntopCascades" type="bval" bval="true" />
+		<prop name="drawPrevCascadesFrustumOntop" type="bval" bval="true" />
+		<group name="Shadows">
+			<prop name="forceShadowMapResolution" type="bval" bval="true" />
+			<prop name="shadowMapResolution" type="eval" ival="3" eval="2048" />
+			<prop name="forceShadowMapFormat" type="bval" bval="true" />
+			<prop name="shadowMapFormat" type="eval" />
+			<prop name="forceUpVector" type="bval" bval="true" />
+			<prop name="filter" type="eval" ival="3" eval="3" />
+			<prop name="forceShadowNormalBiasSettings" type="bval" />
+			<prop name="shadowNormalBiasNear" type="fval" fval="0.1" max="2" step="0.001" />
+			<prop name="shadowNormalBiasFar" type="fval" fval="0.1" max="2" step="0.001" />
+			<prop name="shadowNormalBiasFiltered" type="fval" fval="0.1" max="2" step="0.001" />
+			<prop name="useCS" type="bval" bval="true" />
+			<prop name="useSmartBlur" type="bval" />
+			<prop name="msaa" type="eval" ival="1" eval="1" />
+			<prop name="enableMipMaps" type="bval" />
+			<prop name="blur" type="bval" />
+			<prop name="separableBlur" type="bval" />
+			<prop name="blurRadius" type="ival" ival="5" />
+			<prop name="anisotropy" type="ival" ival="16" />
+			<prop name="mipMapBias" type="fval" min="-12" max="12" step="0.24" />
+			<prop name="clampExponents" type="bval" bval="true" />
+			<prop name="evsmPositiveExponent" type="fval" fval="60" max="80" step="0.799999952" />
+			<prop name="evsmNegativeExponent" type="fval" max="80" step="0.799999952" />
+			<prop name="vsmBias" type="fval" max="1" step="0.01" />
+			<prop name="evsmLightBleedingReduction" type="fval" fval="0.5" max="0.99" step="0.0099" />
+			<prop name="msmDepthBias" type="fval" max="10" step="0.099999994" />
+			<prop name="msmMomentBias" type="fval" fval="0.003" max="1" step="0.01" />
+			<prop name="msmLightBleedingReduction" type="fval" fval="0.5" max="0.99" step="0.0099" />
+			<group name="Cascades">
+				<prop name="forceNumCascades" type="bval" bval="true" />
+				<prop name="numCascades" type="ival" ival="4" />
+				<prop name="forcePlayerCameraFarPlaneOverride" type="bval" />
+				<prop name="playerCameraFarPlaneOverride" type="fval" fval="120" min="10" max="300" step="1" checked="true" />
+				<prop name="forceSplitSettings" type="bval" />
+				<prop name="manualSplits" type="bval" />
+				<prop name="splitWeight" type="fval" fval="0.75" max="1" step="0.01" />
+				<prop name="split0" type="fval" fval="0.1" max="1" step="0.01" />
+				<prop name="split1" type="fval" fval="0.25" max="1" step="0.01" />
+				<prop name="split2" type="fval" fval="0.5" max="1" step="0.01" />
+				<prop name="split3" type="fval" fval="1" max="1" step="0.01" />
+				<prop name="forceBlendFactor" type="bval" />
+				<prop name="cascadesBlendFactor" type="fval" fval="0.05" max="0.1" step="0.001" />
+				<prop name="forceShadowBiasSettings" type="bval" />
+				<prop name="shadowBias0" type="fval" fval="0.1" max="2" step="0.001" />
+				<prop name="shadowBias1" type="fval" fval="0.5" max="2" step="0.001" />
+				<prop name="shadowBias2" type="fval" fval="0.6" max="2" step="0.001" />
+				<prop name="shadowBias3" type="fval" fval="1.5" max="2" step="0.001" />
+			</group>
+			<group name="Photomode">
+				<prop name="extraCascades" type="ival" ival="2" />
+				<prop name="split0" type="fval" fval="1.5" min="1" max="2" step="0.01" />
+				<prop name="split1" type="fval" fval="2" min="1" max="2" step="0.01" />
+				<prop name="split2" type="fval" fval="2" min="1" max="2" step="0.01" />
+				<prop name="split3" type="fval" fval="2" min="1" max="2" step="0.01" />
+			</group>
+			<group name="Debug">
+				<prop name="cascadesCamera" type="sval" />
+				<prop name="reloadShader" type="bval" bval="true" />
+				<prop name="showCascades" type="bval" />
+				<prop name="showCameraFrustum" type="bval" />
+				<prop name="showCascadeFrustum" type="bval" />
+				<prop name="showCascadeBoundingSphere" type="bval" />
+				<prop name="showWorldAABB" type="bval" />
+				<prop name="fakeMorpheusFieldOfView" type="bval" />
+				<prop name="visibleShadowMap" type="eval" ival="4" eval="255" />
+				<prop name="shadowMapOpacity" type="fval" fval="1" max="1" step="0.01" />
+				<prop name="shadowMapDepthScale" type="fval" fval="1" max="1" step="0.001" />
+				<prop name="shadowMapDepthMin" type="fval" max="1" step="0.001" />
+				<prop name="shadowMapDepthMax" type="fval" fval="1" max="1" step="0.001" />
+				<prop name="valientStableCascades" type="bval" bval="true" />
+				<prop name="texelSnapping" type="bval" bval="true" />
+				<prop name="tightBoundingSphere" type="bval" />
+				<prop name="fitCascadeNearFarToWorldAABB" type="bval" bval="true" />
+				<prop name="fitCascadeFarToCameraFrustum" type="bval" bval="true" />
+				<prop name="clipAgainstExtraFrustumPlanes" type="bval" bval="true" />
+				<prop name="initializeWithPrevCascadesFrustum" type="bval" bval="true" />
+			</group>
+		</group>
+		<group name="GpuOcclusionCulling">
+			<prop name="occlusionMapSize" type="eval" ival="4" eval="256" />
+			<prop name="enabledColor" type="bval" bval="true" />
+			<prop name="enabledCascade0" type="bval" bval="true" />
+			<prop name="enabledCascade1" type="bval" bval="true" />
+			<prop name="enabledCascade2" type="bval" bval="true" />
+			<prop name="enabledCascade3" type="bval" bval="true" />
+			<prop name="enabledCascade4" type="bval" bval="true" />
+			<prop name="enabledCascade5" type="bval" bval="true" />
+			<prop name="enabledCascade6" type="bval" bval="true" />
+			<prop name="enabledCascade7" type="bval" bval="true" />
+			<prop name="initializeWithPlayersFrustum" type="bval" bval="true" />
+			<prop name="initializeWithPrevCascadesFrustum" type="bval" bval="true" />
+			<prop name="debugShow" type="bval" />
+			<prop name="debugDrawOpacityColor" type="fval" fval="1" max="1" step="0.01" />
+			<prop name="debugDrawDepthScale" type="fval" fval="1" max="1" step="0.001" />
+			<prop name="debugDrawDepthMin" type="fval" fval="1" max="1" step="0.001" />
+			<prop name="debugDrawDepthMax" type="fval" fval="1" max="1" step="0.001" />
+			<prop name="debugDrawMipLevel" type="fval" max="14" step="0.14" />
+			<prop name="debugReloadShader" type="bval" />
+		</group>
+	</group>
+	<group name="HMD">
+		<prop name="Supported" type="bval" bval="true" />
+		<prop name="OculusSupported" type="bval" bval="true" />
+		<prop name="OculusEnabled" type="bval" bval="true" />
+		<prop name="MorpheusSupported" type="bval" bval="true" />
+		<prop name="MorpheusEnabled" type="bval" bval="true" />
+		<group name="Generic">
+			<prop name="hmdOversample" type="fval" fval="1.5" min="0.5" max="4" step="0.035" checked="true" />
+			<prop name="DistortionCancellerEnabled" type="bval" bval="true" />
+			<prop name="AffectAllCameraNodesPositionScale" type="fval" fval="1.5" min="0.1" max="10" step="0.09899999" checked="true" />
+			<prop name="NearPlaneOverride" type="fval" fval="0.3" min="0.1" max="100" step="0.999" checked="true" />
+			<prop name="FadeType" type="eval" ival="1" eval="1" />
+			<prop name="FadeInDuration" type="fval" fval="0.2" max="1" step="0.05" />
+			<prop name="FadeOutDuration" type="fval" fval="0.2" max="1" step="0.05" />
+			<prop name="FadeInDurationCutscene" type="fval" fval="0.15" max="1" step="0.05" />
+			<prop name="FadeOutDurationCutscene" type="fval" fval="0.15" max="1" step="0.05" />
+			<prop name="PlayerSpeedMin" type="fval" fval="5" min="1" max="20" step="0.05" />
+			<prop name="PlayerSpeedMax" type="fval" fval="6" min="1" max="20" step="0.05" />
+			<prop name="HudScale" type="fval" fval="1" max="4" step="0.01" />
+		</group>
+		<group name="Morpheus">
+			<prop name="RefreshRate" type="eval" ival="1" eval="1" />
+			<prop name="PredicationEnabled" type="bval" bval="true" />
+			<prop name="PredicationExtraTime" type="fval" max="100" step="1" />
+			<prop name="ReprojectionEnabled" type="bval" bval="true" />
+			<prop name="HTileClearOptimization" type="bval" bval="true" />
+			<prop name="HTileClearOptimizationFactor" type="fval" fval="1" max="2" step="0.02" />
+			<prop name="LowLatencyTrackingEnabled" type="bval" />
+		</group>
+	</group>
+	<group name="Stats">
+		<prop name="Enabled" type="bval" />
+		<prop name="NumberOfMarkerLevels" type="ival" />
+	</group>
+	<group name="PS4Gnm">
+		<prop name="AsyncComputeEnabled" type="bval" bval="true" />
+		<prop name="maxWavesPerSIMD" type="ival" ival="8" />
+	</group>
+	<group name="TextUtil">
+		<prop name="ReloadTexts" type="bval" />
+		<prop name="Language" type="eval" />
+		<prop name="subtitleWindowPositionX" type="fval" fval="0.7399999" max="1" step="0.01" />
+		<prop name="subtitleWindowPositionY" type="fval" fval="0.94" max="1" step="0.01" />
+		<prop name="subtitleWindowWidth" type="fval" fval="0.7" max="1" step="0.01" />
+		<prop name="hmdSubtitleWindowPositionX" type="fval" fval="0.5" max="1" step="0.01" />
+		<prop name="hmdSubtitleWindowWidth" type="fval" fval="0.7" max="1" step="0.01" />
+		<prop name="hmdSubtitleWindowPositionY" type="fval" fval="0.94" max="1" step="0.01" />
+		<prop name="iconWindowPositionX" type="fval" fval="0.8" max="1" step="0.01" />
+		<prop name="iconWindowPositionY" type="fval" fval="0.85" max="1" step="0.01" />
+		<prop name="hmdIconWindowPositionX" type="fval" fval="0.8" max="1" step="0.01" />
+		<prop name="hmdIconWindowPositionY" type="fval" fval="0.45" max="1" step="0.01" />
+	</group>
+	<group name="Recording">
+		<prop name="HideLetterBox" type="bval" />
+		<prop name="HideCutsceneTexts" type="bval" />
+	</group>
+</settingsFile>

@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UI xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" name="UI" xmlns="IdolMinds.UI">
+	<Package name="Package">
+		<Form name="Form">
+			<Animation name="Animation">
+				<curve name="curve1" displayName="X channel" minX="0" maxX="1000" minY="-3.40282347E+38" maxY="3.40282347E+38" preInfinity="Cycle" postInfinity="Oscillate" color="-16777216" xLabel="x-Time" yLabel="x-Pos">
+					<controlPoint y="1" tangentIn="0.998003066 0.0631661639" tangentInType="Spline" tangentOut="0.998003066 0.0631661639" tangentOutType="Spline" />
+					<controlPoint x="79.79592" y="6.050488" tangentIn="0.9998201 0.0189674776" tangentInType="Spline" tangentOut="0.999820054 0.0189674757" tangentOutType="Spline" />
+					<controlPoint x="225.873932" y="5.28502941" tangentIn="0.9999997 -0.0007861346" tangentInType="Spline" tangentOut="0.999999642 -0.000786134566" tangentOutType="Spline" />
+					<controlPoint x="400.612244" y="5.798283" tangentIn="0.9998521 0.0171974637" tangentInType="Spline" tangentOut="0.9998522 0.0171974655" tangentOutType="Spline" />
+					<controlPoint x="500" y="10" tangentIn="0.9991076 0.0422382727" tangentInType="Spline" tangentOut="0.9991076 0.0422382727" tangentOutType="Spline" />
+				</curve>
+				<curve name="Curve2" displayName="Y Channel" minX="0" maxX="1000" minY="-3.40282347E+38" maxY="3.40282347E+38" preInfinity="Cycle" postInfinity="Cycle" color="-16777216" xLabel="Y-Time" yLabel="Y-Pos">
+					<controlPoint y="30" tangentIn="0.9998001 0.0199960023" tangentInType="Spline" tangentOut="0.9998001 0.0199960023" tangentOutType="Spline" />
+					<controlPoint x="500" y="40" tangentIn="0.9998001 0.0199960023" tangentInType="Spline" tangentOut="0.9998001 0.0199960023" tangentOutType="Spline" />
+				</curve>
+				<curve name="Z Channel" minX="0" maxX="1000" minY="-3.40282347E+38" maxY="3.40282347E+38" preInfinity="Cycle" postInfinity="Cycle" color="-16777216" xLabel="Z-Time" yLabel="Z-Pos">
+					<controlPoint y="60" tangentIn="0.996815264 0.0797452256" tangentInType="Spline" tangentOut="0.996815264 0.0797452256" tangentOutType="Spline" />
+					<controlPoint x="500" y="100" tangentIn="0.996815264 0.0797452256" tangentInType="Spline" tangentOut="0.996815264 0.0797452256" tangentOutType="Spline" />
+				</curve>
+				<curve name="Red Channel" minX="0" maxX="1000" minY="0" maxY="255" preInfinity="Cycle" postInfinity="Cycle" xLabel="R-Time" yLabel="R-Value">
+					<controlPoint tangentIn="0.472100526 0.8815447" tangentInType="Spline" tangentOut="0.472100526 0.8815447" tangentOutType="Spline" />
+					<controlPoint x="28.5306816" y="53.2748222" tangentIn="0.4799845 0.877277" tangentInType="Spline" tangentOut="0.479984462 0.877277" tangentOutType="Spline" />
+					<controlPoint x="76.55121" y="139.914139" tangentIn="0.100534618 -0.994933546" tangentInType="Fixed" tangentOut="0.100534618 -0.994933546" tangentOutType="Fixed" />
+					<controlPoint x="180.1634" y="52.07632" tangentIn="0.870399 -0.492347032" tangentInType="Spline" tangentOut="0 0" tangentOutType="Stepped" />
+					<controlPoint x="320.363647" y="2" tangentIn="0.999915361 -0.013016195" tangentInType="Spline" tangentOut="0 0" tangentOutType="Stepped" />
+					<controlPoint x="500.3228" y="47.90871" tangentIn="1 0" tangentInType="Flat" tangentOut="1 0" tangentOutType="Flat" />
+					<controlPoint x="800.749" y="2" tangentIn="1 0" tangentInType="Flat" tangentOut="1 0" tangentOutType="Linear" />
+				</curve>
+				<curve name="Green Channel" minX="0" maxX="1000" minY="0" maxY="255" preInfinity="Cycle" postInfinity="Cycle" color="-16744448" xLabel="G-Time" yLabel="G-Value">
+					<controlPoint tangentIn="0.9527693 0.3036952" tangentInType="Spline" tangentOut="0.9527693 0.3036952" tangentOutType="Spline" />
+					<controlPoint x="800" y="255" tangentIn="0.9527693 0.3036952" tangentInType="Spline" tangentOut="0.9527693 0.3036952" tangentOutType="Spline" />
+				</curve>
+				<curve name="Blue Channel" minX="0" maxX="1000" minY="0" maxY="255" preInfinity="Cycle" postInfinity="Cycle" color="-16776961" xLabel="B-Time" yLabel="B-value">
+					<controlPoint y="128" tangentIn="1 0" tangentInType="Spline" tangentOut="1 0" tangentOutType="Spline" />
+					<controlPoint x="900" y="128" tangentIn="1 0" tangentInType="Spline" tangentOut="1 0" tangentOutType="Spline" />
+				</curve>
+				<curve name="Alpha Channel" minX="0" maxX="1000" minY="0" maxY="255" preInfinity="Cycle" postInfinity="Cycle" color="-1" xLabel="A-Time" yLabel="A-Value">
+					<controlPoint y="255" tangentIn="0.9689918 -0.2470929" tangentInType="Spline" tangentOut="0.9689918 -0.2470929" tangentOutType="Spline" />
+					<controlPoint x="1000" tangentIn="0.9689918 -0.2470929" tangentInType="Spline" tangentOut="0.9689918 -0.2470929" tangentOutType="Spline" />
+				</curve>
+			</Animation>
+		</Form>
+	</Package>
+</UI>

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<circuit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="2.0" xmlns="http://sony.com/gametech/circuits/1_0">
+	<module xsi:type="materialType" name="Material" x="512" y="128" />
+	<module xsi:type="colorConstantType" name="ColorConstant" x="96" y="416" color="-10864584" />
+	<module xsi:type="swizzleType" name="Swizzle" x="352" y="288" />
+	<module xsi:type="texture2DType" name="Texture2D" x="-128" y="256" filename="Assets\Textures\Grass.dds" />
+	<module xsi:type="colorParameterType" name="ColorParameter" x="-288" y="160" color="-1434853" />
+	<module xsi:type="texture2DParameterType" name="Texture2DParameter" x="-192" y="384" filename="Assets\Textures\Grass.dds" />
+	<module xsi:type="groupType" name="Group" label="Group" x="-96" y="-160">
+		<dynamicProperty name="Emitter Vector" category="Custom Properties" description="The speed and the direction that the emitter travels when it is created" converter="Sce.Atf.Controls.PropertyEditing.FloatArrayConverter, Atf.Gui" editor="Sce.Atf.Controls.PropertyEditing.NumericTupleEditor, Atf.Gui.WinForms:System.Single,x,y,z" valueType="vector3Value" vector3Value="0 0 0" />
+		<dynamicProperty name="Debug Mode" category="Custom Properties" description="Whether or not debug mode visualizations should be used" editor="Sce.Atf.Controls.PropertyEditing.BoolEditor, Atf.Gui.WinForms" valueType="boolValue" />
+		<dynamicProperty name="Tester Name" category="Custom Properties" description="The name of the person who is testing this particle effect object" valueType="stringValue" />
+		<dynamicProperty name="# of Emitters" category="Custom Properties" description="The number of emitter objects spawned by this emitter" valueType="intValue" />
+		<input name=":RGBA_2" type="MaterialGraphPin" module="Lerp" pin="1" />
+		<output name=":G" type="MaterialGraphPin" module="Lerp" pin="2" pinY="206" />
+		<output name=":RGBA" type="MaterialGraphPin" module="Lerp" visible="false" index="5" pinY="146" />
+		<output name=":R" type="MaterialGraphPin" module="Lerp" pin="1" visible="false" index="6" pinY="176" />
+		<output name=":B" type="MaterialGraphPin" module="Lerp" pin="3" visible="false" index="7" pinY="236" />
+		<output name=":A" type="MaterialGraphPin" module="Lerp" pin="4" visible="false" index="8" pinY="266" />
+		<output name=":RGB" type="MaterialGraphPin" module="ColorConstant_1" visible="false" index="1" />
+		<output name=":R_1" type="MaterialGraphPin" module="ColorConstant_1" pin="1" visible="false" index="2" pinY="30" />
+		<output name=":G_1" type="MaterialGraphPin" module="ColorConstant_1" pin="2" visible="false" index="3" pinY="60" />
+		<output name=":B_1" type="MaterialGraphPin" module="ColorConstant_1" pin="3" visible="false" index="4" pinY="90" />
+		<output name=":R_2" type="MaterialGraphPin" module="FloatParameter" visible="false" index="9" pinY="322" />
+		<module xsi:type="lerpType" name="Lerp" x="256" y="64" />
+		<module xsi:type="colorConstantType" name="ColorConstant_1" />
+		<module xsi:type="floatParameterType" name="FloatParameter" x="96" y="224" value="0.6" />
+		<connection outputModule="ColorConstant_1" inputModule="Lerp" />
+		<connection outputModule="FloatParameter" inputModule="Lerp" inputPin="2" />
+	</module>
+	<connection outputModule="ColorParameter" outputPin="1" inputModule="Swizzle" />
+	<connection outputModule="ColorParameter" inputModule="Group" />
+	<connection outputModule="Group" inputModule="Swizzle" inputPin="1" />
+	<connection outputModule="Swizzle" inputModule="Material" />
+	<annotation text="Base color layer.&#xD;&#xA;Blah blah blah" x="-384" y="96" width="180" height="50" />
+	<prototypeFolder />
+	<templateFolder name="_TemplateRoot_" />
+	<instance xsi:type="materialInstanceType" name="MaterialInstance">
+		<parameter module="ColorParameter" displayName="Color" valueType="colorValue" colorValue="-14292453" />
+		<parameter module="FloatParameter" displayName="FloatValue" valueType="floatValue" floatValue="0.65" />
+	</instance>
+</circuit>

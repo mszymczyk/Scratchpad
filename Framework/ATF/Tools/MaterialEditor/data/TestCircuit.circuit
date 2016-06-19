@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<circuit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://sony.com/gametech/circuits/1_0">
+	<module xsi:type="groupType" name="groupInputFiles" label="Input Files" x="64" y="96">
+		<output name="first.wav::Out" type="boolean" module="first.Wav" pinY="16" />
+		<output name="first.wav::Out" type="boolean" module="first.Wav" pin="1" index="1" pinY="32" />
+		<output name="second.wav::Out" type="boolean" module="second.Wav" index="2" pinY="240" />
+		<output name="second.wav::Out" type="boolean" module="second.Wav" pin="1" index="3" pinY="256" />
+		<module xsi:type="groupType" name="first.Wav" label="first.wav">
+			<output name=":Out" type="boolean" module="button1" pinY="16" />
+			<output name=":Out" type="boolean" module="button2" index="1" pinY="80" />
+			<module xsi:type="buttonType" name="button1" />
+			<module xsi:type="buttonType" name="button2" y="64" />
+		</module>
+		<module xsi:type="groupType" name="second.Wav" label="second.wav" y="224">
+			<output name=":Out" type="boolean" module="button3" pinY="16" />
+			<output name=":Out" type="boolean" module="button4" index="1" pinY="80" />
+			<module xsi:type="buttonType" name="button3" />
+			<module xsi:type="buttonType" name="button4" y="64" />
+		</module>
+	</module>
+	<module xsi:type="groupType" name="structure" label="structure" x="352" y="96">
+		<input name="sub-stream 0::In" type="boolean" module="subStream0" pinY="16" />
+		<input name="sub-stream 0::In" type="boolean" module="subStream0" pin="1" index="1" pinY="32" />
+		<input name="sub-stream 0::In" type="boolean" module="subStream0" pin="2" index="2" pinY="48" />
+		<input name="sub-stream 0::In" type="boolean" module="subStream0" pin="3" index="3" pinY="64" />
+		<input name="sub-stream 0::In" type="boolean" module="subStream0" pin="4" index="4" pinY="80" />
+		<input name="sub-stream 0::In" type="boolean" module="subStream0" pin="5" index="5" pinY="96" />
+		<module xsi:type="groupType" name="subStream0" label="sub-stream 0">
+			<input name=":In" type="boolean" module="light1" pinY="16" />
+			<input name=":In" type="boolean" module="light2" index="1" pinY="80" />
+			<input name=":In" type="boolean" module="light3" visible="false" index="2" pinY="144" />
+			<input name=":In" type="boolean" module="light4" index="3" pinY="208" />
+			<input name=":In" type="boolean" module="light5" visible="false" index="4" pinY="272" />
+			<input name=":In" type="boolean" module="light6" index="5" pinY="336" />
+			<module xsi:type="lightType" name="light1" />
+			<module xsi:type="lightType" name="light2" y="64" />
+			<module xsi:type="lightType" name="light3" y="128" />
+			<module xsi:type="lightType" name="light4" y="192" />
+			<module xsi:type="lightType" name="light5" y="256" />
+			<module xsi:type="lightType" name="light6" y="320" />
+		</module>
+	</module>
+	<module xsi:type="groupTemplateRefType" name="first.wav" label="first.wav" guidRef="2fb10b9e-9934-4d78-979d-fe584a6139b6" />
+	<connection outputModule="groupInputFiles" inputModule="structure" />
+	<connection outputModule="groupInputFiles" outputPin="1" inputModule="structure" inputPin="1" />
+	<connection outputModule="groupInputFiles" outputPin="2" inputModule="structure" inputPin="3" />
+	<connection outputModule="groupInputFiles" outputPin="3" inputModule="structure" inputPin="5" />
+	<prototypeFolder />
+	<templateFolder name="_TemplateRoot_">
+		<templateFolder name="New Template Folder">
+			<template guid="2fb10b9e-9934-4d78-979d-fe584a6139b6" label="first.wav">
+				<module xsi:type="groupType" name="first.Wav_1" label="first.wav" sourceGuid="2fb10b9e-9934-4d78-979d-fe584a6139b6">
+					<output name=":Out" type="boolean" module="button1_1" pinY="16" />
+					<output name=":Out" type="boolean" module="button2_1" index="1" pinY="80" />
+					<module xsi:type="buttonType" name="button1_1" />
+					<module xsi:type="buttonType" name="button2_1" y="64" />
+				</module>
+			</template>
+		</templateFolder>
+	</templateFolder>
+</circuit>

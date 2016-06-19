@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<prefab xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="gap">
+	<gameObject xsi:type="orcType" transform="1 0 0 0 0 1 0 0 0 0 1 0 -0.0401754379 -0.393733025 -0.0218133926 1" translate="-0.0401754379 -0.393733025 -0.0218133926" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="Orc" visible="true" locked="false" transformationType="15" weight="0" emotion="0" goals="0" color="0" toeColor="0">
+		<geometry uri="Rocks/rock03.atgi" tag="" />
+	</gameObject>
+</prefab>

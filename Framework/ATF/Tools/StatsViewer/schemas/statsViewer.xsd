@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema
+  targetNamespace="statsViewer"
+	xmlns="statsViewer"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:complexType name="sessionType">
+    <xs:annotation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="group" type="groupType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="groupType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Group" description="Group" image="TimelineEditorSample.Resources.group.png" category="Timelines" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Name" />
+        <scea.dom.editors.attribute name="expanded" displayName="Expanded" description="Whether Group is Expanded" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="track" type="trackType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" default="Group"/>
+    <xs:attribute name="expanded" type="xs:boolean" default="true"/>
+  </xs:complexType>
+
+  <xs:complexType name="trackType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Track" description="Track" image="TimelineEditorSample.Resources.track.png" category="Timelines" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Name" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="stat" type="statType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" default="Track"/>
+  </xs:complexType>
+
+  <xs:complexType name="statType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Stat" description="Stat" image="TimelineEditorSample.Resources.track.png" category="Timelines" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Name" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="statValue" type="statValueType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:string" default="Stat"/>
+  </xs:complexType>
+  
+  <xs:complexType name="statValueType">
+    <!--<xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors.attribute name="time" displayName="Start" description="Start Time" />
+        <scea.dom.editors.attribute name="value" displayName="Description" description="Event description" />
+      </xs:appinfo>
+    </xs:annotation>-->
+    <xs:attribute name="time" type="xs:float"/>
+    <xs:attribute name="value" type="xs:float"/>
+  </xs:complexType>
+  
+  <xs:element name="session" type="sessionType"/>
+
+</xs:schema>
+

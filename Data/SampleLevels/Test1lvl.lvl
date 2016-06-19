@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<game xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" name="Game" fogEnabled="true" fogColor="-6901028" fogRange="4000" fogDensity="0.33" xmlns="gap">
+	<gameObjectFolder name="GameObjects" visible="true" locked="false">
+		<gameObject xsi:type="locatorType" transform="1 0 0 0 0 1 0 0 0 0 1 0 0 0 4.597887 1" translate="0 0 4.597887" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="Locator" visible="true" locked="false" transformationType="15">
+			<resource uri="Rocks/rock03.atgi" tag="" />
+		</gameObject>
+		<gameObject transform="1 0 0 0 0 1 0 0 0 0 1 0 1.31693256 0 4.997296 1" translate="1.31693256 0 4.997296" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="GameObject" visible="true" locked="false" transformationType="15" />
+		<gameObject xsi:type="gameObjectGroupType" transform="1 0 0 0 0 1 0 0 0 0 1 0 2.493363 0 0.906927466 1" translate="2.493363 0 0.906927466" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="GameObjectGroup" visible="true" locked="false" transformationType="15">
+			<gameObject xsi:type="coneTestType" transform="1 0 0 0 0 1 0 0 0 0 1 0 -2.493363 0 -6.85289526 1" translate="-2.493363 0 -6.85289526" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="ConeTest" visible="true" locked="false" transformationType="15" color="-1" emissive="0" specular="0" specularPower="1" diffuse="" normal="" textureTransform="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1">
+				<component xsi:type="meshComponentType" name="gap:meshComponentType" active="true" translation="0 0 0" rotation="0 0 0" scale="1 1 1" visible="true" castShadow="false" receiveShadow="true" drawDistance="2000" ref="">
+					<materials uri="Materials/mat1.material" subSurfName="mat_0" />
+				</component>
+			</gameObject>
+			<gameObject xsi:type="cylinderTestType" transform="1 0 0 0 0 1 0 0 0 0 1 0 2.493363 0 -0.906927466 1" translate="2.493363 0 -0.906927466" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="CylinderTest" visible="true" locked="false" transformationType="15" color="-1" emissive="0" specular="0" specularPower="1" diffuse="" normal="" textureTransform="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+			<gameObject xsi:type="orcType" transform="1 0 0 0 0 1 0 0 0 0 1 0 2.8077507 0 -7.093354 1" translate="2.8077507 0 -7.093354" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="Orc" visible="true" locked="false" transformationType="15" weight="0" emotion="0" goals="0" color="0" toeColor="0">
+				<target ref="../../../_atf/LevelEditor/SampleLevels/Test1lvl.lvl#Locator" />
+				<friends ref="../../../_atf/LevelEditor/SampleLevels/Test1lvl.lvl#CylinderTest" />
+				<friends ref="../../../_atf/LevelEditor/SampleLevels/Test1lvl.lvl#ConeTest" />
+			</gameObject>
+		</gameObject>
+		<gameObject xsi:type="TorusTestType" transform="1 0 0 0 0 1 0 0 0 0 1 0 13.1689835 11.1145468 11.6757765 1" translate="13.1689835 11.1145468 11.6757765" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="TorusTest" visible="true" locked="false" transformationType="15" color="-1" emissive="0" specular="0" specularPower="1" diffuse="" normal="" textureTransform="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" />
+		<folder name="GameObjectFolder" visible="true" locked="false">
+			<gameObject transform="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" translate="0 0 0" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="GameObject_1" visible="true" locked="false" transformationType="15" />
+		</folder>
+	</gameObjectFolder>
+	<layers>
+		<layer name="Layer1">
+			<gameObjectReference ref="../../../_atf/LevelEditor/SampleLevels/Test1lvl.lvl#TorusTest_1" />
+			<gameObjectReference ref="../../../_atf/LevelEditor/SampleLevels/Test1lvl.lvl#CylinderTest" />
+		</layer>
+		<layer name="Layer2">
+			<gameObjectReference ref="../../../_atf/LevelEditor/SampleLevels/Test1lvl.lvl#ConeTest" />
+			<gameObjectReference ref="../../../_atf/LevelEditor/SampleLevels/Test1lvl.lvl#TorusTest_1" />
+		</layer>
+	</layers>
+	<bookmarks>
+		<bookmark name="New bookmark">
+			<camera eye="14.4337568 14.4337568 14.4337568" lookAtPoint="0 0 0" upVector="-0.408248276 0.816496551 -0.408248276" viewType="6" yFov="0.7853982" nearZ="0.1" farZ="2048" focusRadius="25" />
+		</bookmark>
+	</bookmarks>
+	<grid size="20" subdivisions="20" height="0" snap="false" visible="true" />
+</game>
