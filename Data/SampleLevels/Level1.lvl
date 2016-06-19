@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<game xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" name="Game" fogEnabled="true" fogColor="-6901028" fogRange="4000" fogDensity="0.33" xmlns="gap">
+	<gameObjectFolder name="GameObjects" visible="true" locked="false">
+		<gameObject xsi:type="TorusTestType" transform="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1" translate="0 0 0" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="TorusTest" visible="true" locked="false" transformationType="15" color="-1" emissive="0" specular="0" specularPower="1" diffuse="" normal="" textureTransform="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1">
+			<component xsi:type="spinnerComponentType" name="gap:spinnerComponentType" active="true" rps="0 0 0" />
+			<component xsi:type="meshComponentType" name="gap:meshComponentType" active="true" translation="0 0 0" rotation="0 0 0" scale="1 1 1" visible="true" castShadow="false" receiveShadow="true" drawDistance="2000" ref="" />
+		</gameObject>
+		<gameObject xsi:type="orcType" transform="1 0 0 0 0 1 0 0 0 0 1 0 0 0 5 1" translate="0 0 5" rotate="0 0 0" scale="1 1 1" pivot="0 0 0" name="Orc" visible="true" locked="false" transformationType="15" weight="0" emotion="0" goals="0" color="0" toeColor="0">
+			<friends ref="Level2.lvl#TorusTest" />
+		</gameObject>
+	</gameObjectFolder>
+	<layers />
+	<bookmarks />
+	<grid size="20" subdivisions="20" height="0" snap="false" visible="true" />
+</game>

@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(SCRATCHPAD_DIR)\Framework\bin\</OutDir>
+    <IntDir>$(SCRATCHPAD_DIR)\Framework\Build\$(SolutionName)\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <_PropertySheetDisplayName>common_x64_release</_PropertySheetDisplayName>
+    <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(ProjectName)_pch.h</PrecompiledHeaderFile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;__SSE__;_CRT_SECURE_NO_WARNINGS;LIBCONFIG_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SCRATCHPAD_DIR)\Framework;$(SCRATCHPAD_DIR)\Framework\3rdParty;$(SCRATCHPAD_DIR)\Framework\3rdParty\tinyxml2;$(SCRATCHPAD_DIR)\Framework\3rdParty\libconfig\lib;$(SCRATCHPAD_DIR)\Framework\Core;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName)_$(Platform)_$(Configuration).pdb</ProgramDatabaseFile>
+      <AdditionalDependencies>$(SCRATCHPAD_DIR)\Framework\3rdParty\libconfig\x64\ReleaseStatic\libconfig.lib;$(SCRATCHPAD_DIR)\Framework\3rdParty\tinyxml2\tinyxml2\bin\x64-Release-Lib\tinyxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SCRATCHPAD_DIR)\Framework\3rdParty\zeromq\bin\x64\Release\v120\dynamic;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

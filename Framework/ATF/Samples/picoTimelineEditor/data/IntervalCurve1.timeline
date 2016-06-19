@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<timeline xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="timeline">
+	<group>
+		<track>
+			<interval xsi:type="intervalCurveType" start="500" name="IntervalCurve1" length="100">
+				<curve name="curve_IntervalCurve1" displayName="IntervalCurve1" minX="500" maxX="600" minY="-3.40282347E+38" maxY="3.40282347E+38" preInfinity="Cycle" postInfinity="Cycle" color="-16776961" xLabel="x-Time" yLabel="x-Pos">
+					<controlPoint tangentIn="0.9982359 0.0593722574" tangentInType="Spline" tangentOut="0.9982359 0.0593722574" tangentOutType="Spline" />
+					<controlPoint x="3.47858739" y="0.206896573" tangentIn="0.9805807 0.196116149" tangentInType="Spline" tangentOut="0.9805807 0.196116135" tangentOutType="Spline" />
+					<controlPoint x="5" y="1" tangentIn="0.886746645 0.4622558" tangentInType="Spline" tangentOut="0.886746645 0.4622558" tangentOutType="Spline" />
+				</curve>
+			</interval>
+			<key xsi:type="luaScriptType" start="1000" sourceCode="ksiezniczka.changeTrees(1.0)" />
+		</track>
+		<track>
+			<interval xsi:type="intervalCurveType" start="100" name="IntervalCurve2" length="500">
+				<curve name="curve_IntervalCurve2" displayName="IntervalCurve2" minX="100" maxX="600" minY="-3.40282347E+38" maxY="3.40282347E+38" preInfinity="Cycle" postInfinity="Cycle" color="-16776961" xLabel="x-Time" yLabel="x-Pos">
+					<controlPoint tangentIn="0.9805807 0.196116135" tangentInType="Spline" tangentOut="0.9805807 0.196116135" tangentOutType="Spline" />
+					<controlPoint x="5" y="1" tangentIn="0.9805807 0.196116135" tangentInType="Spline" tangentOut="0.9805807 0.196116135" tangentOutType="Spline" />
+				</curve>
+			</interval>
+			<interval xsi:type="intervalFaderType" start="1177">
+				<curve name="FaderValue" displayName="Fader" minX="0" maxX="1" minY="0" maxY="1" preInfinity="Cycle" postInfinity="Cycle" color="-8388608" xLabel="Time" yLabel="Value">
+					<controlPoint tangentIn="0.7071068 0.7071068" tangentInType="Spline" tangentOut="0.7071068 0.7071068" tangentOutType="Spline" />
+					<controlPoint x="0.33" y="0.33" tangentIn="0.7071068 0.7071068" tangentInType="Spline" tangentOut="0.7071068 0.7071068" tangentOutType="Spline" />
+					<controlPoint x="0.66" y="0.66" tangentIn="0.7071068 0.7071068" tangentInType="Spline" tangentOut="0.707106769 0.707106769" tangentOutType="Spline" />
+					<controlPoint x="1" y="1" tangentIn="0.707106769 0.707106769" tangentInType="Spline" tangentOut="0.707106769 0.707106769" tangentOutType="Spline" />
+				</curve>
+			</interval>
+			<key xsi:type="luaScriptType" start="820" sourceCode="function dupa()&#xD;&#xA;end" />
+		</track>
+	</group>
+</timeline>

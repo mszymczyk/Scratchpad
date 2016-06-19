@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DebugDraw.cpp" />
+    <ClCompile Include="Dx11\Dx11.cpp" />
+    <ClCompile Include="Dx11\Dx11DeviceContext.cpp" />
+    <ClCompile Include="Dx11\Dx11DeviceStates.cpp" />
+    <ClCompile Include="Dx11\Dx11InputLayoutCache.cpp" />
+    <ClCompile Include="Dx11\Dx11Wrappers.cpp" />
+    <ClCompile Include="Gfx_pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Material\MaterialManager.cpp" />
+    <ClCompile Include="Material\MaterialParamsHandler.cpp" />
+    <ClCompile Include="Material\MaterialShader.cpp" />
+    <ClCompile Include="Material\MaterialShaderFactory.cpp" />
+    <ClCompile Include="Material\TextureModulesHandler.cpp" />
+    <ClCompile Include="Math\DirectXMathWrap.cpp" />
+    <ClCompile Include="Math\ViewFrustum.cpp" />
+    <ClCompile Include="Mesh\Model.cpp" />
+    <ClCompile Include="Mesh\SDKMesh.cpp" />
+    <ClCompile Include="Text\BMFont.cpp" />
+    <ClCompile Include="Text\TextRenderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="DebugDraw.h" />
+    <ClInclude Include="Dx11\Dx11.h" />
+    <ClInclude Include="Dx11\Dx11DeviceContext.h" />
+    <ClInclude Include="Dx11\Dx11DeviceStates.h" />
+    <ClInclude Include="Dx11\Dx11InputLayoutCache.h" />
+    <ClInclude Include="Dx11\Dx11Wrappers.h" />
+    <ClInclude Include="Gfx_pch.h" />
+    <ClInclude Include="Material\IDynamicModule.h" />
+    <ClInclude Include="Material\IModuleHandler.h" />
+    <ClInclude Include="Material\MaterialManager.h" />
+    <ClInclude Include="Material\MaterialParamsHandler.h" />
+    <ClInclude Include="Material\MaterialShader.h" />
+    <ClInclude Include="Material\MaterialShaderFactory.h" />
+    <ClInclude Include="Material\TextureModulesHandler.h" />
+    <ClInclude Include="Math\DirectXMathWrap.h" />
+    <ClInclude Include="Math\ViewFrustum.h" />
+    <ClInclude Include="Mesh\Model.h" />
+    <ClInclude Include="Mesh\SDKMesh.h" />
+    <ClInclude Include="Text\BMFont.h" />
+    <ClInclude Include="Text\TextRenderer.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C21FB832-6B29-44F9-8EA5-CFEB78F5612A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Gfx</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\common_x64_debug.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\vsprops\common_x64_release.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

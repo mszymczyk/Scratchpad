@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema
+  targetNamespace="timeline"
+	xmlns="timeline"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:complexType name="timelineType">
+    <xs:annotation>
+
+      <xs:appinfo>
+        <!--<scea.dom.collection id="name"/>-->
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Name" />
+        <scea.dom.editors.attribute name="animFilename" displayName="Anim Filename" description="Anim Filename" readOnly="true" />
+      </xs:appinfo>
+      
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="group" type="groupType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="marker" type="markerType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="timelineRef" type="timelineRefType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:ID" use="required" />
+    <xs:attribute name="animFilename" type="xs:string" use="required" />
+    <xs:attribute name="animUserName" type="xs:string"/>
+    <xs:attribute name="animCategory" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="groupType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Group" description="Group" image="picoAnimClipEditor.Resources.group.png" category="Timelines" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Unique Name" />
+        <scea.dom.editors.attribute name="expanded" displayName="Expanded" description="Whether Group is Expanded" />
+        <scea.dom.editors.attribute name="description" displayName="Description" description="Event description" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="track" type="trackType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:ID" use="required" />
+    <xs:attribute name="expanded" type="xs:boolean" default="true"/>
+    <xs:attribute name="description" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="trackType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Track" description="Track" image="picoAnimClipEditor.Resources.track.png" category="Timelines" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Unique Name" />
+        <scea.dom.editors.attribute name="description" displayName="Description" description="Event description" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="interval" type="intervalType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="key" type="keyType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:ID" use="required" />
+    <xs:attribute name="description" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="eventType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors.attribute name="start" displayName="Start" description="Start Time" />
+        <scea.dom.editors.attribute name="description" displayName="Description" description="Event description" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:attribute name="start" type="xs:float"/>
+    <xs:attribute name="description" type="xs:string"/>
+    <xs:attribute name="name" type="xs:ID" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="intervalType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Interval" description="Interval" image="picoAnimClipEditor.Resources.interval.png" category="Timelines" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Unique Name" />
+        <scea.dom.editors.attribute name="length" displayName="Length" description="Length or Duration" />
+        <scea.dom.editors.attribute name="color" displayName="Color" description="Display Color"
+          editor="Sce.Atf.Controls.PropertyEditing.ColorPickerEditor,Atf.Gui.WinForms"
+          converter="Sce.Atf.Controls.PropertyEditing.IntColorConverter" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="eventType">
+        <xs:attribute name="name" type="xs:ID" use="required" />
+        <xs:attribute name="length" type="xs:float" default="1000.0"/>
+        <xs:attribute name="color" type="xs:integer" default="-16776961"/> <!--blue-->
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="markerType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Marker" description="Marker" image="picoAnimClipEditor.Resources.marker.png" category="Timelines" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Unique Name" />
+        <scea.dom.editors.attribute name="color" displayName="Color" description="Display Color"
+          editor="Sce.Atf.Controls.PropertyEditing.ColorPickerEditor,Atf.Gui.WinForms"
+          converter="Sce.Atf.Controls.PropertyEditing.IntColorConverter" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="eventType">
+        <xs:attribute name="name" type="xs:ID" use="required" />
+        <xs:attribute name="color" type="xs:integer"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="keyType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Key" description="Key" image="picoAnimClipEditor.Resources.key.png" category="Timelines" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="eventType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="timelineRefType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Reference" description="Timeline Reference"
+                          image="TimelineEditorSample.Resources.group.png" category="Timelines" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Name" />
+        <scea.dom.editors.attribute name="start" displayName="Start" description="Start Time" />
+        <scea.dom.editors.attribute name="description" displayName="Description" description="Event description" />
+        <scea.dom.editors.attribute name="color" displayName="Color" description="Display Color"
+          editor="Sce.Atf.Controls.PropertyEditing.ColorEditor,Atf.Gui"
+          converter="Sce.Atf.Controls.PropertyEditing.IntColorConverter" />
+        <scea.dom.editors.attribute name="ref" displayName="File Name" description="File name of timeline reference"
+                                    editor="Sce.Atf.Controls.PropertyEditing.FileUriEditor,Atf.Gui.WinForms:Timeline files (*.timeline)|*.timeline"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:attribute name="name" type="xs:string" default="Reference"/>
+    <xs:attribute name="start" type="xs:float"/>
+    <xs:attribute name="description" type="xs:string"/>
+    <xs:attribute name="color" type="xs:integer" default="-32640"/>
+    <!--sort of a salmon color-->
+    <xs:attribute name="ref" type="xs:anyURI" />
+  </xs:complexType>
+
+
+
+
+  <xs:complexType name="groupAnimType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="AnimClip" description="AnimClip" image="picoAnimClipEditor.Resources.group.png" category="pico" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Unique Name" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="groupType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+
+
+  <xs:complexType name="trackAnimType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="TrackAnim" description="TrackAnim" image="picoAnimClipEditor.Resources.track.png" category="pico" />
+        <scea.dom.editors.attribute name="name" displayName="Name" description="Unique Name" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="trackType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+
+  <xs:complexType name="intervalAnimType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Anim" description="Anim" image="picoAnimClipEditor.Resources.interval.png" category="pico" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="intervalType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+  
+  <xs:complexType name="keyTagType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="Tag" description="Tag" image="picoAnimClipEditor.Resources.key.png" category="Timelines" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="keyType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+
+  <xs:complexType name="intervalTagType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="TagInterval" description="TagInterval" image="picoAnimClipEditor.Resources.interval.png" category="pico" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="intervalType">
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  
+  
+  <xs:complexType name="keySoundType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="CharacterSound" description="CharacterSound" image="picoAnimClipEditor.Resources.key.png" category="pico" />
+        <scea.dom.editors.attribute name="soundBank" displayName="Sound Bank" description="Sound Bank"
+                                    editor="pico.Controls.PropertyEditing.picoFileUriEditor,pico:Sound banks (*.bnk)|*.bnk"
+                                    converter="Sce.Atf.Controls.PropertyEditing.ReadOnlyConverter"
+                                    category="Sound" />
+        <!--<scea.dom.editors.attribute name="sound" displayName="Sound Name" description="Sound to be played from sound bank" category="Sound" />-->
+        <scea.dom.editors.attribute name="positional" displayName="Positional" description="Whether sound is located in space relative to character"
+                                    editor="Sce.Atf.Controls.PropertyEditing.BoolEditor,Atf.Gui.WinForms"
+                                    category="Sound"
+                                    />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="keyType">
+        <xs:attribute name="soundBank" type="xs:string" />
+        <xs:attribute name="sound" type="xs:string" />
+        <xs:attribute name="positional" type="xs:boolean" default="false"/>
+        <xs:attribute name="position" type="xs:string" default="pelvis" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  
+  
+  
+  <xs:complexType name="intervalCharacterSoundType">
+    <xs:annotation>
+      <xs:appinfo>
+        <scea.dom.editors menuText="CharacterSoundInterval" description="CharacterSoundInterval" image="picoAnimClipEditor.Resources.interval.png" category="pico" />
+        <scea.dom.editors.attribute name="color" displayName="Color" description="Display Color"
+                                    editor="Sce.Atf.Controls.PropertyEditing.ColorPickerEditor,Atf.Gui.WinForms"
+                                    converter="Sce.Atf.Controls.PropertyEditing.IntColorConverter" />
+        <scea.dom.editors.attribute name="soundBank" displayName="Sound Bank" description="Sound Bank"
+                                    editor="pico.Controls.PropertyEditing.picoFileUriEditor,pico:Sound banks (*.bnk)|*.bnk"
+                                    converter="Sce.Atf.Controls.PropertyEditing.ReadOnlyConverter"
+                                    category="Sound" />
+        <!--<scea.dom.editors.attribute name="sound" displayName="Sound Name" description="Sound to be played from sound bank" category="Sound" />-->
+        <scea.dom.editors.attribute name="positional" displayName="Positional" description="Whether sound is located in space relative to character"
+                                    editor="Sce.Atf.Controls.PropertyEditing.BoolEditor,Atf.Gui.WinForms"
+                                    category="Sound"
+                                    />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="intervalType">
+        <xs:attribute name="soundBank" type="xs:string" />
+        <xs:attribute name="sound" type="xs:string" />
+        <xs:attribute name="positional" type="xs:boolean" default="false"/>
+        <xs:attribute name="position" type="xs:string" default="pelvis" />
+        <xs:attribute name="color" type="xs:integer" default="-16384"/>
+        <!--blue-->
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+
+
+  <xs:element name="timeline" type="timelineType"/>
+
+</xs:schema>
+
