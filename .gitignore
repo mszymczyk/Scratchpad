@@ -5,9 +5,12 @@
 
 # misz
 .svn/
+[Bb]uild/
 
 assimp/
 LevelEditor/
+
+
 *.hlslc
 *.zip
 *.7z
