@@ -69,3 +69,17 @@ int fr_snprintf( char* buffer, size_t bufferSize, const char* format, ... )
 
 #endif //
 }
+
+#if defined _DEBUG
+
+void operator delete( void *address )
+{
+	_free_dbg( address, _NORMAL_BLOCK );
+}
+
+void operator delete[]( void *address )
+{
+	_free_dbg( address, _NORMAL_BLOCK );
+}
+
+#endif //
