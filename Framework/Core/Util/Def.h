@@ -96,7 +96,7 @@
 *  	const char *szFileName : The file responsible for requesting the allocation.
 *  	int nLine	       : The line number within the file requesting the allocation.
 */
-__forceinline void* operator new( size_t size, const char *szFileName, int nLine ){
+__forceinline void* operator new( size_t size, const char *szFileName, int nLine ) {
 	return _malloc_dbg( size, _NORMAL_BLOCK, szFileName, nLine );
 }
 
@@ -112,12 +112,8 @@ __forceinline void* operator new[]( size_t size, const char *szFileName, int nLi
 *  Arguments:
 *  	void *address	: A pointer to the memory to be de-allocated.
 */
-__forceinline void operator delete( void *address ) {
-	_free_dbg( address, _NORMAL_BLOCK );
-}
-__forceinline void operator delete[]( void *address ) {
-	_free_dbg( address, _NORMAL_BLOCK );
-}
+void operator delete( void *address );
+void operator delete[]( void *address );
 
 // ***** These two routines should never get called, unless an error occures during the 
 // ***** allocation process.  These need to be defined to make Visual C++ 6.0 happy.
