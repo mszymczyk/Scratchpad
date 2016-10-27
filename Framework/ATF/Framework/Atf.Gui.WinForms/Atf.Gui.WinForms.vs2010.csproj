@@ -267,6 +267,7 @@
     <Compile Include="Controls\Adaptable\Graphs\GraphNodeEditAdapter.cs" />
     <Compile Include="Controls\Adaptable\Graphs\GraphRenderer.cs" />
     <Compile Include="Controls\Adaptable\Graphs\GraphViewCommands.cs" />
+    <Compile Include="Controls\Adaptable\Graphs\ID2dCircuitElementRenderer.cs" />
     <Compile Include="Controls\Adaptable\Graphs\KeyboardGraphNavigator.cs" />
     <Compile Include="Controls\Adaptable\Graphs\KeyboardIOGraphNavigator.cs" />
     <Compile Include="Controls\Adaptable\Graphs\NumberedRoute.cs" />

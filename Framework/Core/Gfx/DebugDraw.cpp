@@ -146,12 +146,9 @@ namespace debugDraw
 	{
 		ID3D11DeviceContext* context = deviceContext.context;
 
-		Matrix3 rot = createBasisZAxis( plane_.getXYZ() );
-		rot = Matrix3::rotationX( PI*0.5f ) * rot;
-		//Matrix3 rot = createBasisYAxis( plane_.getXYZ() );
+		Matrix3 rot = createBasisYAxis( plane_.getXYZ() );
 		Vector3 tr = plane_.getXYZ() * plane_.getW();
 		Matrix4 world = Matrix4( rot, tr );
-		//Matrix4 world = Matrix4::identity();
 
 		drawContext.shaderConstants.data.WorldViewProjection = drawContext.viewProj * world;
 		drawContext.shaderConstants.data.Color = abgrToRgba( colorABGR_ );
@@ -213,10 +210,12 @@ namespace debugDraw
 	class _DebugLineList : public _DebugObject
 	{
 	public:
-		_DebugLineList( std::vector<Vector3>&& vertices, const u32 colorABGR, float lineWidth, bool depthEnabled )
+		_DebugLineList( std::vector<Vector3>&& vertices, const u32 colorABGR, float lineWidth, bool lineStrip, bool screenSpace, bool depthEnabled )
 			: vertices_( std::move( vertices ) )
 			, colorABGR_( colorABGR )
 			, lineWidth_( lineWidth )
+			, lineStrip_( lineStrip )
+			, screenSpace_( screenSpace )
 			, depthEnabled_( depthEnabled )
 		{	}
 
@@ -228,6 +227,8 @@ namespace debugDraw
 		std::vector<Vector3> vertices_;
 		u32 colorABGR_;
 		float lineWidth_;
+		bool lineStrip_;
+		bool screenSpace_;
 		bool depthEnabled_;
 	};
 
@@ -235,11 +236,14 @@ namespace debugDraw
 	{
 		ID3D11DeviceContext* context = deviceContext.context;
 
-		drawContext.shaderConstants.data.WorldViewProjection = drawContext.viewProj;
+		drawContext.shaderConstants.data.WorldViewProjection = screenSpace_ ? Matrix4::orthographic( -1, 1, -1, 1, -1, 1 ) : drawContext.viewProj;
 		drawContext.shaderConstants.data.Color = abgrToRgba( colorABGR_ );
 		drawContext.shaderConstants.updateGpu( context );
 
-		context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
+		if ( lineStrip_ )
+			context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP );
+		else
+			context->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
 
 		if (depthEnabled_)
 			context->OMSetDepthStencilState( DepthStencilStates::DepthWriteEnabled(), 0 );
@@ -428,7 +432,7 @@ namespace debugDraw
 		verts[22] = frustum.corners[ViewFrustum::eCorner_rightTopFar];
 		verts[23] = frustum.corners[ViewFrustum::eCorner_rightBottomFar];
 
-		std::unique_ptr<_DebugLineList> ob = std::make_unique<_DebugLineList>( std::move(verts), colorABGR, lineWidth, depthEnabled );
+		std::unique_ptr<_DebugLineList> ob = std::make_unique<_DebugLineList>( std::move(verts), colorABGR, lineWidth, false, false, depthEnabled );
 
 		{
 			std::lock_guard<std::mutex> lck( _gImpl->mutex_ );
@@ -436,6 +440,47 @@ namespace debugDraw
 		}
 	}
 
-} // namespace debug
+	void AddLineListWS( std::vector<Vector3>&& verts, const u32 colorABGR, float lineWidth /*= 1.0f*/, bool depthEnabled /*= true */ )
+	{
+		std::unique_ptr<_DebugLineList> ob = std::make_unique<_DebugLineList>( std::move( verts ), colorABGR, lineWidth, false, false, depthEnabled );
 
+		{
+			std::lock_guard<std::mutex> lck( _gImpl->mutex_ );
+			_gImpl->objects_.emplace_back( std::move( ob ) );
+		}
+	}
+
+	void AddLineListSS( std::vector<Vector3>&& verts, const u32 colorABGR, float lineWidth /*= 1.0f*/ )
+	{
+		std::unique_ptr<_DebugLineList> ob = std::make_unique<_DebugLineList>( std::move( verts ), colorABGR, lineWidth, false, true, false );
+
+		{
+			std::lock_guard<std::mutex> lck( _gImpl->mutex_ );
+			_gImpl->objects_.emplace_back( std::move( ob ) );
+		}
+	}
+
+	void AddLineStripWS( std::vector<Vector3>&& verts, const u32 colorABGR, float lineWidth /*= 1.0f*/, bool depthEnabled /*= true */ )
+	{
+		std::unique_ptr<_DebugLineList> ob = std::make_unique<_DebugLineList>( std::move( verts ), colorABGR, lineWidth, true, false, depthEnabled );
+
+		{
+			std::lock_guard<std::mutex> lck( _gImpl->mutex_ );
+			_gImpl->objects_.emplace_back( std::move( ob ) );
+		}
+
+	}
+
+	void AddLineStripSS( std::vector<Vector3>&& verts, const u32 colorABGR, float lineWidth /*= 1.0f*/ )
+	{
+		std::unique_ptr<_DebugLineList> ob = std::make_unique<_DebugLineList>( std::move( verts ), colorABGR, lineWidth, true, true, false );
+
+		{
+			std::lock_guard<std::mutex> lck( _gImpl->mutex_ );
+			_gImpl->objects_.emplace_back( std::move( ob ) );
+		}
+	}
+
+
+} // namespace debug
 } // namespace spad

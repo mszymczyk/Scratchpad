@@ -92,7 +92,9 @@ namespace CircuitEditorSample
             var xformAdapter = new TransformAdapter();
             xformAdapter.EnforceConstraints = false;//to allow the canvas to be panned to view negative coordinates
             m_d2dHoverControl.Adapt(xformAdapter, new D2dGraphAdapter<Module, Connection, ICircuitPin>(m_circuitRenderer, xformAdapter));
-            m_d2dHoverControl.DrawingD2d += m_d2dHoverControl_DrawingD2d;           
+            m_d2dHoverControl.DrawingD2d += m_d2dHoverControl_DrawingD2d;
+
+            s_editor = this;
         }
 
         private IControlHostService m_controlHostService;
@@ -120,6 +122,16 @@ namespace CircuitEditorSample
         // scripting related members
         [Import(AllowDefault = false)]
         private ScriptingService m_scriptingService = null;
+
+        public D2dDiagramTheme D2dDiagramTheme
+        {
+            get { return m_theme; }
+        }
+
+        public static Editor EditorInstance
+        {
+            get { return s_editor; }
+        }
 
         #region IInitializable
 
@@ -834,6 +846,8 @@ namespace CircuitEditorSample
         private D2dDiagramTheme m_theme;
         private HoverBase m_hoverForm;
         private D2dAdaptableControl m_d2dHoverControl; // a child of hover form
+
+        private static Editor s_editor = null;
 
         #region Expression related code
 

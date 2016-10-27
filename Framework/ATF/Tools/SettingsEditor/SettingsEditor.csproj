@@ -39,6 +39,31 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="IronPython, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -50,6 +75,20 @@
     <Reference Include="Microsoft.Dynamic, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\ThirdParty\IronPython\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ThirdParty\SharpDX\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.D3DCompiler">
+      <HintPath>..\..\ThirdParty\SharpDX\SharpDX.D3DCompiler.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11">
+      <HintPath>..\..\ThirdParty\SharpDX\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ThirdParty\SharpDX\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -63,6 +102,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="Tao.OpenGl">
+      <HintPath>..\..\ThirdParty\Tao.OpenGl\Tao.OpenGl.dll</HintPath>
+    </Reference>
     <Reference Include="ZeroMQ, Version=4.1.0.42169, Culture=neutral, PublicKeyToken=4a9630883fd6c563, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Bin\ZeroMQ.dll</HintPath>
@@ -73,12 +115,19 @@
     <Compile Include="Compiler\FileWriter.cs" />
     <Compile Include="Compiler\SettingsCompiler.cs" />
     <Compile Include="Compiler\SettingsTypes.cs" />
+    <Compile Include="Controls\PropertyEditing\DirectionPropertyEditor.cs" />
+    <Compile Include="Controls\PropertyEditing\FlexibleFloatChildAttributePropertyDescriptor.cs" />
+    <Compile Include="Controls\PropertyEditing\Float3ColorConverter.cs" />
     <Compile Include="Controls\PropertyEditing\SettingsPropertyEditor.cs" />
+    <Compile Include="D3DManipulator.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="DocumentControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="DocumentEditingContext.cs" />
+    <Compile Include="DomNodeAdapters\ControlPoint.cs" />
+    <Compile Include="DomNodeAdapters\Curve.cs" />
+    <Compile Include="DomNodeAdapters\CurveLimitValidator.cs" />
     <Compile Include="DomNodeAdapters\DynamicProperty.cs" />
     <Compile Include="DomNodeAdapters\Group.cs" />
     <Compile Include="DomNodeAdapters\GroupProperties.cs" />
@@ -93,7 +142,6 @@
     <Compile Include="Schemas\DynamicSchema.cs" />
     <Compile Include="Schemas\Schema.cs" />
     <Compile Include="Schemas\SchemaLoader.cs" />
-    <Compile Include="DomXmlReader.cs" />
     <Compile Include="SettingsLister.cs" />
     <Compile Include="TreeView.cs" />
     <Compile Include="ZMQHubService.cs" />
@@ -104,9 +152,21 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Framework\Atf.Atgi\Atf.Atgi.vs2010.csproj">
+      <Project>{d1fa9a85-9359-4725-a50f-8a67a77d700c}</Project>
+      <Name>Atf.Atgi.vs2010</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Collada\Atf.Collada.vs2010.csproj">
+      <Project>{6f80048b-e81f-4e06-9438-26c23487777c}</Project>
+      <Name>Atf.Collada.vs2010</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Framework\Atf.Core\Atf.Core.vs2010.csproj">
       <Project>{9D1835B6-D1C2-44BA-BAE1-05C6EC442D2F}</Project>
       <Name>Atf.Core.vs2010</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Atf.Gui.OpenGL\Atf.Gui.OpenGL.vs2010.csproj">
+      <Project>{52d35323-1aa1-4205-a1b0-26c5e5e8d543}</Project>
+      <Name>Atf.Gui.OpenGL.vs2010</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Framework\Atf.Gui.WinForms\Atf.Gui.WinForms.vs2010.csproj">
       <Project>{7C36A258-9102-420D-B80A-5EB5717644B6}</Project>
@@ -139,6 +199,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\group.png" />
     <EmbeddedResource Include="Resources\preset.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\D3DManipulatorShaders.fx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

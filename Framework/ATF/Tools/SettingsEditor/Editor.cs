@@ -17,7 +17,7 @@ using Sce.Atf.Controls;
 namespace SettingsEditor
 {
     /// <summary>
-    /// Creates rootnode and one child of type Orc.</summary>
+    /// There's just one instance of this class in this application. Manages creation of documents.</summary>
     [Export( typeof( IInitializable ) )]
     [Export( typeof( IDocumentClient ) )]
     [Export( typeof( Editor ) )]
@@ -27,7 +27,7 @@ namespace SettingsEditor
         #region IInitializable Members
 
         /// <summary>
-        /// Finish MEF intialization for the component by creating DomNode tree for application data.</summary>
+        /// Finish MEF initialization for the component by creating DomNode tree for application data.</summary>
         void IInitializable.Initialize()
         {
             {
@@ -64,6 +64,30 @@ namespace SettingsEditor
             m_fileWatcherService.FileChanged += fileWatcherService_FileChanged;
 
             m_documentRegistry.DocumentRemoved += documentRegistry_DocumentRemoved;
+
+            m_contextRegistry.ActiveContextChanged += contextRegistry_ActiveContextChanged;
+        }
+
+        private void contextRegistry_ActiveContextChanged( object sender, EventArgs e )
+        {
+            if ( m_selectionContext != null )
+                m_selectionContext.SelectionChanged -= selectionContext_SelectionChanged;
+
+            m_selectionContext = m_contextRegistry.ActiveContext.As<ISelectionContext>();
+            
+            if ( m_selectionContext != null )
+                m_selectionContext.SelectionChanged += selectionContext_SelectionChanged;
+        }
+
+        private void selectionContext_SelectionChanged( object sender, EventArgs e )
+        {
+            Group g = m_selectionContext.LastSelected.As<Group>();
+            if ( g != null )
+            {
+                IDocument doc = g.DomNode.GetRoot().Cast<IDocument>();
+                DocumentPersistedInfo dpi = GetDocumentPersistedInfo( doc.Uri );
+                dpi.m_selectedGroup = g.Name;
+            }
         }
 
         private void mainForm_Closing( object sender, CancelEventArgs e )
@@ -108,7 +132,7 @@ namespace SettingsEditor
             // for persisting opened document's group info with SettingsService
             // we need to be notified about main form closing before ControlHostService
             // the order of events is: main form closing, closing all documents (documentRegistry_DocumentRemoved), persisting settings
-            // the only purpose of mainForm_Closing is to freeze DocumentGroupExpandedInfo state
+            // the only purpose of mainForm_Closing is to freeze DocumentPersistedInfo state
             // so it's not modified by documentRegistry_DocumentRemoved
             // and can be safely persisted after all document's have been closed
             m_mainForm.Closing += mainForm_Closing;
@@ -146,7 +170,9 @@ namespace SettingsEditor
                 // read existing document using standard XML reader
                 using ( FileStream stream = new FileStream( settingsFile.LocalPath, FileMode.Open, FileAccess.Read ) )
                 {
-                    SettingsEditor.DomXmlReader reader = new SettingsEditor.DomXmlReader( SchemaLoader.s_schemaLoader );
+                    // don't need to use tweaked xml reader anymore
+                    //SettingsEditor.DomXmlReader reader = new SettingsEditor.DomXmlReader( SchemaLoader.s_schemaLoader );
+                    DomXmlReader reader = new DomXmlReader( SchemaLoader.s_schemaLoader );
                     rootNode = reader.Read( stream, settingsFile );
                 }
 
@@ -199,7 +225,6 @@ namespace SettingsEditor
             var edContext = rootNode.Cast<DocumentEditingContext>();
             edContext.Set( rootNode );
 
-            // set active context and select orc object.
             m_contextRegistry.ActiveContext = rootNode;
 
             if ( m_reloadInfo == null )
@@ -207,7 +232,7 @@ namespace SettingsEditor
 
             m_fileWatcherService.Register( descFullPath );
 
-            DocumentGroupExpandedInfo dgei = GetGroupExpandedInfo( document.Uri );
+            DocumentPersistedInfo dgei = GetDocumentPersistedInfo( document.Uri );
             HashSet<string> expandedGroups = dgei.m_expandedGroups;
             dgei.m_expandedGroups = new HashSet<string>();
 
@@ -224,14 +249,20 @@ namespace SettingsEditor
             // if file is being reloaded, try setting last valid selection
             // this might be not possible, because group names might have changed
             //
+            string groupToSelect = null;
+
             if ( m_reloadInfo != null && m_reloadInfo.m_selectedGroupName != null )
+                groupToSelect = m_reloadInfo.m_selectedGroupName;
+            else if ( dgei.m_selectedGroup != null )
+                groupToSelect = dgei.m_selectedGroup;
+
+
+            if ( groupToSelect != null )
             {
                 foreach ( Group s in rootNode.Subtree.AsIEnumerable<Group>() )
                 {
-                    if ( s.DomNode.Type.Name == m_reloadInfo.m_selectedGroupName )
-                    {
+                    if ( s.Name == groupToSelect )
                         control.SetSelectedDomNode( s.DomNode );
-                    }
                 }
             }
 
@@ -394,11 +425,6 @@ namespace SettingsEditor
         /// if it wants to re-register this Control.</remarks>
         public bool Close( Control control )
         {
-            //D2dTimelineControl timelineControl = (D2dTimelineControl) control;
-            //TimelineDocument timelineDocument = (TimelineDocument) timelineControl.TimelineDocument;
-
-            //if (timelineDocument != null)
-            //	return m_documentService.Close( timelineDocument );
             DocumentControl pfControl = (DocumentControl)control;
             if ( pfControl != null )
             {
@@ -495,7 +521,7 @@ namespace SettingsEditor
             {
                 Group group = selectionContext.LastSelected.As<Group>();
                 if ( group != null )
-                    m_reloadInfo.m_selectedGroupName = group.DomNode.Type.Name;
+                    m_reloadInfo.m_selectedGroupName = group.Name;
             }
 
             m_documentService.OpenExistingDocument( this, settingsFile );
@@ -611,15 +637,18 @@ namespace SettingsEditor
                 XmlElement root = xmlDoc.CreateElement( "GroupExpandedSettings" );
                 xmlDoc.AppendChild( root );
 
-                foreach ( KeyValuePair<Uri, DocumentGroupExpandedInfo> p in m_groupExpandedInfo )
+                foreach ( KeyValuePair<Uri, DocumentPersistedInfo> p in m_groupExpandedInfo )
                 {
                     XmlElement docElement = xmlDoc.CreateElement( "doc" );
                     root.AppendChild( docElement );
 
                     docElement.SetAttribute( "uri", p.Key.LocalPath );
 
-                    DocumentGroupExpandedInfo dgei = p.Value;
-                    foreach( string absGroupName in dgei.m_expandedGroups )
+                    DocumentPersistedInfo dgei = p.Value;
+                    if ( dgei.m_selectedGroup != null )
+                        docElement.SetAttribute( "selectedGroup", dgei.m_selectedGroup );
+
+                    foreach ( string absGroupName in dgei.m_expandedGroups )
                     {
                         XmlElement gElement = xmlDoc.CreateElement( "group" );
                         docElement.AppendChild( gElement );
@@ -642,7 +671,10 @@ namespace SettingsEditor
                     foreach ( XmlNode info in root.GetElementsByTagName( "doc" ) )
                     {
                         string uriString = info.Attributes["uri"].Value;
-                        DocumentGroupExpandedInfo dgei = GetGroupExpandedInfo( new Uri( uriString ) );
+                        DocumentPersistedInfo dgei = GetDocumentPersistedInfo( new Uri( uriString ) );
+                        XmlAttribute selectedGroup = info.Attributes["selectedGroup"];
+                        if ( selectedGroup != null )
+                            dgei.m_selectedGroup = selectedGroup.Value;
 
                         XmlElement docElement = (XmlElement)info;
                         foreach ( XmlNode group in docElement.GetElementsByTagName( "group" ) )
@@ -659,35 +691,36 @@ namespace SettingsEditor
             }
         }
 
-        private class DocumentGroupExpandedInfo
+        private class DocumentPersistedInfo
         {
             public HashSet<string> m_expandedGroups = new HashSet<string>();
+            public string m_selectedGroup; // or preset
         }
 
-        private static void SetGroupExpandedOrColapsed( DocumentGroupExpandedInfo gei, string groupAbsName, bool expanded )
+        private static void SetGroupExpandedOrColapsed( DocumentPersistedInfo dpi, string groupAbsName, bool expanded )
         {
             if ( expanded )
-                gei.m_expandedGroups.Add( groupAbsName );
+                dpi.m_expandedGroups.Add( groupAbsName );
             else
-                gei.m_expandedGroups.Remove( groupAbsName );
+                dpi.m_expandedGroups.Remove( groupAbsName );
         }
 
         private void SetGroupExpandedOrColapsed2( Uri documentUri, Group group, bool expanded )
         {
-            DocumentGroupExpandedInfo gei = GetGroupExpandedInfo( documentUri );
-            SetGroupExpandedOrColapsed( gei, group.AbsoluteName, expanded );
+            DocumentPersistedInfo dpi = GetDocumentPersistedInfo( documentUri );
+            SetGroupExpandedOrColapsed( dpi, group.AbsoluteName, expanded );
         }
 
-        private DocumentGroupExpandedInfo GetGroupExpandedInfo( Uri documentUri )
+        private DocumentPersistedInfo GetDocumentPersistedInfo( Uri documentUri )
         {
-            DocumentGroupExpandedInfo gei;
-            if ( !m_groupExpandedInfo.TryGetValue( documentUri, out gei ) )
+            DocumentPersistedInfo dpi;
+            if ( !m_groupExpandedInfo.TryGetValue( documentUri, out dpi ) )
             {
-                gei = new Editor.DocumentGroupExpandedInfo();
-                m_groupExpandedInfo.Add( documentUri, gei );
+                dpi = new Editor.DocumentPersistedInfo();
+                m_groupExpandedInfo.Add( documentUri, dpi );
             }
 
-            return gei;
+            return dpi;
         }
 
         private void documentControl_treeControl_NodeExpandedChanged( object sender, TreeControl.NodeEventArgs e )
@@ -700,32 +733,33 @@ namespace SettingsEditor
             }
         }
 
-        private Dictionary<Uri, DocumentGroupExpandedInfo> m_groupExpandedInfo = new Dictionary<Uri, DocumentGroupExpandedInfo>();
+        private Dictionary<Uri, DocumentPersistedInfo> m_groupExpandedInfo = new Dictionary<Uri, DocumentPersistedInfo>();
 
         [Import( AllowDefault = false )]
-		private MainForm m_mainForm = null; //initialize to null to avoid incorrect compiler warning
+        private MainForm m_mainForm = null; //initialize to null to avoid incorrect compiler warning
 
         [Import(AllowDefault = false)]
         private IContextRegistry m_contextRegistry = null; //initialize to null to avoid incorrect compiler warning
 
-		[Import( AllowDefault = false )]
-		private IDocumentRegistry m_documentRegistry = null;
+        [Import( AllowDefault = false )]
+        private IDocumentRegistry m_documentRegistry = null;
 
-		[Import( AllowDefault = false )]
-		private IDocumentService m_documentService = null;
+        [Import( AllowDefault = false )]
+        private IDocumentService m_documentService = null;
 
-		[Import( AllowDefault = false )]
-		private IControlHostService m_controlHostService = null;
+        [Import( AllowDefault = false )]
+        private IControlHostService m_controlHostService = null;
 
-		[Import( AllowDefault=true )]
-		private IFileWatcherService m_fileWatcherService = null;
+        [Import( AllowDefault=true )]
+        private IFileWatcherService m_fileWatcherService = null;
 
-		[Import( AllowDefault = false )]
-		private SettingsService m_settingsService = null;
+        [Import( AllowDefault = false )]
+        private SettingsService m_settingsService = null;
 
         private string m_descFileToUseWhenCreatingNewDocument = null;
         private ReloadInfo m_reloadInfo = null;
         private bool m_mainFormClosing = false;
+        private ISelectionContext m_selectionContext = null;
 
         [ImportMany]
         private IEnumerable<Lazy<IContextMenuCommandProvider>> m_contextMenuCommandProviders = null;

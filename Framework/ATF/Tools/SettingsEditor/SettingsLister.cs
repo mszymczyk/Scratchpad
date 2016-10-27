@@ -11,10 +11,9 @@ using Sce.Atf.Dom;
 namespace SettingsEditor
 {
     /// <summary>
-    /// Editor providing a tree control, listing material's instances.</summary>
+    /// Editor providing a tree control, listing all opened documents and settings.</summary>
     [Export(typeof (IInitializable))]
     [Export(typeof( SettingsLister ) )]
-    [Export(typeof (IContextMenuCommandProvider))]
     [PartCreationPolicy(CreationPolicy.Shared)]
     public class SettingsLister : FilteredTreeControlEditor, IControlHostClient, IInitializable
                                   , ITreeView, IItemView
@@ -95,8 +94,17 @@ namespace SettingsEditor
                     //if ( childInfo.Equals( Schema.groupType.propChild ) || childInfo.Equals( Schema.presetType.propChild ) )
                     //    continue;
 
-                    foreach ( DomNode child in node.GetChildList( childInfo ) )
-                        yield return child;
+                    if ( childInfo.IsList )
+                    {
+                        foreach ( DomNode child in node.GetChildList( childInfo ) )
+                            yield return child;
+                    }
+                    else
+                    {
+                        DomNode child = node.GetChild( childInfo );
+                        if ( child != null )
+                            yield return child;
+                    }
                 }
             }
 

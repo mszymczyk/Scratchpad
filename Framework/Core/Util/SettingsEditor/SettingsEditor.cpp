@@ -2,18 +2,141 @@
 #include "SettingsEditor.h"
 #include <mutex>
 #include <memory>
-#include <tinyxml2.h>
+#include <Util/pugixml/pugixmlHelpers.h>
+#include <Util/MayaAnimCurve.h>
 
 #if defined(_MSC_VER) && defined(_DEBUG)
 #define new _DEBUG_NEW
 #endif
 
-using namespace tinyxml2;
-
-//namespace spad
-//{
 namespace SettingsEditor
 {
+
+float EvaluateAnimCurve( const void* curve, float time )
+{
+	const spad::MayaAnimCurve* mac = reinterpret_cast<const spad::MayaAnimCurve*>( curve );
+	spad::EtCurveEvalCache cache;
+	return mac->evaluate( time, &cache );
+}
+
+
+//static spad::EtTangentType ConvertTangentType( const char* str )
+//{
+//	if ( !strcmp( str, "Spline" ) )
+//		return spad::kTangentSmooth;
+//	else if ( !strcmp( str, "Linear" ) )
+//		return spad::kTangentLinear;
+//	else if ( !strcmp( str, "Clamped" ) )
+//		return spad::kTangentClamped;
+//
+//	else if ( !strcmp( str, "Stepped" ) )
+//		return spad::kTangentStep;
+//	else if ( !strcmp( str, "SteppedNext" ) )
+//		return spad::kTangentStepNext;
+//	else if ( !strcmp( str, "Flat" ) )
+//		return spad::kTangentFlat;
+//
+//	else if ( !strcmp( str, "Fixed" ) )
+//		return spad::kTangentFixed;
+//	else if ( !strcmp( str, "Plateau" ) )
+//		return spad::kTangentPlateau;
+//	else
+//	{
+//		FR_NOT_IMPLEMENTED;
+//		return spad::kTangentSmooth;
+//	}
+//};
+
+
+static spad::EtInfinityType ConvertPrePostInfinity( const char* str )
+{
+	if ( !strcmp( str, "Constant" ) )
+		return spad::kInfinityConstant;
+	else if ( !strcmp( str, "Cycle" ) )
+		return spad::kInfinityCycle;
+	else if ( !strcmp( str, "CycleWithOffset" ) )
+		return spad::kInfinityCycleRelative;
+	else if ( !strcmp( str, "Oscillate" ) )
+		return spad::kInfinityOscillate;
+	else if ( !strcmp( str, "Linear" ) )
+		return spad::kInfinityLinear;
+	else
+	{
+		FR_NOT_IMPLEMENTED;
+		return spad::kInfinityConstant;
+	}
+};
+
+
+//static int ReadCurveKey( const pugi::xml_node& xmlKey, spad::EtReadKey& key )
+//{
+//	key.time = xmlKey.attribute( "x" ).as_float( 0.0f );
+//	key.value = xmlKey.attribute( "y" ).as_float( 0.0f );
+//
+//	const char* sTangentInType = xmlKey.attribute( "tangentInType" ).value();
+//	key.inTangentType = ConvertTangentType( sTangentInType );
+//
+//	const char* sTangentOutType = xmlKey.attribute( "tangentOutType" ).value();
+//	key.outTangentType = ConvertTangentType( sTangentOutType );
+//
+//	return 0;
+//}
+
+static int ReadCurveKey( const pugi::xml_node& xmlKey, spad::EtKey& key )
+{
+	key.time = xmlKey.attribute( "x" ).as_float( 0.0f );
+	key.value = xmlKey.attribute( "y" ).as_float( 0.0f );
+
+	float f[2];
+	spad::attribute_get_float_array( xmlKey.attribute( "tangentIn" ), f, 2 );
+	key.inTanX = f[0];
+	key.inTanY = f[1];
+
+	spad::attribute_get_float_array( xmlKey.attribute( "tangentOut" ), f, 2 );
+	key.outTanX = f[0];
+	key.outTanY = f[1];
+
+	return 0;
+}
+
+spad::MayaAnimCurve* ReadCurve( const pugi::xml_node& xmlCurve )
+{
+	//picoAnimCurve* animCurvePtr = new picoAnimCurve();
+	//picoAnimCurve& animCurve = *animCurvePtr;
+
+	const char* sPreInfinity = xmlCurve.attribute( "preInfinity" ).value();
+	spad::EtInfinityType preInfinity = ConvertPrePostInfinity( sPreInfinity );
+	const char* sPostInfinity = xmlCurve.attribute( "postInfinity" ).value();
+	spad::EtInfinityType postInfinity = ConvertPrePostInfinity( sPostInfinity );
+
+	// count control points
+	//
+	u32 nControlPoints = 0;
+	for ( const pugi::xml_node& cp : xmlCurve.children( "controlPoint" ) )
+	{
+		(void)cp;
+		nControlPoints += 1;
+	}
+
+	//std::vector<spad::EtReadKey> keys(nControlPoints);
+	//size_t iKey = 0;
+	//for ( const pugi::xml_node& cp : xmlCurve.children( "controlPoint" ) )
+	//{
+	//	ReadCurveKey( cp, keys[iKey++] );
+	//}
+
+	std::vector<spad::EtKey> keys( nControlPoints );
+	size_t iKey = 0;
+	for ( const pugi::xml_node& cp : xmlCurve.children( "controlPoint" ) )
+	{
+		ReadCurveKey( cp, keys[iKey++] );
+	}
+
+	//return new spad::MayaAnimCurve( &keys[0], keys.size(), preInfinity, postInfinity, false );
+	return new spad::MayaAnimCurve( std::move(keys), preInfinity, postInfinity, false );
+}
+
+
 struct _Impl
 {
 	_Impl()
@@ -91,6 +214,10 @@ static const char* _GetParamTypeName( e_ParamType ptype )
 		return "color";
 	case eParamType_float4:
 		return "float4";
+	case eParamType_direction:
+		return "direction";
+	case eParamType_animCurve:
+		return "animCurve";
 	default:
 		return "unknown";
 	}
@@ -126,6 +253,13 @@ struct _GroupClientSide
 	// more data
 };
 
+// helper structure for working with AnimCurve
+struct _AnimCurveClientSide
+{
+	void* impl;
+};
+
+
 struct SettingsFileImpl
 {
 	std::string filename_;
@@ -136,6 +270,7 @@ struct SettingsFileImpl
 	{
 		~_Preset()
 		{
+			freeDynamicSettings( parent_->desc_, memory_ );
 			aligned_free( memory_ );
 		}
 
@@ -151,6 +286,11 @@ struct SettingsFileImpl
 		u8* absoluteAddress_ = nullptr;
 		std::vector < std::unique_ptr<_Struct> > nestedStructures_;
 		std::vector < std::unique_ptr<_Preset> > presets_;
+
+		~_Struct()
+		{
+			freeDynamicSettings( desc_, absoluteAddress_ );
+		}
 
 		_Struct* getNestedGroup( const char* name ) const
 		{
@@ -191,6 +331,32 @@ struct SettingsFileImpl
 	{
 	}
 
+	static void freeDynamicSettings( const StructDescription* desc, u8* absoluteAddress )
+	{
+		const FieldDescription* fields = desc->fields_;
+		for ( unsigned int ifield = 0; ifield < desc->nFields_; ++ifield )
+		{
+			const FieldDescription& f = fields[ifield];
+			if ( f.type_ == eParamType_string )
+			{
+				// string copy is always created, delete it when unloading
+				char** sval = reinterpret_cast<char**>( absoluteAddress + f.offset_ );
+				delete[]( *sval );
+			}
+			else if ( f.type_ == eParamType_animCurve )
+			{
+				// anim curve is dynamically created, release it when unloading
+				_AnimCurveClientSide* ac = reinterpret_cast<_AnimCurveClientSide*>( absoluteAddress + f.offset_ );
+				if ( ac->impl )
+				{
+					spad::MayaAnimCurve* mac = reinterpret_cast<spad::MayaAnimCurve*>( ac->impl );
+					delete mac;
+					ac->impl = nullptr;
+				}
+			}
+		}
+	}
+
 	bool findStruct( const char* structName, _Struct*& dstStruct )
 	{
 		std::string snLeft = structName;
@@ -209,25 +375,6 @@ struct SettingsFileImpl
 				snCur = snLeft.substr( 0, dotPos );
 				snLeft = snLeft.substr( dotPos + 1 );
 			}
-
-			//bool nestedFound = false;
-			//const u32 nNestedStructures = structure->desc_->nNestedStructures_;
-			//for (u32 inested = 0; inested < nNestedStructures; ++inested)
-			//{
-			//	const StructDescription* nsdesc = structure->desc_->nestedStructures_[inested];
-			//	if (snCur == nsdesc->name_)
-			//	{
-			//		structure = structure->nestedStructures_[inested].get();
-			//		nestedFound = true;
-			//		break;
-			//	}
-			//}
-
-			//if (!nestedFound)
-			//{
-			//	seLogError( "Structure '%s' not found!", snCur.c_str() );
-			//	return false;
-			//}
 
 			_Struct* nestedStructure = structure->getNestedGroup( snCur.c_str() );
 			if ( !nestedStructure )
@@ -288,15 +435,15 @@ struct SettingsFileImpl
 		{
 			u8* absoluteAddress = preset ? preset->memory_ : structure->absoluteAddress_;
 
-			if ( field->type_ == eParamType_int || field->type_ == eParamType_enum )
-			{
-				int* ival = reinterpret_cast<int*>( absoluteAddress + field->offset_ );
-				*ival = newValues[0];
-			}
-			else if ( field->type_ == eParamType_bool )
+			if ( field->type_ == eParamType_bool )
 			{
 				bool* bval = reinterpret_cast<bool*>( absoluteAddress + field->offset_ );
 				*bval = newValues[0] != 0;
+			}
+			else if ( field->type_ == eParamType_int || field->type_ == eParamType_enum )
+			{
+				int* ival = reinterpret_cast<int*>( absoluteAddress + field->offset_ );
+				*ival = newValues[0];
 			}
 			else
 			{
@@ -319,9 +466,7 @@ struct SettingsFileImpl
 
 			if ( field->type_ == eParamType_float )
 			{
-				seAssert( nNewValues == 2 );
-				// second value will be enabled flag, ignore it
-				//
+				seAssert( nNewValues == 1 );
 
 				float* fval = reinterpret_cast<float*>( absoluteAddress + field->offset_ );
 				*fval = newValues[0];
@@ -337,9 +482,20 @@ struct SettingsFileImpl
 			else if ( field->type_ == eParamType_float4 )
 			{
 				seAssert( nNewValues == 4 );
-				float* fval = reinterpret_cast<float*>( absoluteAddress + field->offset_ );
-				for ( int i = 0; i < 4; ++i )
-					fval[i] = newValues[i];
+				Float4* f4val = reinterpret_cast<Float4*>( absoluteAddress + field->offset_ );
+				f4val->set( newValues );
+			}
+			else if ( field->type_ == eParamType_color )
+			{
+				seAssert( nNewValues == 3 );
+				Color* cval = reinterpret_cast<Color*>( absoluteAddress + field->offset_ );
+				cval->set( newValues );
+			}
+			else if ( field->type_ == eParamType_direction )
+			{
+				seAssert( nNewValues == 3 );
+				Direction* cval = reinterpret_cast<Direction*>( absoluteAddress + field->offset_ );
+				cval->set( newValues );
 			}
 			else
 			{
@@ -366,6 +522,24 @@ struct SettingsFileImpl
 				char* str = new char[newValLen + 1];
 				strcpy( str, newVal );
 				*sval = str;
+			}
+			else if ( field->type_ == eParamType_animCurve )
+			{
+				pugi::xml_document doc;
+				pugi::xml_parse_result res = doc.load_buffer( newVal, strlen(newVal), pugi::parse_default );
+				if ( !res )
+					seLogError( "xml_document::load_buffer failed! %s, Err=%s", filename_.c_str(), res.description() );
+
+				pugi::xml_node curve = doc.child( "curve" );
+				if ( !curve.empty() )
+				{
+					spad::MayaAnimCurve* mac = ReadCurve( curve );
+
+					_AnimCurveClientSide* ac = reinterpret_cast<_AnimCurveClientSide*>( absoluteAddress + field->offset_ );
+					spad::MayaAnimCurve* oldMac = reinterpret_cast<spad::MayaAnimCurve*>( ac->impl );
+					delete oldMac;
+					ac->impl = mac;
+				}
 			}
 			else
 			{
@@ -401,18 +575,17 @@ struct SettingsFileImpl
 		}
 	}
 
-	int fillGroupOrPreset( const XMLElement* xmlGroupOrPreset, const _Struct* group, u8* groupOrPresetAddress )
+	int fillGroupOrPreset( const pugi::xml_node& xmlGroupOrPreset, const _Struct* group, u8* groupOrPresetAddress )
 	{
 		const u32 nParams = group->desc_->nFields_;
 		const FieldDescription* fields = group->desc_->fields_;
 
-		const XMLElement* xmlProp = NULL;
-		for ( xmlProp = xmlGroupOrPreset->FirstChildElement( "prop" ); xmlProp; xmlProp = xmlProp->NextSiblingElement( "prop" ) )
+		for ( const pugi::xml_node& xmlProp : xmlGroupOrPreset.children( "prop" ) )
 		{
-			const char* name = xmlProp->Attribute( "name" );
+			const char* name = spad::attribute_get_string( xmlProp, "name" );
 			if ( !name )
 			{
-				seLogError( "fillGroupOrPreset: Group must have 'name' attribute! Skipping... (%s)", filename_.c_str() );
+				seLogError( "fillGroupOrPreset: Property must have 'name' attribute! Skipping... (%s)", filename_.c_str() );
 				continue;
 			}
 
@@ -431,108 +604,67 @@ struct SettingsFileImpl
 
 				if ( ptype == eParamType_bool )
 				{
-					const char* attrValue = xmlProp->Attribute( "bval" );
-					//if ( !attrValue )
-					//	return -1;
-
-					bool bval = false;
-					if ( attrValue && !strcmp( attrValue, "true" ) )
-						bval = true;
-
+					pugi::xml_attribute attr = xmlProp.attribute( "bval" );
 					bool* addr = reinterpret_cast<bool*>( groupOrPresetAddress + field.offset_ );
-					*addr = bval;
+					*addr = attr.as_bool( false );
 				}
 				else if ( ptype == eParamType_int )
 				{
-					int ival = 0;
-					if ( xmlProp->QueryIntAttribute( "ival", &ival ) != XML_SUCCESS )
-					{
-						break;
-						//return -1;
-					}
-
+					pugi::xml_attribute attr = xmlProp.attribute( "ival" );
 					int* addr = reinterpret_cast<int*>( groupOrPresetAddress + field.offset_ );
-					*addr = ival;
+					*addr = attr.as_int( 0 );
 				}
 				else if ( ptype == eParamType_enum )
 				{
-					int ival = 0;
-					if ( xmlProp->QueryIntAttribute( "eval", &ival ) != XML_SUCCESS )
-					{
-						//return -1;
-						break;
-					}
-
+					pugi::xml_attribute attr = xmlProp.attribute( "eval" );
 					int* addr = reinterpret_cast<int*>( groupOrPresetAddress + field.offset_ );
-					*addr = ival;
+					*addr = attr.as_int( 0 );
 				}
 				else if ( ptype == eParamType_float )
 				{
-					float fval = 0;
-					if ( xmlProp->QueryFloatAttribute( "fval", &fval ) != XML_SUCCESS )
-					{
-						//return -1;
-						break;
-					}
-
-					//// there will be four floats: value, soft min, soft max, step
-					//// 
-					//std::stringstream ss( attrValue );
-					//float fval = 0;
-					//ss >> fval;
-
+					pugi::xml_attribute attr = xmlProp.attribute( "fval" );
 					float* addr = reinterpret_cast<float*>( groupOrPresetAddress + field.offset_ );
-					*addr = fval;
+					*addr = attr.as_float( 0.0f );
 				}
 				else if ( ptype == eParamType_floatBool )
 				{
-					//const char* attrValue = xmlGroupOrPreset->Attribute( pname );
-					//if ( !attrValue )
-					//	return -1;
-					float fval = 0;
-					if ( xmlProp->QueryFloatAttribute( "fval", &fval ) != XML_SUCCESS )
-					{
-						//return -1;
-						break;
-					}
-
-					const char* attrValue = xmlProp->Attribute( "checked" );
-					if ( !attrValue )
-					{
-						//return -1;
-						break;
-					}
-
-					bool bval = false;
-					if ( !strcmp( attrValue, "true" ) )
-						bval = true;
-
-					//// there will be four floats: value, soft min, soft max, step
-					//// 
-					//float fval, tmp, bval = 0;
-					//std::stringstream ss( attrValue );
-					//ss >> fval >> tmp >> tmp >> tmp >> bval;
-
+					pugi::xml_attribute fattr = xmlProp.attribute( "fval" );
+					pugi::xml_attribute battr = xmlProp.attribute( "checked" );
+					float fval = fattr.as_float( 0.0f );
+					bool bval = battr.as_bool( false );
 					FloatBool* addr = reinterpret_cast<FloatBool*>( groupOrPresetAddress + field.offset_ );
 					addr->value = fval;
 					addr->enabled = bval;
+				}
+				else if ( ptype == eParamType_float4 )
+				{
+					pugi::xml_attribute attr = xmlProp.attribute( "f4val" );
+					float f[4] = { 0, 0, 0, 0 };
+					if ( !attr.empty() )
+						spad::attribute_get_float_array( attr, f, 4 );
+					Float4* addr = reinterpret_cast<Float4*>( groupOrPresetAddress + field.offset_ );
+					addr->set( f );
+				}
+				else if ( ptype == eParamType_color )
+				{
+					pugi::xml_attribute attr = xmlProp.attribute( "colval" );
+					float f[3] = { 0, 0, 0 };
+					if ( !attr.empty() )
+						spad::attribute_get_float_array( attr, f, 3 );
+					Color* addr = reinterpret_cast<Color*>( groupOrPresetAddress + field.offset_ );
+					addr->set( f );
 				}
 				else if ( ptype == eParamType_string )
 				{
 					char** strBuf = reinterpret_cast<char**>( groupOrPresetAddress + field.offset_ );
 
-					const char* attrValue = xmlProp->Attribute( "sval" );
+					const char* attrValue = spad::attribute_get_string( xmlProp, "sval" );
 					if ( !attrValue )
 					{
-						// need to create src copy because new string will be placed exactly at the same memory location
-						// and will override old contents
-						//
-						const char* src = reinterpret_cast<const char*>( *strBuf );
-						size_t srcLen = strlen( src );
-						char* srcCopy = new char[srcLen + 1];
-						strcpy( srcCopy, src );
+						// empty string
+						char* srcCopy = new char[1];
+						srcCopy[0] = '\0';
 						*strBuf = srcCopy;
-						//continue;
 						break;
 					}
 
@@ -541,36 +673,25 @@ struct SettingsFileImpl
 					strcpy( attrValueCopy, attrValue );
 					*strBuf = attrValueCopy;
 				}
-				else if ( ptype == eParamType_float4 )
+				else if ( ptype == eParamType_direction )
 				{
-					const char* attrValue = xmlProp->Attribute( "f4val" );
-					if ( !attrValue )
-						//return -1;
-						break;
-
-					Float4* addr = reinterpret_cast<Float4*>( groupOrPresetAddress + field.offset_ );
-					addr->x = 0;
-					addr->y = 0;
-					addr->z = 0;
-					addr->w = 0;
-					sscanf( attrValue, "%f %f %f %f", &addr->x, &addr->y, &addr->z, &addr->w );
+					pugi::xml_attribute attr = xmlProp.attribute( "dirval" );
+					float f[3] = { 0, 0, 1 };
+					if ( !attr.empty() )
+						spad::attribute_get_float_array( attr, f, 3 );
+					Direction* addr = reinterpret_cast<Direction*>( groupOrPresetAddress + field.offset_ );
+					addr->set( f );
 				}
-				else if ( ptype == eParamType_color )
+				else if ( ptype == eParamType_animCurve )
 				{
-					int ival = 0;
-					if ( xmlProp->QueryIntAttribute( pname, &ival ) != XML_SUCCESS )
-						//return -1;
-						break;
-
-					Color* addr = reinterpret_cast<Color*>( groupOrPresetAddress + field.offset_ );
-					addr->r = (float)( ( ival >> 16 ) & 0xff ) * ( 1.0f / 255.0f );
-					addr->g = (float)( ( ival >> 8 ) & 0xff ) * ( 1.0f / 255.0f );
-					addr->b = (float)( ( ival ) & 0xff ) * ( 1.0f / 255.0f );
+					pugi::xml_node curve = xmlProp.child( "curve" );
+					_AnimCurveClientSide* ac = reinterpret_cast<_AnimCurveClientSide*>( groupOrPresetAddress + field.offset_ );
+					if ( !curve.empty() )
+						ac->impl = ReadCurve( curve );
 				}
 				else
 				{
 					seLogError( "initRecurse: unsupported setting type (%s)", filename_.c_str() );
-					//return -1;
 					break;
 				}
 
@@ -580,25 +701,23 @@ struct SettingsFileImpl
 			if ( !found )
 			{
 				seLogError( "fillGroupOrPreset: Can't find desc for '%s'! Skipping... (%s)", name, filename_.c_str() );
-				//continue;
 			}
 		}
 
 		return 0;
 	}
 
-	int initRecurse( const XMLElement* xmlGroup, _Struct* group )
+	int initRecurse( const pugi::xml_node& xmlGroup, _Struct* group )
 	{
 		// create and read presets first, so we can initialize them with group's default values
 		// after reading group, it's memory will be changed to match contents of a file
-		//_Struct* structure = parent->getNestedGroup( groupName );
-		//if (findStruct( groupName, structure ))
-		//{
-		const XMLElement* xmlPreset = NULL;
-		for ( xmlPreset = xmlGroup->FirstChildElement( "preset" ); xmlPreset; xmlPreset = xmlPreset->NextSiblingElement( "preset" ) )
+
+		for ( const pugi::xml_node& xmlPreset : xmlGroup.children( "preset" ) )
 		{
 			std::unique_ptr<_Preset> preset( new _Preset() );
-			preset->name_ = xmlPreset->Attribute( "presetName" );
+			pugi::xml_attribute attr = xmlPreset.attribute( "presetName" );
+			preset->name_ = attr.value();
+			FR_ASSERT( !preset->name_.empty() );
 			preset->parent_ = group;
 			preset->memory_ = reinterpret_cast<u8*>( aligned_malloc( group->desc_->sizeInBytes_, 16 ) );
 			// init preset to defaults (values declared in the struct)
@@ -616,11 +735,6 @@ struct SettingsFileImpl
 
 			group->presets_.push_back( std::move( preset ) );
 		}
-		//}
-		//else
-		//{
-		//	seLogError( "initRecurse: Group '%s' not found! It will have it's default values! (%s)", filename_.c_str() );
-		//}
 
 		int ires = fillGroupOrPreset( xmlGroup, group, group->absoluteAddress_ );
 		if ( ires )
@@ -630,10 +744,9 @@ struct SettingsFileImpl
 		}
 
 
-		const XMLElement* xmlGroupChild = NULL;
-		for ( xmlGroupChild = xmlGroup->FirstChildElement( "group" ); xmlGroupChild; xmlGroupChild = xmlGroupChild->NextSiblingElement( "group" ) )
+		for ( const pugi::xml_node& xmlGroupChild : xmlGroup.children( "group" ) )
 		{
-			const char* groupName = xmlGroupChild->Attribute( "name" );
+			const char* groupName = spad::attribute_get_string( xmlGroupChild, "name" );
 			if ( !groupName )
 			{
 				seLogError( "initRecurse: Group must have 'name' attribute! Skipping... (%s)", filename_.c_str() );
@@ -659,28 +772,22 @@ struct SettingsFileImpl
 		return 0;
 	}
 
-	int init( const StructDescription* rootStructDescription, const void* settingsBaseAddress[], const unsigned char* fileBuf, const size_t fileBufSize )
+	int init( const StructDescription* rootStructDescription, const void* settingsBaseAddress[], unsigned char* fileBuf, const size_t fileBufSize )
 	{
 		rootStruct_.reset( new _Struct() );
 		rootStruct_->desc_ = rootStructDescription;
 		rootStruct_->absoluteAddress_ = nullptr;
 		initStructures( *rootStruct_, reinterpret_cast<const u8**>( settingsBaseAddress ) );
 
-		tinyxml2::XMLDocument xmlDoc;
-		XMLError err = xmlDoc.Parse( reinterpret_cast<const char*>( fileBuf ), fileBufSize );
+		pugi::xml_document doc;
+		pugi::xml_parse_result res = doc.load_buffer_inplace( fileBuf, fileBufSize, pugi::parse_default );
+		if ( !res )
+			seLogError( "xml_document::load_buffer_inplace failed! %s, Err=%s", filename_.c_str(), res.description() );
 
-		if ( err != XML_SUCCESS )
-		{
-			seLogError( "XMLDocument::Parse failed! %s, Err=%d", filename_.c_str(), (int)err );
-			return -1;
-		}
-		else
-		{
-			const XMLElement* root = xmlDoc.RootElement();
-			int ires = initRecurse( root, rootStruct_.get() );
-			if ( ires )
-				goto init_error;
-		}
+		pugi::xml_node settingsFile = doc.first_child();
+		int ires = initRecurse( settingsFile, rootStruct_.get() );
+		if ( ires )
+			goto init_error;
 
 		// ok
 		//

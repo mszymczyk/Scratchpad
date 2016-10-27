@@ -8,7 +8,7 @@ namespace misz.Gui
     /// Edit button used to add "three dot button" on the right side of property to customize control or edit value.
     /// Copied from Sce.Atf.Controls.PropertyEditing.PropertyEditingControl
     /// </summary>
-    class EditButton : Button
+    public class EditButton : Button
     {
         public EditButton()
         {

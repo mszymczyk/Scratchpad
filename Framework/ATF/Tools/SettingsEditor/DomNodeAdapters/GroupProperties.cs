@@ -14,7 +14,7 @@ using misz.Gui;
 namespace SettingsEditor
 {
     /// <summary>
-    /// Provides property descriptors on DynamicProperties. Based on MaterialEditor's/CircuitEditor's ModuleProperties class. Work in progress...</summary>
+    /// Provides property descriptors on DynamicProperties. Based on MaterialEditor's/CircuitEditor's ModuleProperties class.</summary>
     public class GroupProperties : CustomTypeDescriptorNodeAdapter, IDynamicTypeDescriptor
     {
         /// <summary>
@@ -38,28 +38,17 @@ namespace SettingsEditor
                 Setting sett = child.Setting;
 
                 PropertyDescriptor newDescriptor = null;
-                if ( child.Setting is FloatSetting )
+                if ( child.Setting is BoolSetting )
                 {
-                    FloatSetting fsett = child.Setting as FloatSetting;
-
-                    object editor = new FlexibleFloatEditor(
-                        fsett.MinValue,
-                        fsett.MaxValue,
-                        fsett.HasCheckBox,
-                        Schema.dynamicPropertyType.minAttribute,
-                        Schema.dynamicPropertyType.maxAttribute,
-                        Schema.dynamicPropertyType.stepAttribute,
-                        Schema.dynamicPropertyType.extraNameAttribute,
-                        Schema.dynamicPropertyType.checkedAttribute
-                        );
+                    BoolSetting bsett = child.Setting as BoolSetting;
 
                     newDescriptor = CreateAttributePropertyDescriptor(
                         child
                         , group
-                        , Schema.dynamicPropertyType.fvalAttribute
+                        , Schema.dynamicPropertyType.bvalAttribute
                         , Schema.groupType.propChild
                         , childIndex
-                        , editor
+                        , new BoolEditor()
                         , null
                         );
                 }
@@ -74,20 +63,6 @@ namespace SettingsEditor
                         , Schema.groupType.propChild
                         , childIndex
                         , new BoundedIntEditor( isett.MinValue, isett.MaxValue )
-                        , null
-                        );
-                }
-                else if ( child.Setting is BoolSetting )
-                {
-                    BoolSetting bsett = child.Setting as BoolSetting;
-
-                    newDescriptor = CreateAttributePropertyDescriptor(
-                        child
-                        , group
-                        , Schema.dynamicPropertyType.bvalAttribute
-                        , Schema.groupType.propChild
-                        , childIndex
-                        , new BoolEditor()
                         , null
                         );
                 }
@@ -123,6 +98,65 @@ namespace SettingsEditor
                         , new IntEnumTypeConverter( enumNames, enumValues )
                         );
                 }
+                else if ( child.Setting is FloatSetting )
+                {
+                    FloatSetting fsett = child.Setting as FloatSetting;
+
+                    object editor = new FlexibleFloatEditor(
+                        fsett.MinValue,
+                        fsett.MaxValue,
+                        fsett.HasCheckBox
+                        //Schema.dynamicPropertyType.minAttribute,
+                        //Schema.dynamicPropertyType.maxAttribute,
+                        //Schema.dynamicPropertyType.stepAttribute,
+                        //Schema.dynamicPropertyType.extraNameAttribute,
+                        //Schema.dynamicPropertyType.checkedAttribute
+                        );
+
+                    //newDescriptor = CreateAttributePropertyDescriptor(
+                    newDescriptor = CreateFlexibleFloatAttributePropertyDescriptor(
+                        child
+                        , group
+                        , Schema.dynamicPropertyType.fvalAttribute
+                        , Schema.dynamicPropertyType.minAttribute
+                        , Schema.dynamicPropertyType.maxAttribute
+                        , Schema.dynamicPropertyType.stepAttribute
+                        , Schema.dynamicPropertyType.extraNameAttribute
+                        , Schema.dynamicPropertyType.checkedAttribute
+                        , Schema.groupType.propChild
+                        , childIndex
+                        , editor
+                        , null
+                        );
+                }
+                else if ( child.Setting is Float4Setting )
+                {
+                    Float4Setting fsett = child.Setting as Float4Setting;
+
+                    newDescriptor = CreateAttributePropertyDescriptor(
+                        child
+                        , group
+                        , Schema.dynamicPropertyType.f4valAttribute
+                        , Schema.groupType.propChild
+                        , childIndex
+                        , new NumericTupleEditor( typeof(float), new string[] { "X", "Y", "Z", "W" } )
+                        , null
+                        );
+                }
+                else if ( child.Setting is ColorSetting )
+                {
+                    ColorSetting isett = child.Setting as ColorSetting;
+
+                    newDescriptor = CreateAttributePropertyDescriptor(
+                        child
+                        , group
+                        , Schema.dynamicPropertyType.colvalAttribute
+                        , Schema.groupType.propChild
+                        , childIndex
+                        , new ColorPickerEditor()
+                        , new Float3ColorConverter() // what about gamma?
+                        );
+                }
                 else if ( child.Setting is StringSetting )
                 {
                     StringSetting ssett = child.Setting as StringSetting;
@@ -134,6 +168,20 @@ namespace SettingsEditor
                         , Schema.groupType.propChild
                         , childIndex
                         , null
+                        , null
+                        );
+                }
+                else if ( child.Setting is DirectionSetting )
+                {
+                    DirectionSetting ssett = child.Setting as DirectionSetting;
+
+                    newDescriptor = CreateAttributePropertyDescriptor(
+                        child
+                        , group
+                        , Schema.dynamicPropertyType.dirvalAttribute
+                        , Schema.groupType.propChild
+                        , childIndex
+                        , new DirectionPropertyEditor( D3DManipulator.Instance )
                         , null
                         );
                 }
@@ -155,6 +203,7 @@ namespace SettingsEditor
         /// and that can be permanently cached</summary>
         /// <remarks>Returning 'true' greatly improves performance.</remarks>
         public bool CacheableProperties { get { return false; } }
+        //public bool CacheableProperties { get { return true; } }
 
         static DynamicProperty FindDynamicProperty( Group group, string name )
         {
@@ -292,6 +341,55 @@ namespace SettingsEditor
                 );
             }
 
+            return apd;
+        }
+
+        static private AttributePropertyDescriptor CreateFlexibleFloatAttributePropertyDescriptor(
+                        DynamicProperty dp, Group group,
+                        AttributeInfo attributeInfo,
+                        AttributeInfo softMinAttribute,
+                        AttributeInfo softMaxAttribute,
+                        AttributeInfo stepAttribute,
+                        AttributeInfo extraNameAttribute,
+                        AttributeInfo checkedAttribute,
+                        ChildInfo ci, int childIndex, object editor, TypeConverter typeConverter
+            )
+        {
+            Setting sett = dp.Setting;
+
+            List<Tuple<DomNode, bool>> dependsOn = GetDependsOnListValidated( sett.DependsOn, group );
+            Group groupParent = group.DomNode.Parent.As<Group>();
+            if ( groupParent != null && sett.Group.ParentStructure != null && sett.Group.DependsOn != null )
+            {
+                List<Tuple<DomNode, bool>> structureDependsOn = GetDependsOnListValidated( sett.Group.DependsOn, groupParent );
+                dependsOn.AddRange( structureDependsOn );
+            }
+
+            dependsOn = dependsOn.Distinct().ToList();
+
+            string displayName = string.IsNullOrEmpty( dp.ExtraName ) ? sett.DisplayName : string.Format( "{0}({1})", sett.DisplayName, dp.ExtraName );
+
+            DependsOnNodes don = null;
+            if ( dependsOn.Count > 0 )
+                don = new DependsOnNodes( dependsOn );
+
+            AttributePropertyDescriptor apd = new FlexibleFloatChildAttributePropertyDescriptor(
+                    displayName,
+                    attributeInfo,
+                    softMinAttribute,
+                    softMaxAttribute,
+                    stepAttribute,
+                    extraNameAttribute,
+                    checkedAttribute,
+                    ci,
+                    childIndex,
+                    sett.Category,
+                    sett.HelpText,
+                    false,
+                    editor,
+                    typeConverter,
+                    don
+                );
             return apd;
         }
 

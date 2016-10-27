@@ -206,7 +206,12 @@ namespace SettingsEditor
 			writeBytes( m_memStream, bytes );
 		}
 
-		public byte[] getFinalByteStream()
+        public void appendBytes( byte[] bytes, int offset, int count )
+        {
+            writeBytes( m_memStream, bytes, offset, count );
+        }
+
+        public byte[] getFinalByteStream()
 		{
 			byte[] msgBytes = m_memStream.ToArray();
 			byte[] msgSizeBytes = toBytes( msgBytes.Length - 4 );
@@ -237,7 +242,12 @@ namespace SettingsEditor
 			ms.Write( bytes, 0, bytes.Length );
 		}
 
-		MemoryStream m_memStream;
+        private void writeBytes( MemoryStream ms, byte[] bytes, int offset, int count )
+        {
+            ms.Write( bytes, offset, count );
+        }
+
+        MemoryStream m_memStream;
 	}
 }
 

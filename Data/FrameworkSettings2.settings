@@ -2,30 +2,5 @@
 <settingsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" settingsDescFile="Framework\Core\FrameworkSettings\FrameworkSettings.cs" xmlns="SettingsEditor">
 	<group name="General">
 		<prop name="vsync" type="eval" eval="1" />
-		<group name="Inner" selectedPresetRef="InnerPreset_6">
-			<prop name="floatParam" type="fval" fval="1" max="1" step="0.01" extraName="ups" />
-			<prop name="boolParam" type="bval" bval="true" />
-			<prop name="intParam" type="ival" ival="1" />
-			<prop name="vsync2" type="eval" eval="3" />
-			<preset presetName="InnerPreset_4">
-				<prop name="floatParam" type="fval" fval="0.95" max="1" step="0.01" />
-				<prop name="boolParam" type="bval" bval="true" />
-				<prop name="intParam" type="ival" ival="2" />
-				<prop name="vsync2" type="eval" eval="3" />
-			</preset>
-			<preset presetName="InnerPreset_5">
-				<prop name="floatParam" type="fval" fval="1" max="1" step="0.01" />
-				<prop name="boolParam" type="bval" />
-				<prop name="intParam" type="ival" ival="4" />
-				<prop name="vsync2" type="eval" eval="3" />
-			</preset>
-			<preset presetName="InnerPreset_6">
-				<prop name="floatParam" type="fval" fval="0.95" max="1" step="0.01" />
-				<prop name="boolParam" type="bval" bval="true" />
-				<prop name="intParam" type="ival" ival="2" />
-				<prop name="vsync2" type="eval" eval="3" />
-			</preset>
-		</group>
-		<group name="SampleGroup" />
 	</group>
 </settingsFile>

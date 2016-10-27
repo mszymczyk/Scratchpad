@@ -36,6 +36,28 @@ namespace Sce.Atf.Controls.Adaptable.Graphs
         }
 
         /// <summary>
+        /// Constructor specifying circuit element type's attributes</summary>
+        /// <param name="name">Element type's name</param>
+        /// <param name="isConnector">Whether the element type is a connector</param>
+        /// <param name="image">Element type's image</param>
+        /// <param name="inputPins">Array of input pins</param>
+        /// <param name="outputPins">Array of output pins</param>
+        /// <param name="interiorSize">Element type's interior size</param>
+        public ElementType(
+            string name,
+            bool isConnector,
+            Image image,
+            ICircuitPin[] inputPins,
+            ICircuitPin[] outputPins,
+            Size interiorSize
+            )
+        {
+            Set( name, isConnector, new Size(), image, inputPins, outputPins );
+            m_interiorSize = interiorSize;
+            m_hasValidInteriorSize = true;
+        }
+
+        /// <summary>
         /// Sets circuit element type's attributes</summary>
         /// <param name="name">Element type's name</param>
         /// <param name="isConnector">Whether the element type is a connector</param>
@@ -81,7 +103,7 @@ namespace Sce.Atf.Controls.Adaptable.Graphs
         /// Gets desired size of element type's interior, in pixels</summary>
         public Size InteriorSize
         {
-            get { return (m_image != null) ? new Size(32, 32) : new Size(); }
+            get { return m_hasValidInteriorSize ? m_interiorSize : ((m_image != null) ? new Size( 32, 32 ) : new Size()); }
         }
 
         /// <summary>
@@ -173,7 +195,9 @@ namespace Sce.Atf.Controls.Adaptable.Graphs
         private ICircuitPin[] m_inputPins;
         private ICircuitPin[] m_outputPins;
         //private Size m_size;
+        private Size m_interiorSize;
         private Image m_image;
         private bool m_isConnector;
+        private bool m_hasValidInteriorSize;
     }
 }

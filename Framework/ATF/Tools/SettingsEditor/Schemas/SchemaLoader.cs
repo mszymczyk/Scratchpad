@@ -64,6 +64,12 @@ namespace SettingsEditor
                 //m_paramSchema.groupType.Type.Define( new ExtensionInfo<Group>() );
                 //m_paramSchema.presetType.Type.Define( new ExtensionInfo<Preset>() );
 
+                // curve
+                //
+                Schema.curveType.Type.Define( new ExtensionInfo<Curve>() );
+                Schema.curveType.Type.Define( new ExtensionInfo<CurveLimitValidator>() );
+                Schema.controlPointType.Type.Define( new ExtensionInfo<ControlPoint>() );
+
                 Schema.dynamicPropertyType.Type.Define( new ExtensionInfo<DynamicProperty>() );
 
                 Schema.groupType.Type.Define( new ExtensionInfo<GroupProperties>() );

@@ -7,6 +7,9 @@
 //#include <Gfx\Material\MaterialShaderFactory.h>
 #include <Gfx/Material/MaterialManager.h>
 
+#include <FrameworkSettings/FrameworkSettings_General.h>
+using namespace FrameworkSettingsNamespace;
+
 namespace spad
 {
 	using namespace FxLib;
@@ -116,6 +119,29 @@ namespace spad
 		materialShader_ = nullptr;
 		materialShaderInstance_ = nullptr;
 		MaterialManager::DeInitialize();
+	}
+
+	void DrawFrameworkSettingsText( Dx11DeviceContext& c, TextRenderer& tr )
+	{
+		tr.printfPN( c, 0.1f, 0.1f, 0xffffffff, 0.5f, "sample string: %s", gFrameworkSettings->mGeneral->sampleString );
+	}
+
+	void DrawFrameworkSettingsCurves( Dx11DeviceContext& c )
+	{
+		const SettingsEditor::AnimCurve& ac = gFrameworkSettings->mGeneral->mInner.animCurvePreset;
+		const u32 nSteps = 100;
+		std::vector<Vector3> verts;
+		verts.resize( nSteps );
+		float t = 0.0f;
+		float deltaStep = 1.0f / (nSteps-1);
+		for ( u32 i = 0; i < nSteps; ++i )
+		{
+			verts[i] = Vector3( t * 1.8f - 0.9f, ac.eval( t ) * 0.2f, 0.0f );;
+			t += deltaStep;
+		}
+
+		//debugDraw::AddLineListWS( std::move(verts), 0xff00ff00, 1.0f );
+		debugDraw::AddLineStripSS( std::move( verts ), 0xff00ff00, 1.0f );
 	}
 
 	void App::UpdateAndRender( const Timer& timer )
@@ -256,6 +282,8 @@ namespace spad
 		ViewFrustum shadowViewFrustum = extractFrustum( shadowCamera_.ViewProjectionMatrix(), true );
 		debugDraw::AddFrustum( shadowViewFrustum, 0xff0000ff, 1, true );
 
+		DrawFrameworkSettingsCurves( immediateContextWrapper );
+
 		debugDraw::DontTouchThis::Draw( immediateContextWrapper, camera_.ViewMatrix(), camera_.ProjectionMatrix() );
 		debugDraw::DontTouchThis::Clear();
 
@@ -272,6 +300,9 @@ namespace spad
 		//textRenderer_.printf( immediateContextWrapper, 
 		textRenderer_.printfPN(immediateContextWrapper, 0.92f, 0.01f, 0xffffffff, 0.5f
 			, "FPS: %3.1f", fpsCounter_.getFrameRate());
+
+		DrawFrameworkSettingsText( immediateContextWrapper, textRenderer_ );
+
 		textRenderer_.end( immediateContextWrapper );
 	}
 

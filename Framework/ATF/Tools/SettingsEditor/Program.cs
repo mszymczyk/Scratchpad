@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Sce.Atf;
 using Sce.Atf.Adaptation;
 using Sce.Atf.Applications;
+using Sce.Atf.Controls.CurveEditing;
 using Sce.Atf.Dom;
 
 using HelpAboutCommand = Sce.Atf.Applications.HelpAboutCommand;
@@ -30,18 +31,18 @@ namespace SettingsEditor
         /// <summary>
         /// The main entry point for the application.</summary>
         [STAThread]
-		static void Main( string[] args )
+        static void Main( string[] args )
         {
-			Globals.ParseCommandLine( args );
+            Globals.ParseCommandLine( args );
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             // Set up localization support early on, so that user-readable strings will be localized
             //  during the initialization phase below. Use XML files that are embedded resources.
-			//Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.CurrentCulture;
-			Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
-			Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+            //Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.CurrentCulture;
+            Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
             //Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.CurrentCulture;
 
             Localizer.SetStringLocalizer(new EmbeddedResourceStringLocalizer());
@@ -67,9 +68,9 @@ namespace SettingsEditor
                 typeof(StandardEditHistoryCommands),    // tracks document changes and updates main form title
                 typeof(HelpAboutCommand),               // Help -> About command
                 typeof(ContextRegistry),                // central context registry with change notification
-				typeof(SettingsPropertyEditor),                 // property grid for editing selected objects
-				//typeof(GridPropertyEditor),             // grid control for editing selected objects
-				typeof(PropertyEditingCommands),        // commands for PropertyEditor and GridPropertyEditor
+                typeof(SettingsPropertyEditor),                 // property grid for editing selected objects
+                typeof(GridPropertyEditor),             // grid control for editing selected objects
+                typeof(PropertyEditingCommands),        // commands for PropertyEditor and GridPropertyEditor
                 typeof(SettingsService),
                 typeof(PythonService),                  // scripting service for automated tests
                 typeof(ScriptConsole),                  // provides a dockable command console for entering Python commands
@@ -79,24 +80,28 @@ namespace SettingsEditor
                 typeof( StandardEditCommands ),           // standard Edit menu commands for copy/paste
 
                 typeof( DocumentRegistry ),               // central document registry with change notification
-				typeof( AutoDocumentService ),            // opens documents from last session, or creates a new document, on startup
-				typeof( RecentDocumentCommands ),         // standard recent document commands in File menu
-				typeof( StandardFileCommands ),           // standard File menu commands for New, Open, Save, SaveAs, Close
-				typeof( MainWindowTitleService ),         // tracks document changes and updates main form title
-				typeof( TabbedControlSelector ),          // enable ctrl-tab selection of documents and controls within the app
-				typeof( Outputs ),                        // passes messages to all IOutputWriter components
-				typeof( OutputService ),                  // rich text box for displaying error and warning messages. Implements IOutputWriter
-				typeof( DefaultTabCommands ),             // provides the default commands related to document tab Controls
+                typeof( AutoDocumentService ),            // opens documents from last session, or creates a new document, on startup
+                typeof( RecentDocumentCommands ),         // standard recent document commands in File menu
+                typeof( StandardFileCommands ),           // standard File menu commands for New, Open, Save, SaveAs, Close
+                typeof( MainWindowTitleService ),         // tracks document changes and updates main form title
+                typeof( TabbedControlSelector ),          // enable ctrl-tab selection of documents and controls within the app
+                typeof( Outputs ),                        // passes messages to all IOutputWriter components
+                typeof( OutputService ),                  // rich text box for displaying error and warning messages. Implements IOutputWriter
+                typeof( DefaultTabCommands ),             // provides the default commands related to document tab Controls
 
-				typeof( HistoryLister ),                  // visual list of undo/redo stack
-				typeof( FileWatcherService ),                // service to watch for changes to files
+                typeof( HistoryLister ),                  // visual list of undo/redo stack
+                typeof( FileWatcherService ),                // service to watch for changes to files
+                typeof( CurveEditor ),
+
                 typeof( ZMQHubService ),
                 //typeof( pico.Hub.HubService ),
 
                 typeof( SchemaLoader ),                   // component that loads XML schema and sets up types
                 typeof(Editor),                          // component that manages UI documents
-				typeof(Commands),
-                typeof(SettingsLister)
+                typeof(Commands),
+                typeof(SettingsLister),
+
+                typeof(D3DManipulator)
                 );
 
             // Set up the MEF container with these components
@@ -120,18 +125,18 @@ namespace SettingsEditor
             // batch.AddPart(new WebHelpCommands("https://github.com/SonyWWS/ATF/wiki/ATF-DOM-Tree-Editor-Sample".Localize()));
             container.Compose(batch);
 
-			// this will change available file commands
-			// must be called prior to initialization
-			//
-			StandardFileCommands standardFileCommands = container.GetExportedValue<StandardFileCommands>();
-			standardFileCommands.RegisterCommands = 
-				  StandardFileCommands.CommandRegister.FileNew
-				| StandardFileCommands.CommandRegister.FileOpen
-				//| FileSave
-				| StandardFileCommands.CommandRegister.FileSaveAs
-				//| FileSaveAll
-				| StandardFileCommands.CommandRegister.FileClose
-				;
+            // this will change available file commands
+            // must be called prior to initialization
+            //
+            StandardFileCommands standardFileCommands = container.GetExportedValue<StandardFileCommands>();
+            standardFileCommands.RegisterCommands = 
+                  StandardFileCommands.CommandRegister.FileNew
+                | StandardFileCommands.CommandRegister.FileOpen
+                //| FileSave
+                | StandardFileCommands.CommandRegister.FileSaveAs
+                //| FileSaveAll
+                | StandardFileCommands.CommandRegister.FileClose
+                ;
 
             // Initialize components that require it. Initialization often can't be done in the constructor,
             //  or even after imports have been satisfied by MEF, since we allow circular dependencies between
@@ -139,10 +144,9 @@ namespace SettingsEditor
             //  until all MEF composition has been completed.
             container.InitializeAll();
 
-			//var propEditor = container.GetExportedValue<PropertyEditor>();
-			//propEditor.PropertyGrid.PropertySorting = Sce.Atf.Controls.PropertyEditing.PropertySorting.Categorized;
-			//// Show the main form and start message handling. The main Form Load event provides a final chance
-			////  for components to perform initialization and configuration.
+            CurveEditor curveEditor = container.GetExportedValue<CurveEditor>();
+            curveEditor.Control.CurvesChanged += ( sender, e ) => curveEditor.Control.FitAll();
+
             Application.Run(mainForm);
 
             // Give components a chance to clean up.

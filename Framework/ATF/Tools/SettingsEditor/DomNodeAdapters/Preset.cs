@@ -50,8 +50,10 @@ namespace SettingsEditor
         /// Gets and sets the Preset's name</summary>
         public string PresetName
         {
-            get { return (string)DomNode.GetAttribute( Schema.presetType.presetNameAttribute ); }
-            set { DomNode.SetAttribute( Schema.presetType.presetNameAttribute, value ); }
+            //get { return (string)DomNode.GetAttribute( Schema.presetType.presetNameAttribute ); }
+            //set { DomNode.SetAttribute( Schema.presetType.presetNameAttribute, value ); }
+            get { return (string)DomNode.GetAttribute( Schema.groupType.nameAttribute ); }
+            set { DomNode.SetAttribute( Schema.groupType.nameAttribute, value ); }
         }
     }
 }

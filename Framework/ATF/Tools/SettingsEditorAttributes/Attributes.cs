@@ -4,19 +4,51 @@ using System.Collections.Generic;
 
 namespace SettingsEditor
 {
-    //public struct Direction
-    //{
-    //	public float X;
-    //	public float Y;
-    //	public float Z;
+    public struct Direction
+    {
+        public float X { get; private set; }
+        public float Y { get; private set; }
+        public float Z { get; private set; }
 
-    //	public Direction( float x, float y, float z )
-    //	{
-    //		X = x;
-    //		Y = y;
-    //		Z = z;
-    //	}
-    //}
+        public Direction( float x, float y, float z, bool normalize = false )
+        {
+            X = x;
+            Y = y;
+            Z = z;
+
+            if ( normalize )
+                Normalize();
+        }
+
+        public Direction( float[] f, bool normalize = false )
+        {
+            X = f[0];
+            Y = f[1];
+            Z = f[2];
+
+            if ( normalize )
+                Normalize();
+        }
+
+        public Direction( Direction other )
+        {
+            X = other.X;
+            Y = other.Y;
+            Z = other.Z;
+        }
+
+        public void Normalize()
+        {
+            float len = (float)Math.Sqrt( X * X + Y * Y + Z * Z );
+            if ( len > 0.00001f )
+            {
+                float lenRcp = 1.0f / len;
+                X *= lenRcp;
+                Y *= lenRcp;
+                Z *= lenRcp;
+            }
+        }
+    }
 
     public struct Color
     {
@@ -29,6 +61,20 @@ namespace SettingsEditor
             R = r;
             G = g;
             B = b;
+        }
+
+        public Color( float[] rgb )
+        {
+            R = rgb[0];
+            G = rgb[1];
+            B = rgb[2];
+        }
+
+        public Color( Color other )
+        {
+            R = other.R;
+            G = other.G;
+            B = other.B;
         }
     }
 
@@ -64,8 +110,28 @@ namespace SettingsEditor
             Z = z;
             W = w;
         }
+
+        public Float4( float[] f )
+        {
+            X = f[0];
+            Y = f[1];
+            Z = f[2];
+            W = f[3];
+        }
+
+        public Float4( Float4 other )
+        {
+            X = other.X;
+            Y = other.Y;
+            Z = other.Z;
+            W = other.W;
+        }
     }
 
+
+    public struct AnimCurve
+    {
+    }
 
     [AttributeUsage( AttributeTargets.Field, Inherited = false, AllowMultiple = false )]
     public class CategoryAttribute : Attribute

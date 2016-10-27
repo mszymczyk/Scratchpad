@@ -23,7 +23,7 @@
     <ClInclude Include="FrameworkSettings_pch.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{82227082-8738-4D1D-9945-37B95F7DC29C}</ProjectGuid>
+    <ProjectGuid>{88828411-57A9-41EB-9E9F-378FF49C2174}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>FrameworkSettings</RootNamespace>
   </PropertyGroup>

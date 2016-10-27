@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Sce.Atf.Dom;
 using Sce.Atf.Adaptation;
+using Sce.Atf.Controls.CurveEditing;
+using System;
 
 namespace SettingsEditor
 {
@@ -8,7 +10,7 @@ namespace SettingsEditor
     /// Adapts DomNode to a Group
     /// Name 'Group' relates directly to c++ struct that's being generated for this node.
     /// </summary>
-    public class Group : DomNodeAdapter
+    public class Group : DomNodeAdapter, ICurveSet
     {
         /// <summary>
         /// Gets or sets the referenced UI object</summary>
@@ -70,6 +72,20 @@ namespace SettingsEditor
                 }
 
                 return name;
+            }
+        }
+
+        public IList<ICurve> Curves
+        {
+            get
+            {
+                List<ICurve> curves = new List<ICurve>();
+                foreach( DynamicProperty dp in Properties )
+                {
+                    if ( dp.PropertyType == SettingType.AnimCurve )
+                        curves.Add( dp.AnimCurveValue );
+                }
+                return curves;
             }
         }
     }

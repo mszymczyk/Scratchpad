@@ -19,6 +19,7 @@ namespace SettingsEditor
     [Export( typeof( IInitializable ) )]
     [Export( typeof( IControlHostClient ) )]
     [Export( typeof( SettingsPropertyEditor ) )]
+    [Export( typeof( PropertyEditor ) )]
     [PartCreationPolicy( CreationPolicy.Any )]
     // Demonstrates using tooltips instead of an embedded Control to display property descriptions.
     public class SettingsPropertyEditor : PropertyEditor

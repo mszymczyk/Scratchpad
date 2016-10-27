@@ -271,6 +271,66 @@ namespace CircuitEditorSample
             return domNodeType;
         }
 
+        /// <summary>
+        /// Prepare metadata for the module type, to be used by the palette and circuit drawing engine</summary>
+        /// <param name="name"> Schema full name of the DomNodeType for the module type</param>
+        /// <param name="displayName">Display name for the module type</param>
+        /// <param name="description"></param>
+        /// <param name="imageName">Image name </param>
+        /// <param name="inputs">Define input pins for the module type</param>
+        /// <param name="outputs">Define output pins for the module type</param>
+        /// <param name="loader">XML schema loader </param>
+        /// <param name="domNodeType">optional DomNode type for the module type</param>
+        /// <returns>DomNodeType that was created (or the domNodeType parameter, if it wasn't null)</returns>
+        protected static DomNodeType DefineModuleType2(
+            XmlQualifiedName name,
+            string displayName,
+            string description,
+            string imageName,
+            Size interiorSize,
+            ICircuitPin[] inputs,
+            ICircuitPin[] outputs,
+            string paletteCategory = null,
+            DomNodeType baseType = null,
+            SchemaLoader schemaLoader = null,
+            DomNodeType domNodeType = null )
+        {
+            if ( domNodeType == null )
+                // create the type
+                domNodeType = new DomNodeType(
+                name.ToString(),
+                Schema.moduleType.Type,
+                EmptyArray<AttributeInfo>.Instance,
+                EmptyArray<ChildInfo>.Instance,
+                EmptyArray<ExtensionInfo>.Instance );
+
+            DefineCircuitType2( domNodeType, displayName, imageName, inputs, outputs, interiorSize );
+
+            if ( schemaLoader == null )
+                schemaLoader = s_schemaLoader;
+
+            // add it to the schema-defined types
+            schemaLoader.AddNodeType( name.ToString(), domNodeType );
+
+            // add the type to the palette
+            s_paletteService.AddItem(
+                new NodeTypePaletteItem(
+                    domNodeType,
+                    displayName,
+                    description,
+                    imageName ),
+                PaletteCategory,
+                s_paletteClient );
+
+            if ( domNodeType.GetTagLocal<PropertyDescriptorCollection>() == null )
+            {
+                PropertyDescriptorCollection pdc = new PropertyDescriptorCollection( null );
+                domNodeType.SetTag( pdc );
+            }
+
+            return domNodeType;
+        }
+
         public static AttributeInfo CreateBoundedIntAttribute( DomNodeType dnt, string name, int defaultValue, int minValue, int maxValue, string uiCategory, string uiName, string uiDesc )
         {
             XmlAttributeType attributeType = new XmlAttributeType( "http://www.w3.org/2001/XMLSchema:int", typeof( System.Int32 ), 1, System.Xml.Schema.XmlTypeCode.Int );
@@ -407,6 +467,29 @@ namespace CircuitEditorSample
                     image,
                     inputs,
                     outputs ) );
+        }
+
+        private static void DefineCircuitType2(
+            DomNodeType type,
+            string elementTypeName,
+            string imageName,
+            ICircuitPin[] inputs,
+            ICircuitPin[] outputs,
+            Size interiorSize )
+        {
+            // create an element type and add it to the type metadata
+            // For now, let all circuit elements be used as 'connectors' which means
+            //  that their pins will be used to create the pins on a master instance.
+            bool isConnector = true; //(inputs.Length + outputs.Length) == 1;
+            var image = string.IsNullOrEmpty( imageName ) ? null : ResourceUtil.GetImage32( imageName );
+            type.SetTag<ICircuitElementType>(
+                new ElementType(
+                    elementTypeName,
+                    isConnector,
+                    image,
+                    inputs,
+                    outputs,
+                    interiorSize ) );
         }
 
         internal static void _Setup( IPaletteService paletteService, IPaletteClient paletteClient, SchemaLoader schemaLoader )

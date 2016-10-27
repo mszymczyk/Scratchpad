@@ -49,16 +49,41 @@ namespace SettingsEditor
             dynamicPropertyType.evalAttribute = dynamicPropertyType.Type.GetAttributeInfo("eval");
             dynamicPropertyType.svalAttribute = dynamicPropertyType.Type.GetAttributeInfo("sval");
             dynamicPropertyType.f4valAttribute = dynamicPropertyType.Type.GetAttributeInfo("f4val");
+            dynamicPropertyType.dirvalAttribute = dynamicPropertyType.Type.GetAttributeInfo("dirval");
+            dynamicPropertyType.colvalAttribute = dynamicPropertyType.Type.GetAttributeInfo("colval");
             dynamicPropertyType.minAttribute = dynamicPropertyType.Type.GetAttributeInfo("min");
             dynamicPropertyType.maxAttribute = dynamicPropertyType.Type.GetAttributeInfo("max");
             dynamicPropertyType.stepAttribute = dynamicPropertyType.Type.GetAttributeInfo("step");
             dynamicPropertyType.extraNameAttribute = dynamicPropertyType.Type.GetAttributeInfo("extraName");
             dynamicPropertyType.checkedAttribute = dynamicPropertyType.Type.GetAttributeInfo("checked");
+            dynamicPropertyType.curveChild = dynamicPropertyType.Type.GetChildInfo("curve");
+
+            curveType.Type = getNodeType("SettingsEditor", "curveType");
+            curveType.nameAttribute = curveType.Type.GetAttributeInfo("name");
+            curveType.displayNameAttribute = curveType.Type.GetAttributeInfo("displayName");
+            curveType.minXAttribute = curveType.Type.GetAttributeInfo("minX");
+            curveType.maxXAttribute = curveType.Type.GetAttributeInfo("maxX");
+            curveType.minYAttribute = curveType.Type.GetAttributeInfo("minY");
+            curveType.maxYAttribute = curveType.Type.GetAttributeInfo("maxY");
+            curveType.preInfinityAttribute = curveType.Type.GetAttributeInfo("preInfinity");
+            curveType.postInfinityAttribute = curveType.Type.GetAttributeInfo("postInfinity");
+            curveType.colorAttribute = curveType.Type.GetAttributeInfo("color");
+            curveType.xLabelAttribute = curveType.Type.GetAttributeInfo("xLabel");
+            curveType.yLabelAttribute = curveType.Type.GetAttributeInfo("yLabel");
+            curveType.controlPointChild = curveType.Type.GetChildInfo("controlPoint");
+
+            controlPointType.Type = getNodeType("SettingsEditor", "controlPointType");
+            controlPointType.xAttribute = controlPointType.Type.GetAttributeInfo("x");
+            controlPointType.yAttribute = controlPointType.Type.GetAttributeInfo("y");
+            controlPointType.tangentInAttribute = controlPointType.Type.GetAttributeInfo("tangentIn");
+            controlPointType.tangentInTypeAttribute = controlPointType.Type.GetAttributeInfo("tangentInType");
+            controlPointType.tangentOutAttribute = controlPointType.Type.GetAttributeInfo("tangentOut");
+            controlPointType.tangentOutTypeAttribute = controlPointType.Type.GetAttributeInfo("tangentOutType");
+            controlPointType.brokenTangentsAttribute = controlPointType.Type.GetAttributeInfo("brokenTangents");
 
             presetType.Type = getNodeType("SettingsEditor", "presetType");
             presetType.nameAttribute = presetType.Type.GetAttributeInfo("name");
             presetType.selectedPresetRefAttribute = presetType.Type.GetAttributeInfo("selectedPresetRef");
-            presetType.presetNameAttribute = presetType.Type.GetAttributeInfo("presetName");
             presetType.propChild = presetType.Type.GetChildInfo("prop");
             presetType.presetChild = presetType.Type.GetChildInfo("preset");
             presetType.groupChild = presetType.Type.GetChildInfo("group");
@@ -95,11 +120,43 @@ namespace SettingsEditor
             public static AttributeInfo evalAttribute;
             public static AttributeInfo svalAttribute;
             public static AttributeInfo f4valAttribute;
+            public static AttributeInfo dirvalAttribute;
+            public static AttributeInfo colvalAttribute;
             public static AttributeInfo minAttribute;
             public static AttributeInfo maxAttribute;
             public static AttributeInfo stepAttribute;
             public static AttributeInfo extraNameAttribute;
             public static AttributeInfo checkedAttribute;
+            public static ChildInfo curveChild;
+        }
+
+        public static class curveType
+        {
+            public static DomNodeType Type;
+            public static AttributeInfo nameAttribute;
+            public static AttributeInfo displayNameAttribute;
+            public static AttributeInfo minXAttribute;
+            public static AttributeInfo maxXAttribute;
+            public static AttributeInfo minYAttribute;
+            public static AttributeInfo maxYAttribute;
+            public static AttributeInfo preInfinityAttribute;
+            public static AttributeInfo postInfinityAttribute;
+            public static AttributeInfo colorAttribute;
+            public static AttributeInfo xLabelAttribute;
+            public static AttributeInfo yLabelAttribute;
+            public static ChildInfo controlPointChild;
+        }
+
+        public static class controlPointType
+        {
+            public static DomNodeType Type;
+            public static AttributeInfo xAttribute;
+            public static AttributeInfo yAttribute;
+            public static AttributeInfo tangentInAttribute;
+            public static AttributeInfo tangentInTypeAttribute;
+            public static AttributeInfo tangentOutAttribute;
+            public static AttributeInfo tangentOutTypeAttribute;
+            public static AttributeInfo brokenTangentsAttribute;
         }
 
         public static class presetType
@@ -107,7 +164,6 @@ namespace SettingsEditor
             public static DomNodeType Type;
             public static AttributeInfo nameAttribute;
             public static AttributeInfo selectedPresetRefAttribute;
-            public static AttributeInfo presetNameAttribute;
             public static ChildInfo propChild;
             public static ChildInfo presetChild;
             public static ChildInfo groupChild;

@@ -876,19 +876,25 @@ namespace Sce.Atf.Controls.Adaptable.Graphs
                 }
             }
 
-            Image image = type.Image;
-            if (image != null)
+            if ( element.Is<ID2dCircuitElementRenderer>() )
             {
-                var bitMap = m_theme.GetBitmap(type);
-                if (bitMap == null)
+                ID2dCircuitElementRenderer elementRenderer = element.Cast<ID2dCircuitElementRenderer>();
+                elementRenderer.DrawInterior( element, g, new RectangleF( p.X + info.Interior.X, p.Y + info.Interior.Y, info.Interior.Width, info.Interior.Height ) );
+            }
+            else
+            {
+                Image image = type.Image;
+                if ( image != null )
                 {
-                    m_theme.RegisterBitmap(type, image);
-                    bitMap = m_theme.GetBitmap(type);
+                    var bitMap = m_theme.GetBitmap( type );
+                    if ( bitMap == null )
+                    {
+                        m_theme.RegisterBitmap( type, image );
+                        bitMap = m_theme.GetBitmap( type );
+                    }
+                    if ( bitMap != null )
+                        g.DrawBitmap( bitMap, new RectangleF( p.X + info.Interior.X, p.Y + info.Interior.Y, info.Interior.Width, info.Interior.Height ), 1, D2dBitmapInterpolationMode.Linear );
                 }
-                if (bitMap != null)
-                    g.DrawBitmap(bitMap, new RectangleF(p.X + info.Interior.X, p.Y + info.Interior.Y, info.Interior.Width, info.Interior.Height), 1, D2dBitmapInterpolationMode.Linear);
-
-                //g.DrawRectangle( new RectangleF( p.X + info.Interior.X, p.Y + info.Interior.Y, info.Interior.Width, info.Interior.Height ), Color.Red );
             }
 
             if (drawText)

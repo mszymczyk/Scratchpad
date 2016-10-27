@@ -125,7 +125,7 @@ namespace misz.Gui
             get { return m_softMin; }
             set
             {
-                if ( value >= m_softMax )
+                if ( value > m_softMax )
                     throw new ArgumentException( "SoftMin" );
                 m_softMin = MathUtil.Max<float>( value, m_min );
                 if ( m_value < m_softMin )
@@ -141,7 +141,7 @@ namespace misz.Gui
             get { return m_softMax; }
             set
             {
-                if ( value <= m_softMin )
+                if ( value < m_softMin )
                     throw new ArgumentException( "SoftMax" );
                 m_softMax = MathUtil.Min<float>( value, m_max );
                 if ( m_value > m_softMax )

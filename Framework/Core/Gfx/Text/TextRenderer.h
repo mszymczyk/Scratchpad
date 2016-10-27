@@ -26,7 +26,7 @@ public:
 	//bool getKerning() const { return enableKerning_; }
 	//void printf( GdiCommandQueue* gdiContext, float x, float y, const char* format, ... );
 
-	void begin( Dx11DeviceContext& deviceContext, const BMFont* bmFont, u32 displayWidth, u32 displayHeight );
+	void begin( Dx11DeviceContext& deviceContext, const BMFont* bmFont, u32 canvasWidth, u32 canvasHeight );
 	void end( Dx11DeviceContext& deviceContext );
 	void printf( Dx11DeviceContext& deviceContext, float x, float y, u32 colorABGR, float fontScale, const char* format, ... );
 
@@ -35,6 +35,10 @@ public:
 	void printfPN( Dx11DeviceContext& deviceContext, float x01, float y01, u32 colorABGR, float fontScale, const char* format, ... );
 	//void puts( GdiCommandQueue* gdiContext, float x, float y, const char* text );
 	//void puts( GdiCommandQueue* gdiContext, float x, float y, u32 colorABGR, float fontSize, const char* text );
+
+	const BMFont* getCurrentFont() const { return currentFont_; }
+	u32 getCanvasWidth() const { return canvasWidth_; }
+	u32 getCanvasHeight() const { return canvasHeight_; }
 
 protected:
 
@@ -47,6 +51,8 @@ protected:
 	IndexBuffer indices_ = IndexBuffer( "TextRendererIndices" );
 	ConstantBuffer<CbTextRendererConstants> textRendererConstants_;
 	const BMFont* currentFont_ = nullptr;
+	u32 canvasWidth_ = 0;
+	u32 canvasHeight_ = 0;
 	//u32 colorABGR_;
 	//float fontSize_;
 	bool enableKerning_ = false;

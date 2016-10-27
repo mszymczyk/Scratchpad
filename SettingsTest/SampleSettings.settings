@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settingsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" settingsDescFile="SettingsTest\SampleSettings\SampleSettings.cs" xmlns="SettingsEditor">
+	<group name="Group">
+		<prop name="vsync" type="eval" eval="1" />
+		<prop name="sampleFloat" type="fval" fval="3" min="-2" max="10" step="0.12" />
+		<prop name="checkFloat" type="fval" fval="1" min="-1" max="1" step="0.02" checked="true" />
+		<prop name="color" type="colval" colval="0.0431372561 1 0.0196078438" />
+		<prop name="sampleString" type="sval" sval="tempo" />
+		<prop name="sampleDir" type="dirval" dirval="0.4040146 0.7957078 0.451244116" />
+		<prop name="animCurve" type="curve">
+			<curve name="animCurve" displayName="FaderValue:animCurve" minX="0" maxX="1" minY="0" maxY="1" preInfinity="Constant" postInfinity="Constant" xLabel="Time" yLabel="Value">
+				<controlPoint tangentIn="0.120129548 0.9927582" tangentInType="Spline" tangentOut="0.120129548 0.9927582" tangentOutType="Spline" />
+				<controlPoint x="0.07836908" y="0.6476471" tangentIn="0.4008923 0.9161252" tangentInType="Spline" tangentOut="0.400892317 0.916125238" tangentOutType="Spline" />
+				<controlPoint x="0.128704578" y="0.294117659" tangentIn="0.9369825 -0.34937638" tangentInType="Spline" tangentOut="0.9369825 -0.3493764" tangentOutType="Spline" />
+				<controlPoint x="0.29765147" y="0.5658824" tangentIn="0.997019351 0.07715108" tangentInType="Spline" tangentOut="0.9970194 0.07715108" tangentOutType="Spline" />
+				<controlPoint x="0.584808946" y="0.3294118" tangentIn="0.182512373 0.98320353" tangentInType="Fixed" tangentOut="0.182512373 0.98320353" tangentOutType="Fixed" />
+				<controlPoint x="1" y="1" tangentIn="0.5264142 0.85022825" tangentInType="Spline" tangentOut="0.5264142 0.85022825" tangentOutType="Spline" />
+			</curve>
+		</prop>
+		<group name="Inner" selectedPresetRef="Preset1">
+			<prop name="boolParam" type="bval" bval="true" />
+			<prop name="intParam" type="ival" ival="1" />
+			<prop name="enumParam" type="eval" />
+			<prop name="floatParam" type="fval" fval="0.790000141" max="1" step="0.01" />
+			<prop name="float4Param" type="f4val" f4val="1 2 3 4" />
+			<prop name="color" type="colval" colval="1 0 0" />
+			<prop name="animCurve" type="curve">
+				<curve name="animCurve" displayName="Curve:animCurve" minX="0" maxX="1" minY="0" maxY="1" preInfinity="Constant" postInfinity="Constant" xLabel="Time" yLabel="Value">
+					<controlPoint tangentIn="0.30518803 0.952292144" tangentInType="Spline" tangentOut="0.30518803 0.952292144" tangentOutType="Spline" />
+					<controlPoint x="0.222637475" y="0.694705844" tangentIn="0.996019065 0.08914057" tangentInType="Spline" tangentOut="0.996019065 0.08914057" tangentOutType="Spline" />
+					<controlPoint x="0.2629077" y="0.0235294141" tangentIn="0.996866345 -0.07910385" tangentInType="Spline" tangentOut="0.9968664 -0.07910385" tangentOutType="Spline" />
+					<controlPoint x="0.66" y="0.66" tangentIn="0.602476358 0.7981368" tangentInType="Spline" tangentOut="0.6024763 0.7981367" tangentOutType="Spline" />
+					<controlPoint x="1" y="1" tangentIn="0.707106769 0.707106769" tangentInType="Spline" tangentOut="0.707106769 0.707106769" tangentOutType="Spline" />
+				</curve>
+			</prop>
+			<prop name="stringParam" type="sval" sval="config.txt" />
+			<preset name="Preset0">
+				<prop name="boolParam" type="bval" />
+				<prop name="intParam" type="ival" ival="49" />
+				<prop name="enumParam" type="eval" />
+				<prop name="floatParam" type="fval" fval="0.3200002" max="0.75" step="0.01" />
+				<prop name="float4Param" type="f4val" f4val="1 2 3 4" />
+				<prop name="color" type="colval" colval="0 1 0.0235294141" />
+				<prop name="animCurve" type="curve">
+					<curve name="animCurve" displayName="Curve:animCurve" minX="0" maxX="1" minY="0" maxY="1" preInfinity="Constant" postInfinity="Constant" xLabel="Time" yLabel="Value">
+						<controlPoint tangentIn="0.206879377 0.9783665" tangentInType="Spline" tangentOut="0.206879377 0.9783665" tangentOutType="Spline" />
+						<controlPoint x="0.21145387" y="1" tangentIn="0.9525824 0.3042806" tangentInType="Spline" tangentOut="0.9525824 0.3042806" tangentOutType="Spline" />
+						<controlPoint x="0.6298043" y="0.201176524" tangentIn="1 0" tangentInType="Spline" tangentOut="1 0" tangentOutType="Spline" />
+						<controlPoint x="1" y="1" tangentIn="0.4204696 0.9073066" tangentInType="Spline" tangentOut="0.4204696 0.9073066" tangentOutType="Spline" />
+					</curve>
+				</prop>
+				<prop name="stringParam" type="sval" sval="sample.txt" />
+			</preset>
+			<preset name="Preset1">
+				<prop name="boolParam" type="bval" bval="true" />
+				<prop name="intParam" type="ival" ival="1" />
+				<prop name="enumParam" type="eval" />
+				<prop name="floatParam" type="fval" fval="0.790000141" max="1" step="0.01" extraName="tmp" />
+				<prop name="float4Param" type="f4val" f4val="1 2 3 4" />
+				<prop name="color" type="colval" colval="1 0 0" />
+				<prop name="animCurve" type="curve">
+					<curve name="animCurve" displayName="Curve:animCurve" minX="0" maxX="1" minY="0" maxY="1" preInfinity="Constant" postInfinity="Constant" xLabel="Time" yLabel="Value">
+						<controlPoint tangentIn="0.30518803 0.952292144" tangentInType="Spline" tangentOut="0.30518803 0.952292144" tangentOutType="Spline" />
+						<controlPoint x="0.222637475" y="0.694705844" tangentIn="0.996019065 0.08914057" tangentInType="Spline" tangentOut="0.996019065 0.08914057" tangentOutType="Spline" />
+						<controlPoint x="0.2629077" y="0.0235294141" tangentIn="0.996866345 -0.07910385" tangentInType="Spline" tangentOut="0.9968664 -0.07910385" tangentOutType="Spline" />
+						<controlPoint x="0.66" y="0.66" tangentIn="0.602476358 0.7981368" tangentInType="Spline" tangentOut="0.6024763 0.7981367" tangentOutType="Spline" />
+						<controlPoint x="1" y="1" tangentIn="0.707106769 0.707106769" tangentInType="Spline" tangentOut="0.707106769 0.707106769" tangentOutType="Spline" />
+					</curve>
+				</prop>
+				<prop name="stringParam" type="sval" sval="config.txt" />
+			</preset>
+		</group>
+		<group name="SampleGroup" />
+	</group>
+</settingsFile>

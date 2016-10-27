@@ -393,9 +393,7 @@ namespace CircuitEditorSample
                     new Size(),
                     image,
                     inputs,
-                    outputs));
-
-
+                    outputs ) );
         }
     }
 }

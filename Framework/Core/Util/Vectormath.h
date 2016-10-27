@@ -339,6 +339,44 @@ namespace spad
 		return Matrix3( x, y, n );
 	}
 
+	// provided vector will be x axis of the frame
+	//
+	inline Matrix3 createBasisXAxis( const Vector3& n )
+	{
+		// http://orbit.dtu.dk/fedora/objects/orbit:113874/datastreams/file_75b66578-222e-4c7d-abdf-f7e255100209/content
+		//
+		if ( n.getZ().getAsFloat() < -0.9999999f )
+		{
+			return Matrix3( Vector3( 0.f, -1.f, 0.f ), Vector3( -1.f, 0.f, 0.f ), n );
+		}
+
+		const floatInVec oneInVec( 1.0f );
+		const floatInVec a = oneInVec / ( oneInVec + n.getZ() );
+		const floatInVec b = -n.getX()*n.getY()*a;
+		const Vector3 x = Vector3( oneInVec - n.getX()*n.getX()*a, b, -n.getX() );
+		const Vector3 y = Vector3( b, oneInVec - n.getY()*n.getY()*a, -n.getY() );
+		return Matrix3( n, y, -x );
+	}
+
+	// provided vector will be y axis of the frame
+	//
+	inline Matrix3 createBasisYAxis( const Vector3& n )
+	{
+		// http://orbit.dtu.dk/fedora/objects/orbit:113874/datastreams/file_75b66578-222e-4c7d-abdf-f7e255100209/content
+		//
+		if ( n.getZ().getAsFloat() < -0.9999999f )
+		{
+			return Matrix3( Vector3( 0.f, -1.f, 0.f ), Vector3( -1.f, 0.f, 0.f ), n );
+		}
+
+		const floatInVec oneInVec( 1.0f );
+		const floatInVec a = oneInVec / ( oneInVec + n.getZ() );
+		const floatInVec b = -n.getX()*n.getY()*a;
+		const Vector3 x = Vector3( oneInVec - n.getX()*n.getX()*a, b, -n.getX() );
+		const Vector3 y = Vector3( b, oneInVec - n.getY()*n.getY()*a, -n.getY() );
+		return Matrix3( x, n, -y );
+	}
+
 	// provided vector will be z axis of the frame
 	//
 	inline Quat createBasisQuatZAxis( const Vector3& n )

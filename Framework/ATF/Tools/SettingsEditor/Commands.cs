@@ -23,11 +23,11 @@ namespace SettingsEditor
         /// <param name="commandService">Command service</param>
         /// <param name="contextRegistry">Context registry</param>
         [ImportingConstructor]
-		public Commands( ICommandService commandService, IContextRegistry contextRegistry, IDocumentService documentService )
+        public Commands( ICommandService commandService, IContextRegistry contextRegistry, IDocumentService documentService )
         {
             m_commandService = commandService;
             m_contextRegistry = contextRegistry;
-			m_documentService = documentService;
+            m_documentService = documentService;
         }
 
         #region IInitializable Members
@@ -97,19 +97,19 @@ namespace SettingsEditor
         /// <param name="commandState">Command info to update</param>
         public void UpdateCommand(object commandTag, CommandState commandState)
         {
-			//Document document = m_contextRegistry.GetActiveContext<Document>();
-			//if (document == null)
-			//	return;
+            //Document document = m_contextRegistry.GetActiveContext<Document>();
+            //if (document == null)
+            //	return;
 
-			//if (commandTag is Command)
-			//{
-			//	switch ((Command)commandTag)
-			//	{
-			//		case Command.ReloadDocument:
-			//			commandState.Check = document.SplitManipulator != null ? document.SplitManipulator.Active : false;
-			//			break;
-			//	}
-			//}
+            //if (commandTag is Command)
+            //{
+            //	switch ((Command)commandTag)
+            //	{
+            //		case Command.ReloadDocument:
+            //			commandState.Check = document.SplitManipulator != null ? document.SplitManipulator.Active : false;
+            //			break;
+            //	}
+            //}
         }
 
         #endregion
@@ -133,11 +133,11 @@ namespace SettingsEditor
 
         private bool DoCommand(object commandTag, bool doing)
         {
-			DocumentEditingContext context = m_contextRegistry.GetActiveContext<DocumentEditingContext>();
+            DocumentEditingContext context = m_contextRegistry.GetActiveContext<DocumentEditingContext>();
             if (context == null)
                 return false;
 
-			Document document = context.As<Document>();
+            Document document = context.As<Document>();
             if (document == null)
                 return false;
 
@@ -149,7 +149,7 @@ namespace SettingsEditor
 
                         if (doing)
                         {
-							m_editor.Reload( document );
+                            m_editor.Reload( document );
                         }
                         return true;
 
@@ -213,9 +213,9 @@ namespace SettingsEditor
 
         private ICommandService m_commandService;
         private IContextRegistry m_contextRegistry;
-		private IDocumentService m_documentService;
+        private IDocumentService m_documentService;
 
-		[Import( AllowDefault = false )]
-		private Editor m_editor = null;
-	}
+        [Import( AllowDefault = false )]
+        private Editor m_editor = null;
+    }
 }

@@ -62,9 +62,7 @@ namespace spad
 		SettingsEditor::DontTouchIt::startUp( seParam );
 		SettingsEditorZMQ::startUp();
 
-		gFrameworkSettings = new FrameworkSettingsNamespace::FrameworkSettingsWrap("data\\FrameworkSettings2.settings");
-		const FrameworkSettingsNamespace::General::Inner* InnerPreset = gFrameworkSettings->mGeneral->mInner.getPreset( "InnerPreset" );
-		const FrameworkSettingsNamespace::General::Inner* nonExistingPreset = gFrameworkSettings->mGeneral->mInner.getPreset( "NonExistPreset" );
+		gFrameworkSettings = new FrameworkSettingsNamespace::FrameworkSettingsWrap("Data\\FrameworkSettings.settings");
 
 		hThisInst_ = GetModuleHandle( NULL );
 

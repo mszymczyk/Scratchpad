@@ -148,7 +148,7 @@ namespace spad
 		textRendererConstants_.Initialize( device );
 	}
 
-	void TextRenderer::begin( Dx11DeviceContext& deviceContext, const BMFont* bmFont, u32 displayWidth, u32 displayHeight )
+	void TextRenderer::begin( Dx11DeviceContext& deviceContext, const BMFont* bmFont, u32 canvasWidth, u32 canvasHeight )
 	{
 		FR_ASSERT( !currentFont_ ); // has previous batch completed?
 		currentFont_ = bmFont;
@@ -191,10 +191,13 @@ namespace spad
 			, layout, 2, reinterpret_cast<const u8*>( fxPass.vsInputSignature_->GetBufferPointer() ), (u32)fxPass.vsInputSignature_->GetBufferSize() );
 
 		textRendererConstants_.data.Color = Vector4( 1, 1, 1, 1 );
-		textRendererConstants_.data.ViewportSize = Vector4( (float)displayWidth, (float)displayHeight, 1.0f / (float)displayWidth, 1.0f / (float)displayHeight );
+		textRendererConstants_.data.ViewportSize = Vector4( (float)canvasWidth, (float)canvasHeight, 1.0f / (float)canvasWidth, 1.0f / (float)canvasHeight );
 		float texW = (float) bmFont->getTextureWidth();
 		float texH = (float) bmFont->getTextureHeight();
 		textRendererConstants_.data.TextureSize = Vector4( texW, texH, 1.0f / texW, 1.0f / texH );
+
+		canvasWidth_ = canvasWidth;
+		canvasHeight_ = canvasHeight;
 	}
 
 	void TextRenderer::end( Dx11DeviceContext& deviceContext )
@@ -259,7 +262,7 @@ namespace spad
 			return;
 
 		float x = textRendererConstants_.data.ViewportSize.getX().getAsFloat() * x01;
-		float y = textRendererConstants_.data.ViewportSize.getX().getAsFloat() * y01;
+		float y = textRendererConstants_.data.ViewportSize.getY().getAsFloat() * y01;
 
 		_Draw( deviceContext, x, y, colorABGR, fontScale, ascii );
 	}

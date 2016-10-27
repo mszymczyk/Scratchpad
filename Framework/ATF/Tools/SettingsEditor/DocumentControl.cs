@@ -215,7 +215,7 @@ namespace SettingsEditor
         private FilteredTreeControlEditor m_filteredTreeControlEditor;
 
         private readonly SplitContainer m_splitContainer;
-		private readonly Sce.Atf.Controls.PropertyEditing.PropertyGrid m_propertyGrid;
+        private readonly Sce.Atf.Controls.PropertyEditing.PropertyGrid m_propertyGrid;
 
         private Editor m_editor;
         private ICommandService m_commandService;

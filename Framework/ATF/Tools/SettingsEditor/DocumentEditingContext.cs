@@ -7,20 +7,25 @@ using Sce.Atf.Dom;
 using Sce.Atf.Controls.PropertyEditing;
 using Sce.Atf.Applications;
 using System.Windows.Forms;
+using System.IO;
+using System.Text;
+
+//#pragma warning disable 0169 //disable unused field warning
+//#pragma warning disable 0067 //disable unused field warning
 
 namespace SettingsEditor
 {
     /// <summary>
     /// Used for updating PropertyEditor on Undo/Redo</summary>
-	public class DocumentEditingContext : EditingContext, IObservableContext, INamingContext, IInstancingContext, IPropertyEditingContext
+    public class DocumentEditingContext : EditingContext, IObservableContext, INamingContext, IInstancingContext, IPropertyEditingContext
     {
         /// <summary>
         /// Performs initialization when the adapter's node is set.
         /// Subscribes to events for DomNode tree changes and raises Reloaded event.</summary>
         protected override void OnNodeSet()
         {
-			DomNode.AttributeChanged += DomNode_AttributeChanged;
-			DomNode.ChildInserted += DomNode_ChildInserted;
+            DomNode.AttributeChanged += DomNode_AttributeChanged;
+            DomNode.ChildInserted += DomNode_ChildInserted;
             DomNode.ChildRemoved += (sender,e)=> ItemRemoved.Raise(this, new ItemRemovedEventArgs<object>(e.Index, e.Child, e.Parent));
 
             SelectionChanged += DocumentEditingContext_SelectionChanged;
@@ -35,14 +40,25 @@ namespace SettingsEditor
                     document.SaveImpl();
                     m_saveFileTimer_.Stop();
                 };
+
+            m_itemChangedTimer.Interval = 30;
+            m_itemChangedTimer.Tick += ( object sender, EventArgs e ) =>
+            {
+                // for instance, will refresh all PropertyViews that are displaying this property
+                // doing it here improves performance considerably
+                // DirectionPropertyEditor is very sensitive to slow PropertyView refreshing
+                // don't know how passing null affects this event and it's observers
+                // DomNode_AttributeChanged is the right place to do it, there we have access to actual node that's being changed
+                ItemChanged.Raise( this, new ItemChangedEventArgs<object>( null ) );
+
+                m_itemChangedTimer.Stop();
+            };
+
         }
 
         private void DocumentEditingContext_SelectionChanged(object sender, EventArgs e)
         {
-            // Reloaded causes tree control to reload and is very unintuitive because some subtrees collapse
-            // ???? Is this somehow related to old implementation
             Reloaded.Raise(this, EventArgs.Empty); // Reloaded event will refresh PropertyView
-            System.Diagnostics.Debug.WriteLine("Selection changed!");
         }
 
         #region IPropertyEditingContext Members
@@ -50,50 +66,22 @@ namespace SettingsEditor
         /// <summary>
         /// Gets an enumeration of the items with properties</summary>
         public IEnumerable<object> Items
-		{
-			get
-			{
-                // if group was selected pick first preset, user doesn't need to expand group in order to select preset
-                // this is just less mouse clicks
-                // TODO: pick active preset
-                //
-                //if (LastSelected.Is<Group>())
-                //{
-                //    System.Diagnostics.Debug.WriteLine( "LastSelected: Group: " + LastSelected.Cast<Group>().DomNode.Type.Name );
-                //}
-                //else if (LastSelected.Is<Preset>())
-                //{
-                //    System.Diagnostics.Debug.WriteLine( "LastSelected: Preset: " + LastSelected.Cast<Preset>().Name );
-                //}
-                //else
-                //{
-                //    System.Diagnostics.Debug.WriteLine( "LastSelected: null" );
-                //}
-
-                //Group group = LastSelected.As<Group>();
-                //if ( group != null )
-                //{
-                //    if ( group.Presets.Count > 0 )
-                //        return new object[] { group.Presets[0] };
-                //}
-                //else
-                //{
-                    return new object[] { LastSelected };
-                //}
-
-                //return null;
+        {
+            get
+            {
+                return new object[] { LastSelected };
+                //return Selection;
             }
-		}
+        }
 
-		/// <summary>
-		/// Gets an enumeration of the property descriptors for the items</summary>
-		public IEnumerable<System.ComponentModel.PropertyDescriptor> PropertyDescriptors
-		{
-			//get { return GetPropertyDescriptors(); }
-			get { return PropertyUtils.GetSharedProperties( Items ); }
-		}
+        /// <summary>
+        /// Gets an enumeration of the property descriptors for the items</summary>
+        public IEnumerable<System.ComponentModel.PropertyDescriptor> PropertyDescriptors
+        {
+            get { return PropertyUtils.GetSharedProperties( Items ); }
+        }
 
-		#endregion
+        #endregion
 
         #region IObservableContext Members
         /// <summary>
@@ -117,8 +105,6 @@ namespace SettingsEditor
         /// <returns>True iff the context can copy</returns>
         public bool CanCopy()
         {
-            //return Selection.Any<UIObject>()
-            //     || Selection.Any<Curve>();
             if ( !Selection.All<Preset>() )
                 return false;
 
@@ -200,61 +186,8 @@ namespace SettingsEditor
 
                 return true;
             }
-            //else
-            //{
-            //    EmptyRef emptyRef = m_insertionParent as EmptyRef;
-            //    if ( emptyRef != null )
-            //    {
-            //        foreach ( DomNode child in childNodes )
-            //            if ( !CanReference( emptyRef, child.Type ) )
-            //                return false;
-
-            //        return true;
-            //    }
-            //}
 
             return false;
-        }
-
-        /// <summary>
-        /// Inserts new object of given type using a transaction. Called by automated scripts during testing.</summary>
-        /// <typeparam name="T">Type of object to insert</typeparam>
-        /// <param name="insertingObject">DomNode that contains inserted object</param>
-        /// <param name="insertionParent">Parent where object is inserted</param>
-        /// <returns>Inserted object</returns>
-        public T Insert<T>( DomNode insertingObject, DomNode insertionParent ) where T : class
-        {
-            //SetInsertionParent( insertionParent );
-            //insertingObject.SetAttribute( UISchema.UIType.nameAttribute, typeof( T ).Name );
-            //DataObject dataObject = new DataObject( new object[] { insertingObject } );
-
-            //ITransactionContext transactionContext = this.As<ITransactionContext>();
-            //transactionContext.DoTransaction(
-            //    delegate
-            //    {
-            //        Insert( dataObject );
-            //    }, "Scripted Insert Object" );
-
-            //T newItem = null;
-            //ChildInfo childInfo = GetChildInfo( insertionParent, insertingObject.Type );
-            //if ( childInfo != null )
-            //{
-            //    if ( childInfo.IsList )
-            //    {
-            //        IList<DomNode> list = insertionParent.GetChildList( childInfo );
-            //        //This assumes the new object is always appended at the end of the list
-            //        DomNode newNode = list[list.Count - 1];
-            //        newItem = newNode.As<T>();
-            //    }
-            //    else
-            //    {
-            //        DomNode newNode = insertionParent.GetChild( childInfo );
-            //        newItem = newNode.As<T>();
-            //    }
-            //}
-
-            //return newItem;
-            return null;
         }
 
         /// <summary>
@@ -268,27 +201,11 @@ namespace SettingsEditor
                 return;
 
             IEnumerable<DomNode> childNodes = items.AsIEnumerable<DomNode>();
-            //// if no items are parented, then we should clone the items, which must be from the clipboard
-            //bool fromScrap = true;
-            //foreach ( DomNode child in childNodes )
-            //{
-            //    if ( child.Parent != null )
-            //    {
-            //        fromScrap = false;
-            //        break;
-            //    }
-            //}
-            //if ( fromScrap )
-            //{
-            //    childNodes = DomNode.Copy( childNodes );
-                // init extensions for copied DomNodes
-                foreach ( DomNode child in childNodes )
-                    child.InitializeExtensions();
-            //}
+            // init extensions for copied DomNodes
+            foreach ( DomNode child in childNodes )
+                child.InitializeExtensions();
 
             DomNode parent = m_insertionParent.As<DomNode>();
-            //if ( m_insertionParent.Is<Preset>() )
-            //    parent = parent.Parent;
 
             if ( parent != null )
             {
@@ -314,18 +231,6 @@ namespace SettingsEditor
                         }
                     }, "Insert objects" );
             }
-            //else
-            //{
-            //    EmptyRef emptyRef = m_insertionParent as EmptyRef;
-            //    if ( emptyRef != null )
-            //    {
-            //        foreach ( DomNode child in childNodes )
-            //        {
-            //            UIRef uiRef = UIRef.New( child.As<UIObject>() );
-            //            emptyRef.Parent.SetChild( emptyRef.ChildInfo, uiRef.DomNode );
-            //        }
-            //    }
-            //}
         }
 
         /// <summary>
@@ -394,14 +299,19 @@ namespace SettingsEditor
         /// <summary>
         /// Performs custom actions after a transaction ends</summary>
         protected override void OnEnded()
-		{
-			base.OnEnded();
+        {
+            base.OnEnded();
 
             if ( m_saveFileTimer_.Enabled )
                 m_saveFileTimer_.Stop();
 
             m_saveFileTimer_.Start(); // delay file save (allows merging multiple slider operations to one)
-		}
+
+            if ( m_itemChangedTimer.Enabled )
+                m_itemChangedTimer.Stop();
+
+            m_itemChangedTimer.Start(); // delay item changed event to improve performance
+        }
 
         #endregion
 
@@ -443,9 +353,44 @@ namespace SettingsEditor
 
         #endregion
 
+        bool IsCurveElement( DomNode node, out DynamicProperty prop )
+        {
+            Curve curve = node.As<Curve>();
+            if ( curve != null )
+            {
+                prop = node.Parent.Cast<DynamicProperty>();
+                return true;
+            }
+
+            ControlPoint controlPoint = node.As<ControlPoint>();
+            if ( controlPoint != null )
+            {
+                prop = node.Parent.Parent.Cast<DynamicProperty>();
+                return true;
+            }
+
+            prop = null;
+            return false;
+        }
+
         void DomNode_AttributeChanged( object sender, AttributeEventArgs e )
         {
-            ItemChanged.Raise( this, new ItemChangedEventArgs<object>( e.DomNode ) );
+            // for instance, will refresh all PropertyViews that are displaying this property
+            // doing it here is the 'right' way to do it, but cases PropertyViews to get refreshed and is very slow
+            // DirectionPropertyEditor (Dx11 3d arrow) feels jittery due to this low performance
+            // With each mouse move it causes all PropertyViews to refresh
+            // See OnNodeSet for another possible place (but with caveats) to raise it
+            //if ( this.Is<HistoryContext>() )
+            //{
+            //    HistoryContext hc = this.Cast<HistoryContext>();
+            //    if ( hc.UndoingOrRedoing )
+            //        // this causes immediate controls refresh and allows for quick undoing/redoing
+            //        ItemChanged.Raise( this, new ItemChangedEventArgs<object>( e.DomNode ) );
+            //}
+            //else
+            //{
+            //      ItemChanged.Raise( this, new ItemChangedEventArgs<object>( e.DomNode ) );
+            //}
 
             Document document = this.Cast<Document>();
 
@@ -472,20 +417,31 @@ namespace SettingsEditor
                 }
             }
 
-            DynamicProperty prop = e.DomNode.As<DynamicProperty>();
-            if ( prop == null )
-                // not a DynamicProperty, ignore
-                return;
+            DynamicProperty prop = null;
+            if ( IsCurveElement( e.DomNode, out prop ) )
+            {
+            }
+            else
+            {
+                prop = e.DomNode.As<DynamicProperty>();
 
-            if ( e.AttributeInfo != Schema.dynamicPropertyType.fvalAttribute
-                && e.AttributeInfo != Schema.dynamicPropertyType.ivalAttribute
-                && e.AttributeInfo != Schema.dynamicPropertyType.bvalAttribute
-                && e.AttributeInfo != Schema.dynamicPropertyType.evalAttribute
-                && e.AttributeInfo != Schema.dynamicPropertyType.svalAttribute
-                )
-                return;
+                if ( prop == null )
+                    // not a DynamicProperty, ignore
+                    return;
 
-            Preset preset = e.DomNode.Parent.As<Preset>();
+                if (   e.AttributeInfo != Schema.dynamicPropertyType.bvalAttribute
+                    && e.AttributeInfo != Schema.dynamicPropertyType.ivalAttribute
+                    && e.AttributeInfo != Schema.dynamicPropertyType.evalAttribute
+                    && e.AttributeInfo != Schema.dynamicPropertyType.fvalAttribute
+                    && e.AttributeInfo != Schema.dynamicPropertyType.f4valAttribute
+                    && e.AttributeInfo != Schema.dynamicPropertyType.colvalAttribute
+                    && e.AttributeInfo != Schema.dynamicPropertyType.svalAttribute
+                    && e.AttributeInfo != Schema.dynamicPropertyType.dirvalAttribute
+                    )
+                    return;
+            }
+
+            Preset preset = prop.DomNode.Parent.As<Preset>();
             Group structure = null;
             if ( preset != null )
             {
@@ -493,7 +449,7 @@ namespace SettingsEditor
             }
             else
             {
-                structure = e.DomNode.Parent.As<Group>();
+                structure = prop.DomNode.Parent.As<Group>();
             }
 
             if ( structure == null )
@@ -510,18 +466,18 @@ namespace SettingsEditor
                 msg.appendString( document.PathRelativeToData );
                 msg.appendString( structureName );
                 msg.appendString( presetName );
-                msg.appendString( e.AttributeInfo.Name );
+                msg.appendString( prop.Name );
                 msg.appendInt( 1 );
                 bool bval = (bool)e.NewValue;
                 msg.appendInt( bval ? 1 : 0 );
             }
-            else if ( prop.PropertyType == SettingType.Int )
+            else if ( prop.PropertyType == SettingType.Int || prop.PropertyType == SettingType.Enum )
             {
                 msg.appendString( "setInt" );
                 msg.appendString( document.PathRelativeToData );
                 msg.appendString( structureName );
                 msg.appendString( presetName );
-                msg.appendString( e.AttributeInfo.Name );
+                msg.appendString( prop.Name );
                 msg.appendInt( 1 );
                 msg.appendInt( (int)e.NewValue );
             }
@@ -529,11 +485,9 @@ namespace SettingsEditor
             {
                 msg.appendString( "setFloat" );
                 msg.appendString( document.PathRelativeToData );
-                //msg.appendString( group.Name );
-                //msg.appendString( preset.Name );
                 msg.appendString( structureName );
                 msg.appendString( presetName );
-                msg.appendString( e.AttributeInfo.Name );
+                msg.appendString( prop.Name );
                 msg.appendInt( 1 );
                 msg.appendFloat( (float)e.NewValue );
             }
@@ -543,35 +497,77 @@ namespace SettingsEditor
                 msg.appendString( document.PathRelativeToData );
                 msg.appendString( structureName );
                 msg.appendString( presetName );
-                msg.appendString( e.AttributeInfo.Name );
+                msg.appendString( prop.Name );
                 msg.appendInt( 2 );
                 msg.appendFloat( (float)e.NewValue );
                 msg.appendFloat( prop.Checked ? 1 : 0 );
-            }
-            else if ( prop.PropertyType == SettingType.String )
-            {
-                msg.appendString( "setString" );
-                msg.appendString( document.PathRelativeToData );
-                //msg.appendString( group.Name );
-                //msg.appendString( preset.Name );
-                msg.appendString( structureName );
-                msg.appendString( presetName );
-                msg.appendString( e.AttributeInfo.Name );
-                msg.appendString( (string)e.NewValue );
             }
             else if ( prop.PropertyType == SettingType.Float4 )
             {
                 msg.appendString( "setFloat" );
                 msg.appendString( document.PathRelativeToData );
-                //msg.appendString( group.Name );
-                //msg.appendString( preset.Name );
                 msg.appendString( structureName );
                 msg.appendString( presetName );
-                msg.appendString( e.AttributeInfo.Name );
+                msg.appendString( prop.Name );
                 float[] farray = (float[])e.NewValue;
                 msg.appendInt( farray.Length );
                 foreach ( float f in farray )
                     msg.appendFloat( f );
+            }
+            else if ( prop.PropertyType == SettingType.Color )
+            {
+                msg.appendString( "setFloat" );
+                msg.appendString( document.PathRelativeToData );
+                msg.appendString( structureName );
+                msg.appendString( presetName );
+                msg.appendString( prop.Name );
+                float[] farray = (float[])e.NewValue;
+                msg.appendInt( farray.Length );
+                foreach ( float f in farray )
+                    msg.appendFloat( f );
+            }
+            else if ( prop.PropertyType == SettingType.String )
+            {
+                msg.appendString( "setString" );
+                msg.appendString( document.PathRelativeToData );
+                msg.appendString( structureName );
+                msg.appendString( presetName );
+                msg.appendString( prop.Name );
+                msg.appendString( (string)e.NewValue );
+            }
+            else if ( prop.PropertyType == SettingType.Direction )
+            {
+                msg.appendString( "setFloat" );
+                msg.appendString( document.PathRelativeToData );
+                msg.appendString( structureName );
+                msg.appendString( presetName );
+                msg.appendString( prop.Name );
+                float[] farray = (float[])e.NewValue;
+                msg.appendInt( farray.Length );
+                foreach ( float f in farray )
+                    msg.appendFloat( f );
+            }
+            else if ( prop.PropertyType == SettingType.AnimCurve )
+            {
+                // send whole curve as a string
+                // this may be optimized in the future to reduce ammount of trafic
+
+                msg.appendString( "setString" );
+                msg.appendString( document.PathRelativeToData );
+                msg.appendString( structureName );
+                msg.appendString( presetName );
+                msg.appendString( prop.Name );
+
+                using ( MemoryStream stream = new MemoryStream() )
+                {
+                    DomXmlWriter writer = new DomXmlWriter( SchemaLoader.s_schemaLoader.TypeCollection );
+                    //writer.PersistDefaultAttributes = true;
+
+                    writer.Write( prop.AnimCurveValue.DomNode, stream, new Uri("sync", UriKind.Relative) );
+                    byte[] bytes = stream.ToArray();
+                    msg.appendInt( bytes.Length - 3 );
+                    msg.appendBytes( bytes, 3, bytes.Length - 3 ); // skip BOM, 3 bytes, 0xEF, 0xBB, 0xBF
+                }
             }
             else
             {
@@ -580,89 +576,16 @@ namespace SettingsEditor
             }
 
             ZMQHubService.send( msg );
-
-            //pico.Hub.HubMessage msg = new pico.Hub.HubMessage( "settings" );
-
-            //if (e.AttributeInfo.Type.Equals( AttributeType.BooleanType ))
-            //{
-            //    msg.appendString( "setInt" );
-            //    msg.appendString( document.PathRelativeToData );
-            //    //msg.appendString( group.Name );
-            //    //msg.appendString( preset.Name );
-            //    msg.appendString( structureName );
-            //    msg.appendString( "" );
-            //    msg.appendString( e.AttributeInfo.Name );
-            //    msg.appendInt( 1 );
-            //    bool bval = (bool) e.NewValue;
-            //    msg.appendInt( bval ? 1 : 0 );
-            //}
-            //else if (e.AttributeInfo.Type.Equals( AttributeType.IntType ))
-            //{
-            //    msg.appendString( "setInt" );
-            //    msg.appendString( document.PathRelativeToData );
-            //    //msg.appendString( group.Name );
-            //    //msg.appendString( preset.Name );
-            //    msg.appendString( structureName );
-            //    msg.appendString( "" );
-            //    msg.appendString( e.AttributeInfo.Name );
-            //    msg.appendInt( 1 );
-            //    msg.appendInt( (int) e.NewValue );
-            //}
-            //else if (e.AttributeInfo.Type.Equals( Schema.FlexibleFloatType ))
-            //{
-            //    msg.appendString( "setFloat" );
-            //    msg.appendString( document.PathRelativeToData );
-            //    //msg.appendString( group.Name );
-            //    //msg.appendString( preset.Name );
-            //    msg.appendString( structureName );
-            //    msg.appendString( "" );
-            //    msg.appendString( e.AttributeInfo.Name );
-            //    msg.appendInt( 2 );
-            //    float[] farray = (float[]) e.NewValue;
-            //    msg.appendFloat( farray[0] );
-            //    msg.appendFloat( farray[4] );
-            //}
-            //else if (e.AttributeInfo.Type.Equals( AttributeType.StringType ))
-            //{
-            //    msg.appendString( "setString" );
-            //    msg.appendString( document.PathRelativeToData );
-            //    //msg.appendString( group.Name );
-            //    //msg.appendString( preset.Name );
-            //    msg.appendString( structureName );
-            //    msg.appendString( "" );
-            //    msg.appendString( e.AttributeInfo.Name );
-            //    msg.appendString( (string) e.NewValue );
-            //}
-            //else if (e.AttributeInfo.Type.Equals( Schema.Float4Type ))
-            //{
-            //    msg.appendString( "setFloat" );
-            //    msg.appendString( document.PathRelativeToData );
-            //    //msg.appendString( group.Name );
-            //    //msg.appendString( preset.Name );
-            //    msg.appendString( structureName );
-            //    msg.appendString( "" );
-            //    msg.appendString( e.AttributeInfo.Name );
-            //    float[] farray = (float[]) e.NewValue;
-            //    msg.appendInt( farray.Length );
-            //    foreach (float f in farray)
-            //        msg.appendFloat( f );
-            //}
-            //else
-            //{
-            //    Outputs.WriteLine( OutputMessageType.Error, "Unsupported attribute type!" );
-            //    return;
-            //}
-
-            //pico.Hub.HubService.sendS( msg );
         }
 
-		void DomNode_ChildInserted( object sender, ChildEventArgs e )
-		{
-			ItemInserted.Raise( this, new ItemInsertedEventArgs<object>( e.Index, e.Child, e.Parent ) );
-		}
+        void DomNode_ChildInserted( object sender, ChildEventArgs e )
+        {
+            ItemInserted.Raise( this, new ItemInsertedEventArgs<object>( e.Index, e.Child, e.Parent ) );
+        }
 
-        // timer used to defer saving settings to file, usefull for reducing save operations while user is draging sliders
-        //
+        // timer used to defer saving settings to file, useful for reducing save operations while user is dragging sliders
         System.Windows.Forms.Timer m_saveFileTimer_ = new System.Windows.Forms.Timer();
+        // timer for to defer ItemChanged event, improves perf while working with sliders and controls where smooth mouse move is required
+        System.Windows.Forms.Timer m_itemChangedTimer = new System.Windows.Forms.Timer();
     }
 }

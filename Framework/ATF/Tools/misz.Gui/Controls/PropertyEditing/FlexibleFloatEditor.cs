@@ -8,6 +8,16 @@ using Sce.Atf.Adaptation;
 
 namespace misz.Gui
 {
+    public class FlexibleFloatValue
+    {
+        public float value = 0;
+        public float softMin = 0;
+        public float softMax = 0;
+        public float step = 0;
+        public string extraName = null;
+        public bool check = false;
+    }
+
     /// <summary>
     /// Flexible bounded floats property editor that supplies FlexibleFloatControl instances to embed in complex
     /// property editing controls. These display a slider, textbox and customize button in the GUI.
@@ -16,18 +26,19 @@ namespace misz.Gui
     public class FlexibleFloatEditor : IPropertyEditor
     {
         public FlexibleFloatEditor( float min, float max, bool checkBox
-            , AttributeInfo softMinAttribute, AttributeInfo softMaxAttribute, AttributeInfo stepAttribute, AttributeInfo extraNameAttribute, AttributeInfo checkedAttribute )
+            //, AttributeInfo softMinAttribute, AttributeInfo softMaxAttribute, AttributeInfo stepAttribute, AttributeInfo extraNameAttribute, AttributeInfo checkedAttribute
+            )
         {
             if ( min >= max )
                 throw new ArgumentOutOfRangeException( "min must be less than max" );
             m_min = min;
             m_max = max;
             m_hasCheckBox = checkBox;
-            m_softMinAttribute = softMinAttribute;
-            m_softMaxAttribute = softMaxAttribute;
-            m_stepAttribute = stepAttribute;
-            m_extraNameAttribute = extraNameAttribute;
-            m_checkedAttribute = checkedAttribute;
+            //m_softMinAttribute = softMinAttribute;
+            //m_softMaxAttribute = softMaxAttribute;
+            //m_stepAttribute = stepAttribute;
+            //m_extraNameAttribute = extraNameAttribute;
+            //m_checkedAttribute = checkedAttribute;
         }
 
         /// <summary>
@@ -59,7 +70,7 @@ namespace misz.Gui
         public virtual Control GetEditingControl( PropertyEditorControlContext context )
         {
             var control = new FlexibleFloatControl( context, m_min, m_max, m_hasCheckBox
-                , m_softMinAttribute, m_softMaxAttribute, m_stepAttribute, m_extraNameAttribute, m_checkedAttribute
+                //, m_softMinAttribute, m_softMaxAttribute, m_stepAttribute, m_extraNameAttribute, m_checkedAttribute
                 );
             SkinService.ApplyActiveSkin( control );
             return control;
@@ -77,16 +88,16 @@ namespace misz.Gui
             /// <param name="min">Minimum value</param>
             /// <param name="max">Maximum value</param>
             public FlexibleFloatControl( PropertyEditorControlContext context, float min, float max, bool checkBox
-                , AttributeInfo softMinAttribute, AttributeInfo softMaxAttribute, AttributeInfo stepAttribute, AttributeInfo extraNameAttribute, AttributeInfo checkedAttribute
+                //, AttributeInfo softMinAttribute, AttributeInfo softMaxAttribute, AttributeInfo stepAttribute, AttributeInfo extraNameAttribute, AttributeInfo checkedAttribute
                 )
                 : base( min, min, max, checkBox )
             {
                 m_context = context;
-                m_softMinAttribute = softMinAttribute;
-                m_softMaxAttribute = softMaxAttribute;
-                m_stepAttribute = stepAttribute;
-                m_extraNameAttribute = extraNameAttribute;
-                m_checkedAttribute = checkedAttribute;
+                //m_softMinAttribute = softMinAttribute;
+                //m_softMaxAttribute = softMaxAttribute;
+                //m_stepAttribute = stepAttribute;
+                //m_extraNameAttribute = extraNameAttribute;
+                //m_checkedAttribute = checkedAttribute;
                 PropertyName = context.Descriptor.DisplayName;
                 DrawBorder = false;
                 DoubleBuffered = true;
@@ -113,7 +124,8 @@ namespace misz.Gui
             {
                 if ( !m_refreshing )
                 {
-                    m_context.SetValue( Value );
+                    //m_context.SetValue( Value );
+                    SetFlexibleFloat();
                 }
 
                 base.OnValueChanged( e );
@@ -126,23 +138,37 @@ namespace misz.Gui
             {
                 if ( !m_refreshing )
                 {
-                    m_context.TransactionContext.DoTransaction( delegate
-                    {
-                        AttributePropertyDescriptor apd = m_context.Descriptor.Cast<AttributePropertyDescriptor>();
+                    //m_context.TransactionContext.DoTransaction( delegate
+                    //{
+                    //    AttributePropertyDescriptor apd = m_context.Descriptor.Cast<AttributePropertyDescriptor>();
 
-                        foreach ( object selectedObject in m_context.SelectedObjects )
-                        {
-                            DomNode domNode = apd.GetNode( selectedObject );
-                            domNode.SetAttribute( m_softMinAttribute, SoftMin );
-                            domNode.SetAttribute( m_softMaxAttribute, SoftMax );
-                            domNode.SetAttribute( m_stepAttribute, StepSize );
-                            domNode.SetAttribute( m_extraNameAttribute, ExtraName );
-                            domNode.SetAttribute( m_checkedAttribute, CheckBoxEnabled );
-                        }
-                    }, string.Format( "Edit Desc: {0}".Localize(), m_context.Descriptor.DisplayName ) );
+                    //    foreach ( object selectedObject in m_context.SelectedObjects )
+                    //    {
+                    //        DomNode domNode = apd.GetNode( selectedObject );
+                    //        domNode.SetAttribute( m_softMinAttribute, SoftMin );
+                    //        domNode.SetAttribute( m_softMaxAttribute, SoftMax );
+                    //        domNode.SetAttribute( m_stepAttribute, StepSize );
+                    //        domNode.SetAttribute( m_extraNameAttribute, ExtraName );
+                    //        domNode.SetAttribute( m_checkedAttribute, CheckBoxEnabled );
+                    //    }
+                    //}, string.Format( "Edit Desc: {0}".Localize(), m_context.Descriptor.DisplayName ) );
+
+                    SetFlexibleFloat();
                 }
 
                 base.OnDescChanged( e );
+            }
+
+            private void SetFlexibleFloat()
+            {
+                FlexibleFloatValue v = new FlexibleFloatValue();
+                v.value = Value;
+                v.softMin = SoftMin;
+                v.softMax = SoftMax;
+                v.step = StepSize;
+                v.extraName = ExtraName;
+                v.check = CheckBoxEnabled;
+                m_context.SetValue( v );
             }
 
             /// <summary>
@@ -165,22 +191,30 @@ namespace misz.Gui
                         Enabled = false;
                     else
                     {
-                        AttributePropertyDescriptor apd = m_context.Descriptor.Cast<AttributePropertyDescriptor>();
-                        DomNode domNode = apd.GetNode( m_context.LastSelectedObject );
+                        //AttributePropertyDescriptor apd = m_context.Descriptor.Cast<AttributePropertyDescriptor>();
+                        //DomNode domNode = apd.GetNode( m_context.LastSelectedObject );
 
-                        float softMin = (float)domNode.GetAttribute( m_softMinAttribute );
-                        float softMax = (float)domNode.GetAttribute( m_softMaxAttribute );
-                        float step = (float)domNode.GetAttribute( m_stepAttribute );
-                        string extraName = (string)domNode.GetAttribute( m_extraNameAttribute );
-                        bool checkBoxChecked = (bool)domNode.GetAttribute( m_checkedAttribute );
+                        //float softMin = (float)domNode.GetAttribute( m_softMinAttribute );
+                        //float softMax = (float)domNode.GetAttribute( m_softMaxAttribute );
+                        //float step = (float)domNode.GetAttribute( m_stepAttribute );
+                        //string extraName = (string)domNode.GetAttribute( m_extraNameAttribute );
+                        //bool checkBoxChecked = (bool)domNode.GetAttribute( m_checkedAttribute );
 
-                        Value = (float)value;
+                        //Value = (float)value;
 
-                        SoftMin = softMin;
-                        SoftMax = softMax;
-                        StepSize = step;
-                        ExtraName = extraName;
-                        CheckBoxEnabled = checkBoxChecked;
+                        //SoftMin = softMin;
+                        //SoftMax = softMax;
+                        //StepSize = step;
+                        //ExtraName = extraName;
+                        //CheckBoxEnabled = checkBoxChecked;
+
+                        FlexibleFloatValue v = value as FlexibleFloatValue;
+                        Value = v.value;
+                        SoftMin = v.softMin;
+                        SoftMax = v.softMax;
+                        StepSize = v.step;
+                        ExtraName = v.extraName;
+                        CheckBoxEnabled = v.check;
 
                         Enabled = !m_context.IsReadOnly;
                     }
@@ -193,20 +227,20 @@ namespace misz.Gui
 
             private readonly PropertyEditorControlContext m_context;
             private bool m_refreshing;
-            private AttributeInfo m_softMinAttribute;
-            private AttributeInfo m_softMaxAttribute;
-            private AttributeInfo m_stepAttribute;
-            private AttributeInfo m_extraNameAttribute;
-            private AttributeInfo m_checkedAttribute;
+            //private AttributeInfo m_softMinAttribute;
+            //private AttributeInfo m_softMaxAttribute;
+            //private AttributeInfo m_stepAttribute;
+            //private AttributeInfo m_extraNameAttribute;
+            //private AttributeInfo m_checkedAttribute;
         }
 
         private float m_min;
         private float m_max = 100.0f;
         private bool m_hasCheckBox = false;
-        private AttributeInfo m_softMinAttribute;
-        private AttributeInfo m_softMaxAttribute;
-        private AttributeInfo m_stepAttribute;
-        private AttributeInfo m_extraNameAttribute;
-        private AttributeInfo m_checkedAttribute;
+        //private AttributeInfo m_softMinAttribute;
+        //private AttributeInfo m_softMaxAttribute;
+        //private AttributeInfo m_stepAttribute;
+        //private AttributeInfo m_extraNameAttribute;
+        //private AttributeInfo m_checkedAttribute;
     }
 }

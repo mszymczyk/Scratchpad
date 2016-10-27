@@ -13,121 +13,123 @@ namespace SettingsEditor
 {
     public class SettingsCompiler
     {
-		Assembly CompileSettings( string inputFilePath )
-		{
-			string fileName = Path.GetFileNameWithoutExtension( inputFilePath );
+        Assembly CompileSettings( string inputFilePath )
+        {
+            string fileName = Path.GetFileNameWithoutExtension( inputFilePath );
 
-			string code = File.ReadAllText( inputFilePath );
-			//code = "using SettingsCompiler;\r\n\r\n" + "namespace " + fileName + "\r\n{\r\n" + code;
-			//code += "\r\n}";
+            string code = File.ReadAllText( inputFilePath );
+            //code = "using SettingsCompiler;\r\n\r\n" + "namespace " + fileName + "\r\n{\r\n" + code;
+            //code += "\r\n}";
 
-			Dictionary<string, string> compilerOpts = new Dictionary<string, string> { { "CompilerVersion", "v4.0" } };
-			CSharpCodeProvider compiler = new CSharpCodeProvider( compilerOpts );
+            Dictionary<string, string> compilerOpts = new Dictionary<string, string> { { "CompilerVersion", "v4.0" } };
+            CSharpCodeProvider compiler = new CSharpCodeProvider( compilerOpts );
 
-			string[] sources = { code };
-			CompilerParameters compilerParams = new CompilerParameters();
-			compilerParams.GenerateInMemory = true;
-			compilerParams.ReferencedAssemblies.Add( "System.dll" );
-			//compilerParams.ReferencedAssemblies.Add( "SettingsCompilerAttributes.dll" );
-			compilerParams.ReferencedAssemblies.Add( "SettingsEditorAttributes.dll" );
-			CompilerResults results = compiler.CompileAssemblyFromSource( compilerParams, sources );
-			if ( results.Errors.HasErrors )
-			{
-				string errMsg = "Errors were returned from the C# compiler:\r\n\r\n";
-				foreach ( CompilerError compilerError in results.Errors )
-				{
-					int lineNum = compilerError.Line - 4;
-					errMsg += inputFilePath + "(" + lineNum + "): " + compilerError.ErrorText + "\r\n";
-				}
-				throw new Exception( errMsg );
-			}
+            string[] sources = { code };
+            CompilerParameters compilerParams = new CompilerParameters();
+            compilerParams.GenerateInMemory = true;
+            compilerParams.ReferencedAssemblies.Add( "System.dll" );
+            //compilerParams.ReferencedAssemblies.Add( "SettingsCompilerAttributes.dll" );
+            compilerParams.ReferencedAssemblies.Add( "SettingsEditorAttributes.dll" );
+            CompilerResults results = compiler.CompileAssemblyFromSource( compilerParams, sources );
+            if ( results.Errors.HasErrors )
+            {
+                string errMsg = "Errors were returned from the C# compiler:\r\n\r\n";
+                foreach ( CompilerError compilerError in results.Errors )
+                {
+                    int lineNum = compilerError.Line - 4;
+                    errMsg += inputFilePath + "(" + lineNum + "): " + compilerError.ErrorText + "\r\n";
+                }
+                throw new Exception( errMsg );
+            }
 
-			return results.CompiledAssembly;
-		}
+            return results.CompiledAssembly;
+        }
 
-		void ReflectType( Type settingsType, SettingGroup group )
-		{
-			object settingsInstance = Activator.CreateInstance( settingsType );
+        void ReflectType( Type settingsType, SettingGroup group )
+        {
+            object settingsInstance = Activator.CreateInstance( settingsType );
 
-			BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-			FieldInfo[] fields = settingsType.GetFields( flags );
-			foreach ( FieldInfo field in fields )
-			{
-				foreach ( Setting setting in group.Settings )
-					if ( setting.Name == field.Name )
-						throw new Exception( string.Format( "Duplicate setting \"{0}\" detected", setting.Name ) );
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            FieldInfo[] fields = settingsType.GetFields( flags );
+            foreach ( FieldInfo field in fields )
+            {
+                foreach ( Setting setting in group.Settings )
+                    if ( setting.Name == field.Name )
+                        throw new Exception( string.Format( "Duplicate setting \"{0}\" detected", setting.Name ) );
 
-				Type fieldType = field.FieldType;
-				object fieldValue = field.GetValue( settingsInstance );
-				if ( fieldType == typeof( bool ) )
-					group.Settings.Add( new BoolSetting( (bool) fieldValue, field, group ) );
-				else if ( fieldType == typeof( int ) )
-					group.Settings.Add( new IntSetting( (int) fieldValue, field, group ) );
-				else if ( fieldType.IsEnum )
-					group.Settings.Add( new EnumSetting( fieldValue, field, fieldType, group ) );
-				else if ( fieldType == typeof( float ) )
-					group.Settings.Add( new FloatSetting( (float) fieldValue, field, group ) );
-				else if (fieldType == typeof( string ))
-					group.Settings.Add( new StringSetting( (string) fieldValue, field, group ) );
-				//else if ( fieldType == typeof( Direction ) )
-				//	settings.Add( new DirectionSetting( (Direction) fieldValue, field, group ) );
-				//else if ( fieldType == typeof( Orientation ) )
-				//	settings.Add( new OrientationSetting( (Orientation) fieldValue, field, group ) );
-				else if (fieldType == typeof( Color ))
-					group.Settings.Add( new ColorSetting( (Color) fieldValue, field, group ) );
-				else if (fieldType == typeof( Float4 ))
-					group.Settings.Add( new Float4Setting( (Float4) fieldValue, field, group ) );
-				else
-					throw new Exception( "Invalid type for setting " + field.Name );
-			}
-		}
+                Type fieldType = field.FieldType;
+                object fieldValue = field.GetValue( settingsInstance );
+                if ( fieldType == typeof( bool ) )
+                    group.Settings.Add( new BoolSetting( (bool) fieldValue, field, group ) );
+                else if ( fieldType == typeof( int ) )
+                    group.Settings.Add( new IntSetting( (int) fieldValue, field, group ) );
+                else if ( fieldType.IsEnum )
+                    group.Settings.Add( new EnumSetting( fieldValue, field, fieldType, group ) );
+                else if ( fieldType == typeof( float ) )
+                    group.Settings.Add( new FloatSetting( (float) fieldValue, field, group ) );
+                else if (fieldType == typeof( string ))
+                    group.Settings.Add( new StringSetting( (string) fieldValue, field, group ) );
+                else if ( fieldType == typeof( Direction ) )
+                    group.Settings.Add( new DirectionSetting( (Direction)fieldValue, field, group ) );
+                //else if ( fieldType == typeof( Orientation ) )
+                //	settings.Add( new OrientationSetting( (Orientation) fieldValue, field, group ) );
+                else if (fieldType == typeof( Color ))
+                    group.Settings.Add( new ColorSetting( (Color) fieldValue, field, group ) );
+                else if (fieldType == typeof( Float4 ))
+                    group.Settings.Add( new Float4Setting( (Float4) fieldValue, field, group ) );
+                else if ( fieldType == typeof( AnimCurve ) )
+                    group.Settings.Add( new AnimCurveSetting( field, group ) );
+                else
+                    throw new Exception( "Invalid type for setting " + field.Name );
+            }
+        }
 
-		void ReflectGeneratorConfig( Type settingsType )
-		{
-			object settingsInstance = Activator.CreateInstance( settingsType );
+        void ReflectGeneratorConfig( Type settingsType )
+        {
+            object settingsInstance = Activator.CreateInstance( settingsType );
 
-			BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-			FieldInfo[] fields = settingsType.GetFields( flags );
-			foreach (FieldInfo field in fields)
-			{
-				Type fieldType = field.FieldType;
-				object fieldValue = field.GetValue( settingsInstance );
-				if (fieldType == typeof( string ))
-				{
-					if (field.Name == "SettingsEditorHeaderInclude")
-					{
-						m_settingsEditorHeaderInclude = (string) fieldValue;
-					}
+            BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            FieldInfo[] fields = settingsType.GetFields( flags );
+            foreach (FieldInfo field in fields)
+            {
+                Type fieldType = field.FieldType;
+                object fieldValue = field.GetValue( settingsInstance );
+                if (fieldType == typeof( string ))
+                {
+                    if (field.Name == "SettingsEditorHeaderInclude")
+                    {
+                        m_settingsEditorHeaderInclude = (string) fieldValue;
+                    }
                     else if (field.Name == "SettingsEditorCppInclude")
                     {
                         m_settingsEditorCppInclude = (string) fieldValue;
                     }
                 }
-				else
-					throw new Exception( "Invalid type for setting " + field.Name );
-			}
-		}
+                else
+                    throw new Exception( "Invalid type for setting " + field.Name );
+            }
+        }
 
-		private Type[] GetTypesInNamespace( Assembly assembly, string nameSpace )
-		{
-			return assembly.GetTypes().Where( t => String.Equals( t.Namespace, nameSpace, StringComparison.Ordinal ) ).ToArray();
-		}
+        private Type[] GetTypesInNamespace( Assembly assembly, string nameSpace )
+        {
+            return assembly.GetTypes().Where( t => String.Equals( t.Namespace, nameSpace, StringComparison.Ordinal ) ).ToArray();
+        }
 
         private Type[] GetRootTypesInNamespace( Assembly assembly, string nameSpace )
         {
             return assembly.GetTypes().Where( t => String.Equals( t.Namespace, nameSpace, StringComparison.Ordinal ) && t.DeclaringType == null ).ToArray();
         }
 
-		private void ReflectSettings( Assembly assembly, string inputFilePath, SettingGroup rootStructure )
-		{
-			string filePath = Path.GetFileNameWithoutExtension( inputFilePath );
+        private void ReflectSettings( Assembly assembly, string inputFilePath, SettingGroup rootStructure )
+        {
+            string filePath = Path.GetFileNameWithoutExtension( inputFilePath );
 
             Type[] types = GetRootTypesInNamespace( assembly, filePath );
             if (types == null || types.Length == 0)
-				throw new Exception( "Settings file " + inputFilePath + " does not define any classes" );
+                throw new Exception( "Settings file " + inputFilePath + " does not define any classes" );
 
             foreach (Type type in types)
-			{
+            {
                 if ( type.IsEnum )
                 {
                     rootStructure.ReflectedEnums.Add( type );
@@ -141,8 +143,8 @@ namespace SettingsEditor
                 }
 
                 ReflectSettingsRecurse( type, rootStructure );
-			}
-		}
+            }
+        }
 
         private void ReflectSettingsRecurse( Type type, SettingGroup parentStructure )
         {
@@ -164,56 +166,60 @@ namespace SettingsEditor
             }
         }
 
-		public static void WriteEnumTypes( FileWriter fw, List<Type> enumTypes )
-		{
-			foreach ( Type enumType in enumTypes )
-			{
-				if ( enumType.GetEnumUnderlyingType() != typeof( int ) )
-					throw new Exception( "Invalid underlying type for enum " + enumType.Name + ", must be int" );
-				string[] enumNames = enumType.GetEnumNames();
-				int numEnumValues = enumNames.Length;
+        public static void WriteEnumTypes( FileWriter fw, List<Type> enumTypes )
+        {
+            foreach ( Type enumType in enumTypes )
+            {
+                if ( enumType.GetEnumUnderlyingType() != typeof( int ) )
+                    throw new Exception( "Invalid underlying type for enum " + enumType.Name + ", must be int" );
+                string[] enumNames = enumType.GetEnumNames();
+                int numEnumValues = enumNames.Length;
 
-				Array values = enumType.GetEnumValues();
-				int[] enumValues = new int[numEnumValues];
-				for (int i = 0; i < numEnumValues; ++i)
-					enumValues[i] = (int) values.GetValue( i );
+                Array values = enumType.GetEnumValues();
+                int[] enumValues = new int[numEnumValues];
+                for (int i = 0; i < numEnumValues; ++i)
+                    enumValues[i] = (int) values.GetValue( i );
 
-				fw.AddLine( "enum class " + enumType.Name );
+                fw.AddLine( "enum class " + enumType.Name );
                 fw.AddLine( "{" );
                 fw.IncIndent();
-				for (int i = 0; i < enumNames.Length; ++i)
-				{
+                for (int i = 0; i < enumNames.Length; ++i)
+                {
                     fw.AddLine( enumNames[i] + " = " + enumValues[i] + "," );
-				}
+                }
                 fw.AddLine( "NumValues" );
 
                 fw.DecIndent();
                 fw.AddLine( "};" );
                 fw.EmptyLine();
-			}
-		}
+            }
+        }
 
-		static private string SettingTypeToCppType( SettingType type )
-		{
-			if ( type == SettingType.Bool )
-				return "eParamType_bool";
-			else if ( type == SettingType.Int )
-				return "eParamType_int";
-			else if (type == SettingType.Enum)
-				return "eParamType_enum";
-			else if (type == SettingType.Float)
-				return "eParamType_float";
+        static private string SettingTypeToCppType( SettingType type )
+        {
+            if ( type == SettingType.Bool )
+                return "eParamType_bool";
+            else if ( type == SettingType.Int )
+                return "eParamType_int";
+            else if (type == SettingType.Enum)
+                return "eParamType_enum";
+            else if (type == SettingType.Float)
+                return "eParamType_float";
             else if ( type == SettingType.FloatBool )
                 return "eParamType_floatBool";
             else if (type == SettingType.String)
-				return "eParamType_string";
-			else if (type == SettingType.Color)
-				return "eParamType_color";
-			else if (type == SettingType.Float4)
-				return "eParamType_float4";
-			else
-				throw new Exception( "Unsupported setting type" );
-		}
+                return "eParamType_string";
+            else if ( type == SettingType.Direction )
+                return "eParamType_direction";
+            else if (type == SettingType.Color)
+                return "eParamType_color";
+            else if (type == SettingType.Float4)
+                return "eParamType_float4";
+            else if ( type == SettingType.AnimCurve )
+                return "eParamType_animCurve";
+            else
+                throw new Exception( "Unsupported setting type" );
+        }
 
         private static void WriteFileIfChanged( FileWriter fw, string filepath )
         {
@@ -1000,24 +1006,24 @@ namespace SettingsEditor
         }
 
         public void GenerateHeaderIfChanged( string filePath, string shaderOutputPath )
-		{
-			string fileName = Path.GetFileNameWithoutExtension( filePath );
-			string outputDir = Path.GetDirectoryName( filePath );
-			m_outputPathHeaderWithoutExtension = Path.Combine( outputDir, fileName );
+        {
+            string fileName = Path.GetFileNameWithoutExtension( filePath );
+            string outputDir = Path.GetDirectoryName( filePath );
+            m_outputPathHeaderWithoutExtension = Path.Combine( outputDir, fileName );
             string outputPathHeader = m_outputPathHeaderWithoutExtension + ".h";
             string outputPathCpp = Path.Combine( outputDir, fileName ) + ".cpp";
 
-			FileInfo srcFileInfo = new FileInfo( filePath );
-			FileInfo dstFileInfoHeader = new FileInfo( outputPathHeader );
+            FileInfo srcFileInfo = new FileInfo( filePath );
+            FileInfo dstFileInfoHeader = new FileInfo( outputPathHeader );
 
-			// add additional version of the compiler check
-			// rebuild is needed if compiler was updated
-			//
+            // add additional version of the compiler check
+            // rebuild is needed if compiler was updated
+            //
 
             if (srcFileInfo.LastWriteTime >= dstFileInfoHeader.LastWriteTime)
             {
-				//ReflectSettings( filePath );
-				//GenerateHeader( m_reflectedSettings, fileName, outputPath, m_reflectedEnums );
+                //ReflectSettings( filePath );
+                //GenerateHeader( m_reflectedSettings, fileName, outputPath, m_reflectedEnums );
                 if (string.IsNullOrEmpty( shaderOutputPath ))
                 {
                     GenerateHeader2( m_rootStructure, fileName, outputPathHeader, false );
@@ -1034,23 +1040,23 @@ namespace SettingsEditor
             {
                 Outputs.WriteLine( OutputMessageType.Info, "Settings file '{0} is up-to-date", filePath );
             }
-		}
+        }
 
-		public void ReflectSettings( string filepath )
-		{
-			Assembly compiledAssembly = CompileSettings( filepath );
+        public void ReflectSettings( string filepath )
+        {
+            Assembly compiledAssembly = CompileSettings( filepath );
 
             string rootStructureName = Path.GetFileNameWithoutExtension( filepath );
             m_rootStructure = new SettingGroup( rootStructureName, null, null );
             ReflectSettings( compiledAssembly, filepath, m_rootStructure );
-		}
+        }
 
         public SettingGroup RootStructure { get { return m_rootStructure; } }
         private SettingGroup m_rootStructure;
 
         private string m_outputPathHeaderWithoutExtension;
 
-		private string m_settingsEditorHeaderInclude = "#include <SettingsEditor.h>";
+        private string m_settingsEditorHeaderInclude = "#include <SettingsEditor.h>";
         private string m_settingsEditorCppInclude;
     }
 }

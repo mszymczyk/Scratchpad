@@ -22,33 +22,6 @@ struct General
 	};
 
 	e_Vsync vsync = e_Vsync::eVSync_60Hz;
-
-	// Inner
-	//////////////////////////////////////////////////////////////////////////////////
-	struct Inner
-	{
-		SETTINGS_EDITOR_STRUCT_DESC // this macro is required for SettingsEditor to work
-
-		float floatParam = 1;
-		bool boolParam = true;
-		int intParam = 1;
-		e_Vsync vsync2 = e_Vsync::eVSync_15Hz;
-
-		const Inner* getPreset( const char* presetName ) const
-		{
-			return reinterpret_cast<const Inner*>( SettingsEditor::DontTouchIt::getPreset( presetName, impl_ ) );
-		}
-
-	} mInner;
-
-	// SampleGroup
-	//////////////////////////////////////////////////////////////////////////////////
-	struct SampleGroup
-	{
-		SETTINGS_EDITOR_STRUCT_DESC // this macro is required for SettingsEditor to work
-
-	} mSampleGroup;
-
 };
 
 

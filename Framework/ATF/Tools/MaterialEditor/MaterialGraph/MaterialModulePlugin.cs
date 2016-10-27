@@ -31,7 +31,8 @@ namespace CircuitEditorSample
         [ImportingConstructor]
         public MaterialModulePlugin(
             IPaletteService paletteService,
-            SchemaLoader schemaLoader)
+            SchemaLoader schemaLoader
+            )
         {
             s_paletteService = paletteService;
             s_schemaLoader = schemaLoader;
@@ -176,7 +177,7 @@ namespace CircuitEditorSample
             MaterialModule.DefineDomNodeType();
             ColorConstantModule.DefineDomNodeType();
             SwizzleModule.DefineDomNodeType();
-            Texture2DModule.DefineDomNodeType();
+            Texture2DModule.DefineDomNodeType( Editor.EditorInstance.D2dDiagramTheme );
 
             // math
             LerpModule.DefineDomNodeType();

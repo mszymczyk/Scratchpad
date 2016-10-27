@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<settingsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	settingsDescFile="Framework\Core\FrameworkSettings\FrameworkSettings.cs"
-	shaderOutputFile="" xmlns="SettingsEditor">
-	<group
-		xsi:type="General"
-		expanded="false"
-		vsync="2" />
+<settingsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" settingsDescFile="Framework\Core\FrameworkSettings\FrameworkSettings.cs" xmlns="SettingsEditor">
+	<group name="General">
+		<prop name="vsync" type="eval" eval="1" />
+	</group>
 </settingsFile>
