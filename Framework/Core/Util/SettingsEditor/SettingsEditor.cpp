@@ -62,7 +62,7 @@ static spad::EtInfinityType ConvertPrePostInfinity( const char* str )
 		return spad::kInfinityLinear;
 	else
 	{
-		FR_NOT_IMPLEMENTED;
+		SPAD_NOT_IMPLEMENTED;
 		return spad::kInfinityConstant;
 	}
 };
@@ -101,9 +101,6 @@ static int ReadCurveKey( const pugi::xml_node& xmlKey, spad::EtKey& key )
 
 spad::MayaAnimCurve* ReadCurve( const pugi::xml_node& xmlCurve )
 {
-	//picoAnimCurve* animCurvePtr = new picoAnimCurve();
-	//picoAnimCurve& animCurve = *animCurvePtr;
-
 	const char* sPreInfinity = xmlCurve.attribute( "preInfinity" ).value();
 	spad::EtInfinityType preInfinity = ConvertPrePostInfinity( sPreInfinity );
 	const char* sPostInfinity = xmlCurve.attribute( "postInfinity" ).value();
@@ -188,8 +185,8 @@ void logGeneric( DontTouchIt::LogFunc func, const char* format, ... )
 #define seLogError(...) logGeneric( _gImpl->logError_, __VA_ARGS__ );
 //#define seAssert(x) PICO_ASSERT(x)
 //#define seNotImplemented PICO_NOT_IMPLEMENTED
-#define seAssert(x) FR_ASSERT(x)
-#define seNotImplemented FR_NOT_IMPLEMENTED
+#define seAssert(x) SPAD_ASSERT(x)
+#define seNotImplemented SPAD_NOT_IMPLEMENTED
 
 
 static const char* _GetParamTypeName( e_ParamType ptype )
@@ -717,7 +714,7 @@ struct SettingsFileImpl
 			std::unique_ptr<_Preset> preset( new _Preset() );
 			pugi::xml_attribute attr = xmlPreset.attribute( "presetName" );
 			preset->name_ = attr.value();
-			FR_ASSERT( !preset->name_.empty() );
+			seAssert( !preset->name_.empty() );
 			preset->parent_ = group;
 			preset->memory_ = reinterpret_cast<u8*>( aligned_malloc( group->desc_->sizeInBytes_, 16 ) );
 			// init preset to defaults (values declared in the struct)

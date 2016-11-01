@@ -79,7 +79,7 @@ void BeginCpuTimeQuery(CpuTimeQuery& timeQuery)
 
 void EndCpuTimeQuery(CpuTimeQuery& timeQuery)
 {
-	FR_ASSERT(timeQuery.queryStarted_);
+	SPAD_ASSERT(timeQuery.queryStarted_);
 
 	LARGE_INTEGER ct;
 	QueryPerformanceCounter(&ct);
@@ -91,6 +91,63 @@ void EndCpuTimeQuery(CpuTimeQuery& timeQuery)
 	timeQuery.durationUS_ = durUS;
 	timeQuery.queryStarted_ = false;
 	timeQuery.queryFinished_ = true;
+}
+
+void ConvertTime( u64 microSeconds, u32* dstMilliseconds, u32* dstSeconds, u32* dstMinutes, u32* dstHours )
+{
+	u32 timeMS = (u32)( microSeconds / 1000 );
+	u32 seconds = ( timeMS / 1000 ) % 60;
+	u32 minutes = ( seconds / 60 ) % 60;
+
+	if ( dstMilliseconds )
+		*dstMilliseconds = timeMS % 1000;
+	if ( dstSeconds )
+		*dstSeconds = seconds;
+	if ( dstMinutes )
+		*dstMinutes = minutes;
+	if ( dstHours )
+		*dstHours = minutes / 60;
+}
+
+static void _ConvertToTwoDigits( u32 t, char* textBuf )
+{
+	SPAD_ASSERT( t >= 0 && t <= 99 );
+	int a = t / 10;
+	int b = t % 10;
+	textBuf[0] = (char)( '0' + a );
+	textBuf[1] = (char)( '0' + b );
+}
+
+static void _ConvertToThreeDigits( u32 milliseconds, char* textBuf )
+{
+	SPAD_ASSERT( milliseconds >= 0 && milliseconds <= 999 );
+	int a = milliseconds / 100;
+	int t2 = milliseconds % 100;
+	int b = t2 / 10;
+	int c = t2 % 10;
+
+	textBuf[0] = (char)( '0' + a );
+	textBuf[1] = (char)( '0' + b );
+	textBuf[2] = (char)( '0' + c );
+}
+
+std::string FormatTime( u64 microSeconds )
+{
+	u32 ms, s, m, h;
+	ConvertTime( microSeconds, &ms, &s, &m, &h );
+
+	std::string ret;
+	ret.resize( 12 );
+	char* p = const_cast<char*>( ret.c_str() );
+	_ConvertToTwoDigits( h, p + 0 );
+	p[2] = ':';
+	_ConvertToTwoDigits( m, p + 3 );
+	p[5] = ':';
+	_ConvertToTwoDigits( s, p + 6 );
+	p[8] = '.';
+	_ConvertToThreeDigits( ms, p + 9 );
+
+	return ret;
 }
 
 }

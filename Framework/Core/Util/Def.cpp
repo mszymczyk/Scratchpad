@@ -20,7 +20,7 @@ void assertPrintAndBreak2(const char* text, const char* msg)
 	__debugbreak();
 }
 
-int fr_snprintf( char* buffer, size_t bufferSize, const char* format, ... )
+int spad_snprintf( char* buffer, size_t bufferSize, const char* format, ... )
 {
 	va_list	args;
 	va_start( args, format );
@@ -31,13 +31,13 @@ int fr_snprintf( char* buffer, size_t bufferSize, const char* format, ... )
 
 	if ( ires == (int)bufferSize )
 	{
-		FR_ASSERT2( false, "fr_snprintf output has been truncated!" );
+		SPAD_ASSERT2( false, "spad_snprintf output has been truncated!" );
 		buffer[bufferSize - 1] = 0;
 		return -1;
 	}
 	else if ( ires < 0 )
 	{
-		FR_ASSERT2( false, "fr_snprintf output has been truncated!" );
+		SPAD_ASSERT2( false, "spad_snprintf output has been truncated!" );
 		buffer[bufferSize - 1] = 0;
 		return -1;
 	}
@@ -50,7 +50,7 @@ int fr_snprintf( char* buffer, size_t bufferSize, const char* format, ... )
 
 	if ( ires >= (int)bufferSize )
 	{
-		FR_ASSERT( false, "fr_snprintf output has been truncated!" );
+		SPAD_ASSERT( false, "spad_snprintf output has been truncated!" );
 		// null terminated character is appended always acoording to spec
 		//
 		//buffer[bufferSize-1] = 0;
@@ -58,7 +58,7 @@ int fr_snprintf( char* buffer, size_t bufferSize, const char* format, ... )
 	}
 	else if ( ires < 0 )
 	{
-		FR_ASSERT( false, "fr_snprintf encoding error!" );
+		SPAD_ASSERT( false, "spad_snprintf encoding error!" );
 		buffer[0] = 0;
 		return -1;
 	}

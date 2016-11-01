@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <sstream>
 #include <memory>
 #include <mutex>
@@ -13,14 +14,14 @@
 #include <iostream>
 #include <algorithm>
 
-#define FR_ASSERTIONS_ENABLED 1
+#define SPAD_ASSERTIONS_ENABLED 1
 
 //#ifdef __cplusplus
 //extern "C"
 //{
 //#endif //
 
-#ifdef FR_ASSERTIONS_ENABLED
+#ifdef SPAD_ASSERTIONS_ENABLED
 	#define AT __FILE__ ":" TOSTRING(__LINE__)
 	#define STRINGIFY(x) #x
 	#define TOSTRING(x) STRINGIFY(x)
@@ -30,7 +31,7 @@
 
 	#if defined(_MSC_VER)
 
-		#define FR_ASSERT(expression)		\
+		#define SPAD_ASSERT(expression)		\
 			__pragma(warning(push))					\
 			__pragma(warning(disable:4127))			\
 			if ( (expression) )						\
@@ -42,7 +43,7 @@
 			}										\
 			__pragma(warning(pop))
 
-		#define FR_ASSERT2(expression, msg)		\
+		#define SPAD_ASSERT2(expression, msg)		\
 			__pragma(warning(push))					\
 			__pragma(warning(disable:4127))			\
 			if ( (expression) )						\
@@ -56,30 +57,30 @@
 
 	#endif //
 
-	#define FR_ASSERT_ALWAYS(expression, msg) ((void)0)
+	#define SPAD_ASSERT_ALWAYS(expression, msg) ((void)0)
 
-#else // ! FR_ASSERTIONS_ENABLED
-	#define FR_ASSERT(expression) ((void)0)
-	#define FR_ASSERT2(expression, msg) ((void)0)
-#endif // FR_ASSERTIONS_ENABLED
+#else // ! SPAD_ASSERTIONS_ENABLED
+	#define SPAD_ASSERT(expression) ((void)0)
+	#define SPAD_ASSERT2(expression, msg) ((void)0)
+#endif // SPAD_ASSERTIONS_ENABLED
 
-#define FR_STATIC_ASSERT(expr, msg) static_assert( expr, "static assertion failed: " #expr ": " msg )
+#define SPAD_STATIC_ASSERT(expr, msg) static_assert( expr, "static assertion failed: " #expr ": " msg )
 
-#define FR_NOT_IMPLEMENTED assertPrintAndBreak( "NOT IMPLEMENTED!" AT )
+#define SPAD_NOT_IMPLEMENTED assertPrintAndBreak( "NOT IMPLEMENTED!" AT )
 
 #if defined(_MSC_VER)
 
-	#define FR_ALIGNMENT(alignment) __declspec(align(alignment))
+	#define SPAD_ALIGNMENT(alignment) __declspec(align(alignment))
 
 #else	//PPU, SPU, other?
 
 	// Macro for declaring aligned structures
-	#define FR_ALIGNMENT(alignment) __attribute__((aligned(alignment)))
+	#define SPAD_ALIGNMENT(alignment) __attribute__((aligned(alignment)))
 
 #endif // _MSC_VER
 
 
-#define FR_CACHELINE_SIZE 64
+#define SPAD_CACHELINE_SIZE 64
 
 
 
@@ -130,19 +131,19 @@ __forceinline void operator delete[]( void *address, const char * /*szFileName*/
 #endif // _DEBUG
  
 
-inline void* frMallocAligned( size_t size, size_t alignment )
+inline void* spadMallocAligned( size_t size, size_t alignment )
 {
 	void* ptr = _aligned_malloc( size, alignment );
-	FR_ASSERT( ptr );
+	SPAD_ASSERT( ptr );
 	return ptr;
 }
 
-inline void frFreeAligned( void* address )
+inline void spadFreeAligned( void* address )
 {
 	_aligned_free( address );
 }
 
-#define frFreeAligned2(x) { frFreeAligned(x); x = nullptr; }
+#define spadFreeAligned2(x) { spadFreeAligned(x); x = nullptr; }
 
 #if defined(_MSC_VER) && defined(_DEBUG)
 /**
@@ -177,19 +178,19 @@ typedef wchar_t wchar;
 	If output string fits buffer, number of characters written is returned, excluding terminating null character.
 	If output string was too long, then negative value is returned.
 */
-int fr_snprintf( char* buffer, size_t bufferSize, const char* format, ... );
+int spad_snprintf( char* buffer, size_t bufferSize, const char* format, ... );
 
 /**
 * Returns value aligned on requested boundry
 * @remarks   alignment must be power of '2'
-* @sa        frAlignPtr2
+* @sa        spadAlignPtr2
 * @return    uint32_t aligned value
 * @param     uint32_t value value to align
 * @param     uint32_t alignment must be power of '2'
 */
-inline uint32_t frAlignU32_2( uint32_t value, uint32_t alignment )
+inline uint32_t spadAlignU32_2( uint32_t value, uint32_t alignment )
 {
-	FR_ASSERT2((alignment & (alignment-1)) == 0, "alignment must be multiple of 2");
+	SPAD_ASSERT2((alignment & (alignment-1)) == 0, "alignment must be multiple of 2");
 	alignment--;
 	return ( (value + alignment) & ~alignment );
 }
@@ -202,14 +203,14 @@ inline uint32_t frAlignU32_2( uint32_t value, uint32_t alignment )
  * @param     uint32_t size
  * @param     uint32_t alignment any value, non power of '2' are also valid
  */
-inline uint32_t frAlignU32(uint32_t size, uint32_t alignment)
+inline uint32_t spadAlignU32(uint32_t size, uint32_t alignment)
 {
 	return ( (uint32_t)((size - 1) / alignment) + 1) * alignment;
 }
 
-inline uint64_t frAlignU64_2( uint64_t val, uint64_t alignment )
+inline uint64_t spadAlignU64_2( uint64_t val, uint64_t alignment )
 {
-	FR_ASSERT2( ( alignment & ( alignment - 1 ) ) == 0, "alignment must be multiple of 2" );
+	SPAD_ASSERT2( ( alignment & ( alignment - 1 ) ) == 0, "alignment must be multiple of 2" );
 	alignment--;
 	return ( (val + alignment) & ~alignment );
 }

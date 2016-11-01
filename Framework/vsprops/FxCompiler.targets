@@ -59,16 +59,49 @@
 	  
   </Target>
 
-  <Target
-    Name="Clean"
+  <PropertyGroup>
+    <CleanDependsOn> $(CleanDependsOn); FxCompilerClean </CleanDependsOn>
+  </PropertyGroup>
+
+  <!--Target
+    Name="FxCompilerClean"
+	Condition="'@(FxCompilerFile)' != ''"
+	DependsOnTargets="_SelectedFiles"
 	>
 	
-    <Message Importance="High" Text="Cleaning Fx file ..." />
-	<!-- need to create clean task here
-	don't know how to do it 'the right way'
-	one way might be creating second FxCompileClean task with it's own rule just to call FxCompiler with another set of options
-	-->
+    <Message Importance="High" Text="Cleaning Fx output files ..." />
 	  
+	<ItemGroup
+      Condition="'@(SelectedFiles)' != ''">
+
+      <FxCompilerFile
+        Remove="@(FxCompilerFile)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+	  
+    <FxCompile
+	  Condition="'@(FxCompilerFile)' != '' and '%(FxCompilerFile.ExcludedFromBuild)' != 'true'"
+      CommandLineTemplate="&quot;$(FxCompilerBin)&quot; -c [Inputs]"
+      Inputs="@(FxCompilerFile)"
+	  />
+
+  </Target-->
+  
+  <!--
+	Default behaviour is to delete output directories, so files from multiple directories are deleted
+	Solution|Clean Project|Clean has the same behaviour (Project|Clean is equivalent of Solution|Clean)
+  -->
+  <Target
+    Name="FxCompilerClean"
+	>
+	
+    <Message Importance="High" Text="Cleaning Fx output files ..." />
+	    
+    <FxCompile
+      CommandLineTemplate="&quot;$(FxCompilerBin)&quot; -c"
+	  />
+
   </Target>
   
+
 </Project>

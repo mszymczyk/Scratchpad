@@ -1,12 +1,88 @@
 #include "FxCompiler_pch.h"
-#include "../../Core/FxLib/FxLib.h"
+#include "../FxCompilerLib/FxCompilerLib.h"
+#include "../FxCompilerLibHlsl/HlslCompile.h"
+#include "Options.h"
+#include <Util/Threading.h>
+#include <Util/Timer.h>
 
 using namespace spad;
 
-#define ARG_OUT_DIR "-outdir"
-#define ARG_INT_DIR "-intdir"
+//struct _DoFileParallelContext
+//{
+//	_DoFileParallelContext( const fxlib::FxFileCompileOptions& _compileOptions, const std::vector<std::string>& _files, std::vector<int>& _results )
+//		: compileOptions( _compileOptions )
+//		, files( _files )
+//		, results( _results )
+//	{	}
+//
+//	const fxlib::FxFileCompileOptions& compileOptions;
+//	const std::vector<std::string>& files;
+//	std::vector<int>& results;
+//};
+//
+//int doFileParallel( u32 index, void* userPtr )
+//{
+//	_DoFileParallelContext* ctx = reinterpret_cast<_DoFileParallelContext*>( userPtr );
+//	const std::string& file = ctx->files[index];
+//	int ires = CompileFxFile( file.c_str(), ctx->compileOptions );
+//	ctx->results[index] = ires;
+//	return ires;
+//}
 
-int _tmain(int argc, _TCHAR* argv[])
+int doIt( const std::string& programName
+	, const fxlib::CompileContext& compileContext
+	, const fxlib::FxFileCompileOptions& options
+	, const fxlib::hlsl::FxFileHlslCompileOptions& hlslOptions
+	, const std::vector<std::string>& files )
+{
+	std::vector<int> results( files.size(), 0 );
+
+	u32 nHardwareThreads = GetNumHardwareThreads();
+	// limiting number of threads gives better perf
+	// there will be more threads in flight than hardware can support due to multiple files being compiled simultaneously
+	// using builtin parallel_for seems to be little bit slower
+
+	//ParallelFor_threadPool( 0, files.size(), compileOptions.multithreadedFiles_, [&](size_t index) {
+	//ParallelFor2( 0, files.size(), compileOptions.multithreadedFiles_ ? -1 : 1, [&]( size_t index ) {
+	ParallelFor( 0, files.size(), options.multithreadedFiles_ ? (nHardwareThreads / 2) : 1, [&]( size_t index ) {
+		const std::string& file = files[index];
+
+		int ires = 0;
+		std::unique_ptr<fxlib::FxFile> fxFile = ParseFxFile( file.c_str(), options, *compileContext.includeCache, &ires );
+		if (fxFile)
+			ires = fxlib::hlsl::CompileFxHlsl( *fxFile.get(), compileContext, options, hlslOptions );
+
+		results[index] = ires;
+		return ires;
+	} );
+
+	//_DoFileParallelContext ctx( compileOptions, files, results );
+	//ParallelFor( doFileParallel, &ctx, 0, (u32)files.size(), compileOptions.multithreadedFiles_ ? -1 : 1 );
+
+	for (auto res : results)
+	{
+		if (res != 0)
+		{
+			std::cerr << programName << ": " << "Compilation failed for at least one input file!" << std::endl;
+			return res;
+		}
+	}
+
+	return 0;
+}
+
+int RemoveDirectoryRecursivelyIfExists( const std::string& directory )
+{
+	if (DirectoryExists( directory ))
+	{
+		std::cerr << "Removing directory: " << directory << "\n";
+		return RemoveDirectoryRecursively( directory );
+	}
+
+	return 0;
+}
+
+int _tmain( int argc, char* argv[] )
 {
 #ifdef _DEBUG
 	int flag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
@@ -20,109 +96,114 @@ int _tmain(int argc, _TCHAR* argv[])
 	//_CrtSetAllocHook( MyAllocHook );
 #endif
 
-	std::vector<std::string> files;
+	int ires = 0;
+
+	//Sleep( 5000 );
+
+	CpuTimeQuery totalDuration;
+	BeginCpuTimeQuery( totalDuration );
+
 	std::string programName = argv[0];
 
-	std::string outDir;
-	std::string intDir;
-
-	for (int i = 1; i < argc; ++i)
-		std::cerr << "arg " << i << ": " << argv[i] << std::endl;
-
-	for ( int i = 1; i < argc; ++i )
+	std::string SCRATCHPAD_DIR = getenv( "SCRATCHPAD_DIR" );
+	if (SCRATCHPAD_DIR.empty())
 	{
-		std::string arg = argv[i];
-
-		if (arg == ARG_OUT_DIR)
-		{
-			++i;
-			if (i < argc)
-			{
-				outDir = argv[i];
-			}
-			else
-			{
-				std::cerr << programName << " directory expected after -outdir" << std::endl;
-				return 1;
-			}
-		}
-		else if (arg == ARG_INT_DIR)
-		{
-			++i;
-			if (i < argc)
-			{
-				intDir = argv[i];
-			}
-			else
-			{
-				std::cerr << programName << " directory expected after -intdir" << std::endl;
-				return 1;
-			}
-		}
-		else if (arg[0] == '-')
-		{
-			std::cerr << programName << " unsupported argument '" << arg << "'" << std::endl;
-			return 1;
-		}
-		else
-		{
-			files.push_back( arg );
-		}
+		std::cerr << programName << ": " << "SCRATCHPAD_DIR env variable is not defined!" << std::endl;
+		return 100;
 	}
 
-	//std::cerr << "Files to compile: " << std::endl;
-	//for ( const auto& file : files )
-	//{
-	//	std::cerr << file << std::endl;
-	//}
-	//const char* hlslFile = "..\\shaders\\font.hlsl";
+	// make those vars to look nice
+	SCRATCHPAD_DIR = GetAbsolutePath( SCRATCHPAD_DIR );
+	AppendBackslashToDirectoryName( SCRATCHPAD_DIR );
 
-	//std::string hlslFileFullPath = GetAbsolutePath( hlslFile );
+	//for (int i = 1; i < argc; ++i)
+	//	std::cerr << "arg " << i << ": " << argv[i] << std::endl;
 
-	////std::string fxCompilerPath;
-	////fxCompilerPath.resize( 1024 );
-	////// Get the fully-qualified path of the executable
-	////DWORD fxCompilerPathLen = GetModuleFileName( NULL, &fxCompilerPath[0], (DWORD)hlslFileFullPath.size() );
-	////if ( fxCompilerPathLen == hlslFileFullPath.size() )
-	////{
-	////	// the buffer is too small, handle the error somehow
-	////	FR_NOT_IMPLEMENTED;
-	////	return -1;
-	////}
+	std::vector<std::string> files;
 
-	//bool ingore;
-	//options.compilerTimestamp_ = getFileTimestamp( fxCompilerPath.c_str(), ingore );
+	fxlib::FxFileCompileOptions options;
+	options.argv_ = argv;
+	options.argc_ = argc;
 
-	//Sleep( 5000 ); // for attaching to process started using msbuild
+	fxlib::hlsl::FxFileHlslCompileOptions hlslOptions;
+	fxlib::FxCompileConfiguration::Type configuration = fxlib::FxCompileConfiguration::shipping;
+	bool cleanOutputFiles = false;
 
-	FxLib::FxFileCompileOptions compileOptions;
-
-	FxLib::FxFileWriteOptions writeOptions;
-	writeOptions.outputDirectory_ = outDir;
-	writeOptions.intermediateDirectory_ = intDir;
-	writeOptions.logProgress_ = true;
-
-	for (const auto& file : files)
+	ires = ParseOptions( options, hlslOptions,
+		files, configuration, cleanOutputFiles );// , compilerMode );
+	if (ires)
 	{
-		std::string fileFullPath = GetAbsolutePath( file );
-
-		FxLib::FxFile fxFile;
-		int ires = fxFile.compileFxFile( fileFullPath.c_str(), compileOptions );
-		if (ires)
-		{
-			std::cerr << "Compilation failed!" << std::endl;
-			return ires > 0 ? ires : -ires;
-		}
-
-		ires = fxFile.writeCompiledFxFile( writeOptions );
-		if (ires)
-		{
-			std::cerr << "Compilation failed!" << std::endl;
-			return ires > 0 ? ires : -ires;
-		}
+		std::cerr << programName << ": " << "ParseOptions failed!" << std::endl;
+		return ires > 0 ? ires : -ires;
 	}
 
-	//return ires;
-	return 0;
+	//configuration = fxlib::FxCompileConfiguration::diagnostic; // for debug
+
+	options.configuration_ = configuration;
+
+#ifdef _DEBUG
+	options.forceRecompile_ = true;
+	options.multithreaded_ = false;
+	options.multithreadedFiles_ = false;
+#endif //
+
+	if (configuration == fxlib::FxCompileConfiguration::diagnostic)
+	{
+		// hlsl
+		hlslOptions.generateDisassembly = true;
+		hlslOptions.generatePreprocessedOutput = true;
+	}
+	else if (configuration == fxlib::FxCompileConfiguration::debug)
+	{
+		options.compileForDebugging_ = true;
+	}
+
+	// setup output dirs
+	hlslOptions.outputDirectory_ = SCRATCHPAD_DIR + "dataWin\\Shaders\\hlsl\\";
+	hlslOptions.intermediateDirectory_ = SCRATCHPAD_DIR + ".build\\dataWin\\Shaders\\hlsl\\";
+
+	if (cleanOutputFiles)
+	{
+		//std::cerr << "Cleaning outputs:" << std::endl;
+
+		//for ( const auto& f : files )
+		//	std::cerr << "\t" << f << std::endl;
+
+		RemoveDirectoryRecursivelyIfExists( hlslOptions.outputDirectory_ );
+		RemoveDirectoryRecursivelyIfExists( hlslOptions.intermediateDirectory_ );
+
+		return 0;
+	}
+
+	fxlib::IncludeCache includeCache;
+
+	std::string shadersDir = SCRATCHPAD_DIR + "Framework\\Shaders\\hlsl\\";
+	includeCache.AddSearchPath( shadersDir );
+
+	ires = includeCache.Load_AlwaysIncludedByCompiler();
+	if (ires)
+	{
+		std::cerr << "Couldn't read 'AlwaysIncludedByCompiler.h'" << std::endl;
+		return ires > 0 ? ires : -ires;
+	}
+
+	bool compilerFound = false;
+	options.compilerTimestamp_ = spad::GetFileTimestamp( SCRATCHPAD_DIR + "Framework\\bin\\FxCompiler.exe", compilerFound );
+	//compileOptions.compilerTimestamp_ = spad::GetFileTimestamp( programName, compilerFound ); // program name must not necesarilly be path to our exe (it can be for instance, FxCompiler - without .exe)
+	SPAD_ASSERT( compilerFound );
+
+	fxlib::CompileContext compileContext;
+	compileContext.includeCache = &includeCache;
+
+	ires = doIt( programName, compileContext, options, hlslOptions, files );
+
+	EndCpuTimeQuery( totalDuration );
+
+	std::string td = FormatTime( totalDuration.durationUS_ );
+
+	if (!ires)
+		std::cerr << programName << ": " << "Compilation succeeded for all '" << files.size() << "' input files in " << td << std::endl;
+
+	return ires;
 }
 

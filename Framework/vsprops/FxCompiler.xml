@@ -40,11 +40,11 @@
       Description="Specifies the directory in which to place the output files" /-->
 
 	<StringProperty Name="OutputDirectory" DisplayName="Output Directory"
-      Category="CompileOptions" Subtype="folder" Switch="-outdir &quot;[value]&quot;"
+      Category="CompileOptions" Subtype="folder" Switch="--outdir=&quot;[value]&quot;"
       Description="Specifies the directory in which to place the output files" />
 
 	<StringProperty Name="IntermediateDirectory" DisplayName="Intermediate Directory"
-      Category="CompileOptions" Subtype="folder" Switch="-intdir &quot;[value]&quot;"
+      Category="CompileOptions" Subtype="folder" Switch="--intdir=&quot;[value]&quot;"
       Description="Specifies the directory in which to place the temporary files" />
 	  
     <!--BoolProperty Name="ValidateHtml" DisplayName="Validate html"
@@ -62,7 +62,8 @@
  
     </EnumProperty-->
 	  
-    <StringListProperty Name="Inputs" Category="Command Line" IsRequired="true" Switch=" ">
+	<!-- IsRequired="true" - Clean task doesn't have valid input -->
+    <StringListProperty Name="Inputs" Category="Command Line" Switch=" ">
       <StringListProperty.DataSource>
         <DataSource
           Persistence="ProjectFile"

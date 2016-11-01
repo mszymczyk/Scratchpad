@@ -78,7 +78,7 @@ namespace spad
 					memcpy( &strLen, data_ + dataPtr_, 4 );
 					dataPtr_ += 4;
 					const size_t maxStrLen = 4 * 1024 * 1024;
-					FR_ASSERT2( strLen <= maxStrLen && strLen + dataPtr_ <= dataSize_, "string is longer than whole the message..." );
+					SPAD_ASSERT2( strLen <= maxStrLen && strLen + dataPtr_ <= dataSize_, "string is longer than whole the message..." );
 					if (strLen <= maxStrLen)
 					{
 						str.resize( strLen );

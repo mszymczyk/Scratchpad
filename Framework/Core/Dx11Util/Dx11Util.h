@@ -35,13 +35,13 @@ namespace spad
 class DxException : public Exception
 {
 public:
-	DxException( std::string&& exceptionMessage, HRESULT hres, const char* file, int line )
-		: Exception( std::move( exceptionMessage ), file, line )
-		, hres_( hres )
-	{	}
+    DxException( std::string&& exceptionMessage, HRESULT hres, const char* file, int line )
+        : Exception( std::move( exceptionMessage ), file, line )
+        , hres_( hres )
+    {	}
 
 protected:
-	HRESULT hres_;
+    HRESULT hres_;
 };
 
 #define THROW_DX_EXCEPTION(msg, hres) throw DxException( msg, hres, __FILE__, __LINE__ )
@@ -53,7 +53,7 @@ protected:
     do                                                                      \
     {                                                                       \
         HRESULT hres = x;                                                   \
-        FR_ASSERT2(SUCCEEDED(hres), #x "failed");                           \
+        SPAD_ASSERT2(SUCCEEDED(hres), #x "failed");                           \
     }                                                                       \
     while(0)                                                                \
     __pragma(warning(pop))
@@ -62,12 +62,12 @@ protected:
 template<class T>
 inline void Dx11SetDebugName( T* obj, const char* debugName )
 {
-	obj->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)strlen( debugName ), debugName );
+    obj->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)strlen( debugName ), debugName );
 }
 
 template<> inline void Dx11SetDebugName<ID3D11DeviceChild>( ID3D11DeviceChild* obj, const char* debugName )
 {
-	obj->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)strlen( debugName ), debugName );
+    obj->SetPrivateData( WKPDID_D3DDebugObjectName, (UINT)strlen( debugName ), debugName );
 }
 
 #define Dx11SetDebugName2( obj ) Dx11SetDebugName( obj, #obj )

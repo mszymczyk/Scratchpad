@@ -76,7 +76,7 @@ public:
 	{
 		// DO NOT CHANGE THE ORDER OF THESE STATEMENTS!
 		// (This order properly handles self-assignment)
-		// (This order also properly handles recursion, e.g., if a picoTimeline contains FredPtrs)
+		// (This order also properly handles recursion)
 		T* const old = p_;
 		p_ = p.p_;
 		if ( p_ )

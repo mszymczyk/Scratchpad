@@ -37,7 +37,7 @@ namespace spad
 				else if (cmd == "setFloat")
 				{
 					int nValues = msg.readInt( ok );
-					FR_ASSERT( nValues <= 4 );
+					SPAD_ASSERT( nValues <= 4 );
 					float f[4];
 					for (int i = 0; i < nValues; ++i)
 						f[i] = msg.readFloat( ok );
@@ -50,7 +50,7 @@ namespace spad
 				}
 				else
 				{
-					FR_NOT_IMPLEMENTED;
+					SPAD_NOT_IMPLEMENTED;
 				}
 			}
 

@@ -81,7 +81,7 @@ namespace spad
 
 					if ( level < eLogLevel_debug )
 					{
-						where_bufferLen = fr_snprintf( where_buffer, 512, " at %s(%d)", shortFilename, lineNo );
+						where_bufferLen = spad_snprintf( where_buffer, 512, " at %s(%d)", shortFilename, lineNo );
 						if ( where_bufferLen >= 512 )
 						{
 							where_buffer[511] = 0;
@@ -192,7 +192,7 @@ namespace spad
 
 					if ( level < eLogLevel_debug )
 					{
-						where_bufferLen = fr_snprintf( where_buffer, 512, " at %s(%d)", shortFilename, lineNo );
+						where_bufferLen = spad_snprintf( where_buffer, 512, " at %s(%d)", shortFilename, lineNo );
 						if ( where_bufferLen >= 512 )
 						{
 							where_buffer[511] = 0;
@@ -261,7 +261,7 @@ namespace spad
 
 		void logStartUp()
 		{
-			FR_ASSERT2( !_gLog, "loggger already initialized" );
+			SPAD_ASSERT2( !_gLog, "loggger already initialized" );
 			_gLog = new _LogImpl();
 		}
 
@@ -273,13 +273,13 @@ namespace spad
 
 		void logToStdError( bool yesno )
 		{
-			FR_ASSERT2( _gLog, "loggger not initialized" );
+			SPAD_ASSERT2( _gLog, "loggger not initialized" );
 			_gLog->logToStdError_ = yesno;
 		}
 
 		void logSetCallback( LogCallbackType callback )
 		{
-			FR_ASSERT2( _gLog, "loggger not initialized" );
+			SPAD_ASSERT2( _gLog, "loggger not initialized" );
 			_gLog->callback_ = callback;
 		}
 

@@ -83,6 +83,7 @@
     </FxCompilerFile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AlwaysIncludedByCompiler.h" />
     <ClInclude Include="DebugRendererConstants.h" />
     <ClInclude Include="HlslFrameworkInterop.h" />
     <ClInclude Include="PassConstants.h" />

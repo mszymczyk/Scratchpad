@@ -2,7 +2,7 @@
 #include "FileIO.h"
 #include <direct.h>
 
-#include <Pathcch.h>
+#include "Shlwapi.h"
 
 #if defined(_MSC_VER) && defined(_DEBUG)
 #define new _DEBUG_NEW
@@ -13,9 +13,6 @@ namespace spad
 	// Returns true if a file exits
 	bool FileExists( const char* filePath )
 	{
-		if ( filePath == NULL )
-			return false;
-
 		DWORD fileAttr = GetFileAttributes( filePath );
 		if ( fileAttr == INVALID_FILE_ATTRIBUTES )
 			return false;
@@ -45,8 +42,20 @@ namespace spad
 	//}
 
 
+	bool DirectoryExists( const char* filePath )
+	{
+		DWORD fileAttr = GetFileAttributes( filePath );
+		if ( fileAttr == INVALID_FILE_ATTRIBUTES )
+			return false;
+
+		if ( fileAttr & FILE_ATTRIBUTE_DIRECTORY )
+			return true;
+
+		return false;
+	}
+
 	// Gets the last written timestamp of the file
-	u64 getFileTimestamp( const wchar_t* filePath, bool& fileFound )
+	u64 GetFileTimestamp( const wchar_t* filePath, bool& fileFound )
 	{
 		WIN32_FILE_ATTRIBUTE_DATA attributes;
 		BOOL bres = GetFileAttributesExW( filePath, GetFileExInfoStandard, &attributes );
@@ -62,11 +71,26 @@ namespace spad
 		}
 	}
 
-	void CreateDirectoryRecursive( const std::string& absFilePath )
+	u64 GetFileTimestamp( const char* filePath, bool& fileFound )
 	{
-		FR_ASSERT( !absFilePath.empty() )
+		WIN32_FILE_ATTRIBUTE_DATA attributes;
+		BOOL bres = GetFileAttributesEx( filePath, GetFileExInfoStandard, &attributes );
+		if ( bres )
+		{
+			fileFound = true;
+			return attributes.ftLastWriteTime.dwLowDateTime | ( u64( attributes.ftLastWriteTime.dwHighDateTime ) << 32 );
+		}
+		else
+		{
+			fileFound = false;
+			return 0;
+		}
+	}
 
-		std::string file = absFilePath;
+	void CreateDirectoryRecursive( std::string file )
+	{
+		if ( file.empty() )
+			return;
 
 		std::string::size_type slash = file.find( '/' );
 		std::string::size_type slash2 = file.find( '\\' );
@@ -84,6 +108,86 @@ namespace spad
 			slash = std::min( slash, slash2 );
 			path += "/";
 		}
+	}
+
+	void CreateDirectoryRecursive( std::string root, std::string file )
+	{
+		if ( file.empty() )
+			return;
+
+		AppendBackslashToDirectoryName( root );
+
+		std::string::size_type slash = file.find( '/' );
+		std::string::size_type slash2 = file.find( '\\' );
+		slash = std::min( slash, slash2 );
+
+		std::string path;
+		while ( slash != std::string::npos )
+		{
+			std::string fileWithoutSlash = file.substr( 0, slash );
+			path += fileWithoutSlash;
+			_mkdir( ( root + path ).c_str() );
+			file = file.substr( slash + 1 );
+			slash = file.find( '/' );
+			slash2 = file.find( '\\' );
+			slash = std::min( slash, slash2 );
+			path += "/";
+		}
+	}
+
+	int RemoveDirectoryRecursively( const std::string& directory )
+	{
+		WIN32_FIND_DATA ffd;
+		HANDLE hFind = INVALID_HANDLE_VALUE;
+		DWORD dwError = 0;
+
+		// check if dir length plus NULL character is less-equal to MAX_PATH
+		if ( directory.length() > ( MAX_PATH - 1 ) )
+			return -10;
+
+		// Find the first file in the directory.
+
+		hFind = FindFirstFile( ( directory + '*' ).c_str(), &ffd );
+
+		if ( INVALID_HANDLE_VALUE == hFind )
+			return -20;
+
+		// List all the files in the directory with some info about them.
+
+		do
+		{
+			if ( ( ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) )
+			{
+				std::string newDir = ffd.cFileName;
+				if ( newDir != "." && newDir != ".." )
+				{
+					std::string dir = directory + newDir + "\\";
+					int ires = RemoveDirectoryRecursively( dir );
+					if ( ires )
+						return ires;
+				}
+			}
+			else
+			{
+				std::string file = directory + ffd.cFileName;
+				BOOL bres = DeleteFile( file.c_str() );
+				if ( !bres )
+					return -2;
+			}
+
+		} while ( FindNextFile( hFind, &ffd ) != 0 );
+
+		dwError = GetLastError();
+		if ( dwError != ERROR_NO_MORE_FILES )
+			return -30;
+
+		FindClose( hFind );
+
+		BOOL bres = RemoveDirectory( directory.c_str() );
+		if ( !bres )
+			return -1;
+
+		return 0;
 	}
 
 	int readTextFileSync( const char* filename, char** outBuffer, uint32_t* outBufSize )
@@ -104,10 +208,10 @@ namespace spad
 
 		size_t readBytes = fread( buf, 1, sizeInBytes, f );
 		(void)readBytes;
-		FR_ASSERT( readBytes == sizeInBytes );
+		SPAD_ASSERT( readBytes == sizeInBytes );
 		int ret = fclose( f );
 		(void)ret;
-		FR_ASSERT( ret != EOF );
+		SPAD_ASSERT( ret != EOF );
 
 		buf[sizeInBytes] = 0;
 
@@ -117,7 +221,7 @@ namespace spad
 		return 0;
 	}
 
-	int WriteFileSync( const char* filename, const void* srcBuffer, uint32_t srcBufSize )
+	int WriteFileSync( const char* filename, const void* srcBuffer, size_t srcBufSize )
 	{
 		FILE* f = fopen( filename, "wb" );
 		if ( !f )
@@ -128,9 +232,9 @@ namespace spad
 
 		size_t written = fwrite( srcBuffer, 1, srcBufSize, f );
 		(void)written;
-		FR_ASSERT( written == srcBufSize );
+		SPAD_ASSERT( written == srcBufSize );
 		int ret = fclose( f );
-		FR_ASSERT( ret != EOF );
+		SPAD_ASSERT( ret != EOF );
 		(void)ret;
 
 		return 0;
@@ -216,6 +320,7 @@ namespace spad
 		return ret;
 	}
 
+
 	std::string GetAbsolutePath( const char* filePath )
 	{
 		std::string fileFullPath;
@@ -237,7 +342,56 @@ namespace spad
 			}
 		}
 
-		return fileFullPath;
+		//std::string fileFullPathOut;
+		//fileFullPathOut.resize( pathLen );
+		//BOOL res = PathCanonicalize( &fileFullPathOut[0], fileFullPath.c_str() );
+		//if ( !res )
+		//{
+		//	logError( "PathCanonicalize failed!" );
+		//	return "";
+		//}
+		char dst[MAX_PATH] = { 0 };
+		BOOL res = PathCanonicalize( dst, fileFullPath.c_str() );
+		if ( !res )
+		{
+			logError( "PathCanonicalize failed!" );
+			return "";
+		}
+
+		// fix drive letter to be upper case
+		// windows supports only single letter drive names:)
+		if ( dst[0] && dst[1] == ':' )
+			dst[0] = (char)toupper( dst[0] );
+
+		//HANDLE fileHandle = CreateFile( filePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+		//if ( fileHandle == INVALID_HANDLE_VALUE )
+		//{
+		//	return "";
+		//}
+
+		//// FILE_NAME_NORMALIZED - Return the normalized drive name.This is the default.
+		//// VOLUME_NAME_DOS - Return the path with the drive letter. This is the default.
+		//DWORD flags = FILE_NAME_NORMALIZED | VOLUME_NAME_DOS;
+		//DWORD pathLen = GetFinalPathNameByHandle( fileHandle, &fileFullPath[0], (DWORD)fileFullPath.size(), flags );
+		//if ( pathLen == 0 )
+		//{
+		//	logError( "GetFinalPathNameByHandle failed!" );
+		//	CloseHandle( fileHandle );
+		//	return "";
+		//}
+		//else if ( pathLen > fileFullPath.size() )
+		//{
+		//	fileFullPath.resize( pathLen );
+		//	pathLen = GetFinalPathNameByHandle( fileHandle, &fileFullPath[0], (DWORD)fileFullPath.size(), flags );
+		//	CloseHandle( fileHandle );
+		//	if ( pathLen == 0 )
+		//	{
+		//		logError( "GetFinalPathNameByHandle failed!" );
+		//		return "";
+		//	}
+		//}
+
+		return dst;
 	}
 
 	std::string GetAbsolutePath( const std::string& filePath )
@@ -270,7 +424,7 @@ namespace spad
 			return filePath.substr( 0, idx1 + 1 );
 		}
 
-		FR_ASSERT2( false, "filePath is invalid!" );
+		SPAD_ASSERT2( false, "filePath is invalid!" );
 		return "";
 	}
 
@@ -299,8 +453,8 @@ namespace spad
 			return filePath.substr( idx1 + 1 );
 		}
 
-		FR_ASSERT2( false, "filePath is invalid!" );
-		return "";
+		SPAD_ASSERT2( !filePath.empty(), "filePath is invalid!" );
+		return filePath;
 	}
 
 	std::string GetFileNameWithoutExtension( const char* filePath )
@@ -310,7 +464,7 @@ namespace spad
 		if ( idx != std::string::npos )
 			return filename.substr( 0, idx );
 
-		FR_ASSERT2( false, "filePath is invalid!" );
+		SPAD_ASSERT2( false, "filePath is invalid!" );
 		return "";
 	}
 
@@ -321,7 +475,7 @@ namespace spad
 		if ( idx != std::string::npos )
 			return filename.substr( 0, idx );
 
-		FR_ASSERT2( false, "filePath is invalid!" );
+		SPAD_ASSERT2( false, "filePath is invalid!" );
 		return "";
 	}
 
@@ -332,7 +486,7 @@ namespace spad
 		if ( idx != std::string::npos )
 			return filename.substr( idx + 1 );
 
-		FR_ASSERT2( false, "filePath is invalid!" );
+		SPAD_ASSERT2( false, "filePath is invalid!" );
 		return "";
 	}
 
@@ -343,7 +497,7 @@ namespace spad
 		if ( idx != std::string::npos )
 			return filename.substr( idx + 1 );
 
-		FR_ASSERT2( false, "filePath is invalid!" );
+		SPAD_ASSERT2( false, "filePath is invalid!" );
 		return "";
 	}
 
@@ -358,15 +512,48 @@ namespace spad
 		if ( idx != std::string::npos )
 			return filePath.substr( 0, idx );
 
-		FR_ASSERT2( false, "filePath is invalid!" );
+		SPAD_ASSERT2( false, "filePath is invalid!" );
 		return "";
 	}
 
-	void AppendSlashToDirectoryName( std::string& dirPath )
+
+	bool PathsPointToTheSameFile( const char* path1, const char* path2 )
 	{
-		if (dirPath.empty())
-			dirPath.append( 1, '/' );
-		else
+		HANDLE fileHandle1 = CreateFile( path1, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+		if ( fileHandle1 == INVALID_HANDLE_VALUE )
+			return false;
+
+		HANDLE fileHandle2 = CreateFile( path2, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+		if ( fileHandle2 == INVALID_HANDLE_VALUE )
+		{
+			CloseHandle( fileHandle1 );
+			return false;
+		}
+
+		BY_HANDLE_FILE_INFORMATION fi1, fi2;
+		memset( &fi1, 0, sizeof( fi1 ) );
+		memset( &fi2, 0, sizeof( fi2 ) );
+		BOOL b1 = GetFileInformationByHandle( fileHandle1, &fi1 );
+		BOOL b2 = GetFileInformationByHandle( fileHandle2, &fi2 );
+
+		CloseHandle( fileHandle2 );
+		CloseHandle( fileHandle1 );
+
+		if ( b1 && b2 )
+		{
+			if (	fi1.dwVolumeSerialNumber == fi2.dwVolumeSerialNumber
+				&&	fi1.nFileIndexLow == fi2.nFileIndexHigh
+				&&	fi1.nFileIndexHigh == fi2.nFileIndexHigh
+				)
+				return true;
+		}
+
+		return false;
+	}
+
+	void AppendBackslashToDirectoryName( std::string& dirPath )
+	{
+		if ( !dirPath.empty() )
 		{
 			if (dirPath.back() != '/' && dirPath.back() != '\\')
 				dirPath.append( 1, '\\' );
@@ -375,26 +562,35 @@ namespace spad
 
 	std::string CanonicalizePathSimple( const std::string& srcPath )
 	{
-		std::string dst;
-		const size_t srcPathLen = srcPath.length();
-		dst.reserve( srcPathLen + 1 );
+		//std::string dst;
+		//const size_t srcPathLen = srcPath.length();
+		//dst.resize( srcPathLen + 1 );
 
-		char lastC = '\\'; // this will remove leading '\' or '/'
-		for ( size_t i = 0; i < srcPathLen; ++i )
+		//char lastC = '\\'; // this will remove leading '\' or '/'
+		//for ( size_t i = 0; i < srcPathLen; ++i )
+		//{
+		//	char c = srcPath[i];
+		//	if ( c == '/' )
+		//		c = '\\';
+
+		//	if ( lastC == '\\' && c == '\\' )
+		//	{
+		//		// skip
+		//	}
+		//	else
+		//	{
+		//		lastC = c;
+		//		dst.append( 1, c );
+		//	}
+		//}
+
+		//return dst;
+		char dst[MAX_PATH];
+		BOOL res = PathCanonicalize( dst, srcPath.c_str() );
+		if ( !res )
 		{
-			char c = srcPath[i];
-			if ( c == '/' )
-				c = '\\';
-
-			if ( lastC == '\\' && c == '\\' )
-			{
-				// skip
-			}
-			else
-			{
-				lastC = c;
-				dst.append( 1, c );
-			}
+			logError( "PathCanonicalize failed!" );
+			return "";
 		}
 
 		return dst;

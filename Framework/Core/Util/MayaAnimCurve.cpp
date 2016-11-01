@@ -948,7 +948,7 @@ engineAnimEvaluate (const EtCurve *animCurve, EtCurveEvalCache* animCurveEvalCac
 
 float MayaAnimCurve::evaluate( float time, EtCurveEvalCache* evalCache ) const
 {
-	FR_ASSERT( !keyList_.empty() );
+	SPAD_ASSERT( !keyList_.empty() );
 	return engineAnimEvaluate( &curve_, evalCache, time );
 }
 
@@ -980,7 +980,7 @@ float MayaAnimCurve::evaluate( float time, EtCurveEvalCache* evalCache ) const
 */
 void MayaAnimCurve::_Init( const EtReadKey* keys, const size_t numKeys, EtInfinityType preInfinity, EtInfinityType postInfinity, bool isWeighted /*= false*/ )
 {
-	FR_ASSERT( numKeys > 0 );
+	SPAD_ASSERT( numKeys > 0 );
 
 	EtCurve *	animCurve = &curve_;
 	const EtReadKey *	prevKey = kEngineNULL;

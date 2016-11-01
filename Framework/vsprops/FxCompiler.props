@@ -14,7 +14,7 @@
       <!--OutputDirectory>$(IntDir)</OutputDirectory-->
       <OutputDirectory>$(OutDir)</OutputDirectory>
       <IntermediateDirectory>$(IntDir)</IntermediateDirectory>
-      <CommandLineTemplate>"$(FxCompilerBin)" [AllOptions] [Inputs]</CommandLineTemplate>
+      <CommandLineTemplate>"$(FxCompilerBin)" [AllOptions] [AdditionalOptions] [Inputs]</CommandLineTemplate>
     </FxCompilerFile>
 	
   </ItemDefinitionGroup>

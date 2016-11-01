@@ -42,7 +42,7 @@ namespace spad
 
 			void registerMessageHandler( MessageHandler funcHandler, void* userData )
 			{
-				FR_ASSERT( std::find_if( messageHandlers_.begin(), messageHandlers_.end(), [&]( _MsgHandler& h ) { return h.func == funcHandler; } ) == messageHandlers_.end() );
+				SPAD_ASSERT( std::find_if( messageHandlers_.begin(), messageHandlers_.end(), [&]( _MsgHandler& h ) { return h.func == funcHandler; } ) == messageHandlers_.end() );
 
 				_Impl::_MsgHandler h;
 				h.func = funcHandler;
@@ -65,7 +65,7 @@ namespace spad
 					const size_t rawDataSize = msg.size();
 					const char* tag = reinterpret_cast<const char*>( rawData + 4 );
 					size_t headerSize = 4 + strlen( tag ) + 1;
-					FR_ASSERT( headerSize <= rawDataSize );
+					SPAD_ASSERT( headerSize <= rawDataSize );
 					size_t userDataSize = rawDataSize - headerSize;
 					IncommingMessage imsg( tag, rawData + headerSize, userDataSize );
 
@@ -95,7 +95,7 @@ namespace spad
 					{
 						zmq_msg_t msg;
 						int rc = zmq_msg_init( &msg );
-						FR_ASSERT( rc == 0 );
+						SPAD_ASSERT( rc == 0 );
 						rc = zmq_msg_recv( &msg, impl_->subscriber_, 0 );
 						if (rc == -1)
 						{
@@ -170,7 +170,7 @@ namespace spad
 
 		int startUp()
 		{
-			FR_ASSERT( !_gImpl );
+			SPAD_ASSERT( !_gImpl );
 			if (_gImpl)
 				return -1;
 
@@ -181,7 +181,7 @@ namespace spad
 				_gImpl->shutDown();
 				delete _gImpl;
 				_gImpl = nullptr;
-				FR_ASSERT2( false, "ZMQHubUtil startUp failed!" );
+				SPAD_ASSERT2( false, "ZMQHubUtil startUp failed!" );
 				return ires;
 			}
 

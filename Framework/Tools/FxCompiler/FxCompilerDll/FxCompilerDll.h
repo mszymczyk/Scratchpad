@@ -15,6 +15,6 @@ extern "C"
 	FXCOMPILERDLL_API int __stdcall FxCompilerDll_Initialize( spad::log::LogCallbackType logCallback );
 	FXCOMPILERDLL_API void __stdcall FxCompilerDll_Shutdown();
 
-	FXCOMPILERDLL_API int __stdcall FxCompilerDll_CompileFile( const char* fileFullPath, const char* outDir, const char* intDir );
+	FXCOMPILERDLL_API int __stdcall FxCompilerDll_CompileFile( const char* fileFullPath );
 
 } // extern "C"

@@ -118,16 +118,30 @@ namespace spad
 
 
 #define Win32Call(x)                                                            \
-    __pragma(warning(push))                                                     \
-    __pragma(warning(disable:4127))                                             \
-    do                                                                          \
-    {                                                                           \
-        BOOL res_ = x;                                                          \
-        FR_ASSERT2(res_ != 0, GetWin32ErrorStringAnsi(GetLastError()).c_str()); \
-    }                                                                           \
-    while(0)                                                                    \
-    __pragma(warning(pop))
+	__pragma(warning(push))                                                     \
+	__pragma(warning(disable:4127))                                             \
+	do                                                                          \
+	{                                                                           \
+		BOOL res_ = x;                                                          \
+		SPAD_ASSERT2(res_ != 0, GetWin32ErrorStringAnsi(GetLastError()).c_str()); \
+	}                                                                           \
+	while(0)                                                                    \
+	__pragma(warning(pop))
 
-//#define Win32Call(x) (x)
+	//#define Win32Call(x) (x)
+
+
+
+#define CallResult(expression)                                                            \
+	__pragma(warning(push))                                                     \
+	__pragma(warning(disable:4127))                                             \
+	do                                                                          \
+	{                                                                           \
+		int res = (expression);                                                          \
+		if ( res != 0 ) throw Exception( (#expression), __FILE__, __LINE__ ); \
+	}                                                                           \
+	while(0)                                                                    \
+	__pragma(warning(pop))
+
 
 } // namespace spad

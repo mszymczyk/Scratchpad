@@ -22,6 +22,7 @@
     <ClCompile Include="SettingsEditor\SettingsEditor.cpp" />
     <ClCompile Include="SettingsEditor\SettingsEditorComm.cpp" />
     <ClCompile Include="StdHelp.cpp" />
+    <ClCompile Include="Threading.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Util_pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -39,6 +40,7 @@
     <ClInclude Include="Hash\MurmurHash3.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MayaAnimCurve.h" />
+    <ClInclude Include="MultiDimensionalArray.h" />
     <ClInclude Include="pugixml\pugiconfig.hpp" />
     <ClInclude Include="pugixml\pugixml.hpp" />
     <ClInclude Include="pugixml\pugixmlHelpers.h" />
@@ -48,6 +50,7 @@
     <ClInclude Include="SettingsEditor\SettingsEditorHelpers.h" />
     <ClInclude Include="StdHelp.h" />
     <ClInclude Include="SysIncludes.h" />
+    <ClInclude Include="Threading.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Util_pch.h" />
     <ClInclude Include="Vectormath.h" />

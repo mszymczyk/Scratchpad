@@ -24,7 +24,7 @@ const char* attribute_get_string( const pugi::xml_node& node, const char* attrib
 
 bool attribute_get_float_array( const pugi::xml_attribute& attr, float* dst, size_t nDst )
 {
-	FR_ASSERT( ! attr.empty() );
+	SPAD_ASSERT( ! attr.empty() );
 	const char* s = attr.value();
 	const size_t sLen = strlen( s );
 	const char* sEnd = s + sLen;
