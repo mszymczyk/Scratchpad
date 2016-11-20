@@ -65,8 +65,7 @@ namespace CircuitEditorSample
             string outFile = System.IO.Path.ChangeExtension( documentPath, "hlsl" );
             sourceCode.WriteMaterialToFile( outFile );
 
-            string outDir = Path.GetDirectoryName( outFile );
-            FxCompiler.FxCompilerInterop.CompileFile( outFile, outDir, "" );
+            FxCompiler.FxCompilerInterop.CompileFile(outFile);
         }
 
         //private Module GetConnectedModule( Module module, MaterialGraphPin pin )

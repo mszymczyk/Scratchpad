@@ -208,7 +208,7 @@ void BMFont::Initialize( ID3D11Device* dxDevice, const char* fontFile )
 
 		++ nPages;
 
-		FR_ASSERT( ! fontTex_ );
+		SPAD_ASSERT( ! fontTex_ );
 		const char* filename = page->Attribute( "file" );
 		std::string fullFilename = fontFileDir;
 		fullFilename.append( filename );

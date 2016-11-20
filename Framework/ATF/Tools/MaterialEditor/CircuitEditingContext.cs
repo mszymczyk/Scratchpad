@@ -18,9 +18,14 @@ namespace CircuitEditorSample
     /// Class that defines a circuit editing context. Each context represents a circuit,
     /// with a history, selection, and editing capabilities. There may be multiple
     /// contexts within a single circuit document, because each sub-circuit has its own
-    /// editing context.</summary>
+    /// editing context.
+    /// misz:
+    /// Implements INamingContext to allow MaterialInstance name change. Implementation copied from 
+    /// Sce.Atf.Controls.Adaptable.Graphs.CircuitEditingContext
+    /// </summary>
     public class CircuitEditingContext : Sce.Atf.Controls.Adaptable.Graphs.CircuitEditingContext,
         IEditableGraphContainer<Module, Connection, ICircuitPin>
+        , INamingContext
     {
         /// <summary>
         /// Performs initialization when the adapter is connected to the editing context's DomNode.
@@ -305,6 +310,85 @@ namespace CircuitEditorSample
             }
 
             return null;
+        }
+
+        #endregion
+
+        #region INamingContext Members
+
+        /// <summary>
+        /// Gets the item's name in the context, or null if none</summary>
+        /// <param name="item">Item</param>
+        /// <returns>Item's name in the context, or null if none</returns>
+        string INamingContext.GetName(object item)
+        {
+            Element element = item.As<Element>();
+            if (element != null)
+                return element.Name;
+
+            Wire wire = item.As<Wire>();
+            if (wire != null)
+                return wire.Label;
+
+            var groupPin = item.As<GroupPin>();
+            if (groupPin != null)
+                return groupPin.Name;
+
+            MaterialInstance mi = item.As<MaterialInstance>();
+            if (mi != null)
+                return mi.Name;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Returns whether the item can be named</summary>
+        /// <param name="item">Item to name</param>
+        /// <returns>True iff the item can be named</returns>
+        bool INamingContext.CanSetName(object item)
+        {
+            return
+                   item.Is<Element>()
+                || item.Is<Wire>()
+                || item.Is<GroupPin>()
+                || item.Is<MaterialInstance>();
+            ;
+        }
+
+        /// <summary>
+        /// Sets the item's name</summary>
+        /// <param name="item">Item to name</param>
+        /// <param name="name">New item name</param>
+        void INamingContext.SetName(object item, string name)
+        {
+            Element element = item.As<Element>();
+            if (element != null)
+            {
+                element.Name = name;
+                return;
+            }
+
+            Wire wire = item.As<Wire>();
+            if (wire != null)
+            {
+                wire.Label = name;
+                return;
+            }
+
+
+            var groupPin = item.As<GroupPin>();
+            if (groupPin != null)
+            {
+                groupPin.Name = name;
+                return;
+            }
+
+            MaterialInstance mi = item.As<MaterialInstance>();
+            if (mi != null)
+            {
+                mi.Name = name;
+                return;
+            }
         }
 
         #endregion

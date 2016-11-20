@@ -1,7 +1,6 @@
 #include "Gfx_pch.h"
 #include "TextRenderer.h"
 #include "../dx11/Dx11DeviceStates.h"
-#include <fxLib/FxLib.h>
 
 #if defined(_MSC_VER) && defined(_DEBUG)
 #define new _DEBUG_NEW
@@ -118,7 +117,7 @@ namespace spad
 
 	void TextRenderer::Initialize( ID3D11Device* device )
 	{
-		shi_ = FxLib::loadCompiledFxFile( device, "DataWin\\Shaders\\TextRenderer.hlsl" );
+		shi_ = LoadCompiledFxFile( "DataWin\\Shaders\\hlsl\\compiled\\TextRenderer.hlslc_packed" );
 
 		const u32 nChars = 1024;
 
@@ -150,10 +149,10 @@ namespace spad
 
 	void TextRenderer::begin( Dx11DeviceContext& deviceContext, const BMFont* bmFont, u32 canvasWidth, u32 canvasHeight )
 	{
-		FR_ASSERT( !currentFont_ ); // has previous batch completed?
+		SPAD_ASSERT( !currentFont_ ); // has previous batch completed?
 		currentFont_ = bmFont;
 
-		const FxLib::FxRuntimePass& fxPass = shi_->getPass( "Text" );
+		const HlslShaderPass& fxPass = *shi_->getPass( "Text" );
 
 		ID3D11DeviceContext* context = deviceContext.context;
 
@@ -353,14 +352,14 @@ void TextRenderer::_Draw( Dx11DeviceContext& deviceContext, float userX, float u
 	if ( ! nVisibleCharacters )
 		return;
 
-	FR_ASSERT( nVisibleCharacters*6 <= indices_.nIndices_ )
+	SPAD_ASSERT( nVisibleCharacters*6 <= indices_.nIndices_ )
 
 	ID3D11DeviceContext* context = deviceContext.context;
 	const BMFont* bmFont = currentFont_;
 
 	_BMFontVertex* ptr = reinterpret_cast<_BMFontVertex*>( vertices_.map( context, nVisibleCharacters * 4 * sizeof( _BMFontVertex ) ) );
 
-	FR_STATIC_ASSERT( sizeof( _BMFontVertex ) == 16, "_BMFontVertex must be 16 byte wide" );
+	SPAD_STATIC_ASSERT( sizeof( _BMFontVertex ) == 16, "_BMFontVertex must be 16 byte wide" );
 
 
 	textRendererConstants_.data.Color = abgrToRgba( colorABGR );

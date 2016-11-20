@@ -4,42 +4,42 @@
 
 namespace spad
 {
-	ID3D11BlendState* BlendStates::blendDisabled;
-	ID3D11BlendState* BlendStates::additiveBlend;
-	ID3D11BlendState* BlendStates::alphaBlend;
-	ID3D11BlendState* BlendStates::pmAlphaBlend;
-	ID3D11BlendState* BlendStates::noColor;
-	ID3D11BlendState* BlendStates::alphaToCoverage;
-	ID3D11BlendState* BlendStates::opacityBlend;
+    ID3D11BlendState* BlendStates::blendDisabled;
+    ID3D11BlendState* BlendStates::additiveBlend;
+    ID3D11BlendState* BlendStates::alphaBlend;
+    ID3D11BlendState* BlendStates::pmAlphaBlend;
+    ID3D11BlendState* BlendStates::noColor;
+    ID3D11BlendState* BlendStates::alphaToCoverage;
+    ID3D11BlendState* BlendStates::opacityBlend;
 
-	// create it through wrapper func to make compiler happy
-	//
-	void CreateBlendStateWrap( ID3D11Device* device, const D3D11_BLEND_DESC& desc, ID3D11BlendState** ss )
-	{
-		DXCall( device->CreateBlendState( &desc, ss ) );
-	}
+    // create it through wrapper func to make compiler happy
+    //
+    void CreateBlendStateWrap( ID3D11Device* device, const D3D11_BLEND_DESC& desc, ID3D11BlendState** ss )
+    {
+        DXCall( device->CreateBlendState( &desc, ss ) );
+    }
 
 void BlendStates::Initialize(ID3D11Device* device)
 {
-	CreateBlendStateWrap( device, BlendDisabledDesc(), &blendDisabled );
-	CreateBlendStateWrap( device, AdditiveBlendDesc(), &additiveBlend );
-	CreateBlendStateWrap( device, AlphaBlendDesc(), &alphaBlend );
-	CreateBlendStateWrap( device, PreMultipliedAlphaBlendDesc(), &pmAlphaBlend );
-	CreateBlendStateWrap( device, ColorWriteDisabledDesc(), &noColor );
-	CreateBlendStateWrap( device, AlphaToCoverageDesc(), &alphaToCoverage );
-	CreateBlendStateWrap( device, OpacityBlendDesc(), &opacityBlend );
+    CreateBlendStateWrap( device, BlendDisabledDesc(), &blendDisabled );
+    CreateBlendStateWrap( device, AdditiveBlendDesc(), &additiveBlend );
+    CreateBlendStateWrap( device, AlphaBlendDesc(), &alphaBlend );
+    CreateBlendStateWrap( device, PreMultipliedAlphaBlendDesc(), &pmAlphaBlend );
+    CreateBlendStateWrap( device, ColorWriteDisabledDesc(), &noColor );
+    CreateBlendStateWrap( device, AlphaToCoverageDesc(), &alphaToCoverage );
+    CreateBlendStateWrap( device, OpacityBlendDesc(), &opacityBlend );
 }
 
 void BlendStates::DeInitialize()
 {
-	DX_SAFE_RELEASE( blendDisabled );
-	DX_SAFE_RELEASE( additiveBlend );
-	DX_SAFE_RELEASE( alphaBlend );
-	DX_SAFE_RELEASE( pmAlphaBlend );
+    DX_SAFE_RELEASE( blendDisabled );
+    DX_SAFE_RELEASE( additiveBlend );
+    DX_SAFE_RELEASE( alphaBlend );
+    DX_SAFE_RELEASE( pmAlphaBlend );
 
-	DX_SAFE_RELEASE( noColor );
-	DX_SAFE_RELEASE( alphaToCoverage );
-	DX_SAFE_RELEASE( opacityBlend );
+    DX_SAFE_RELEASE( noColor );
+    DX_SAFE_RELEASE( alphaToCoverage );
+    DX_SAFE_RELEASE( opacityBlend );
 }
 
 D3D11_BLEND_DESC BlendStates::BlendDisabledDesc()
@@ -172,12 +172,12 @@ D3D11_BLEND_DESC BlendStates::OpacityBlendDesc()
     for (u32 i = 0; i < 8; ++i)
     {
         blendDesc.RenderTarget[i].BlendEnable = true;
-		blendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_ONE;
-		blendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_INV_SRC1_COLOR;
-		blendDesc.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ONE;
-		blendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ONE;
-		blendDesc.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_ONE;
+        blendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_INV_SRC1_COLOR;
+        blendDesc.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
+        blendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ONE;
+        blendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ONE;
+        blendDesc.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
         blendDesc.RenderTarget[i].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
     }
 
@@ -197,34 +197,34 @@ ID3D11RasterizerState* RasterizerStates::wireframe;
 //
 void CreateRasterizerStateWrap( ID3D11Device* device, const D3D11_RASTERIZER_DESC& desc, ID3D11RasterizerState** rs )
 {
-	DXCall( device->CreateRasterizerState( &desc, rs ) );
+    DXCall( device->CreateRasterizerState( &desc, rs ) );
 }
 
 void RasterizerStates::Initialize(ID3D11Device* device)
 {
     //DXCall(device->CreateRasterizerState(&NoCullDesc(), &noCull));
-	CreateRasterizerStateWrap( device, NoCullDesc(), &noCull );
-	CreateRasterizerStateWrap( device, FrontFaceCullDesc(), &cullFrontFaces );
-	CreateRasterizerStateWrap( device, FrontFaceCullScissorDesc(), &cullFrontFacesScissor );
-	CreateRasterizerStateWrap( device, BackFaceCullDesc(), &cullBackFaces );
+    CreateRasterizerStateWrap( device, NoCullDesc(), &noCull );
+    CreateRasterizerStateWrap( device, FrontFaceCullDesc(), &cullFrontFaces );
+    CreateRasterizerStateWrap( device, FrontFaceCullScissorDesc(), &cullFrontFacesScissor );
+    CreateRasterizerStateWrap( device, BackFaceCullDesc(), &cullBackFaces );
 
-	CreateRasterizerStateWrap( device, BackFaceCullScissorDesc(), &cullBackFacesScissor );
-	CreateRasterizerStateWrap( device, NoCullNoMSDesc(), &noCullNoMS );
-	CreateRasterizerStateWrap( device, NoCullScissorDesc(), &noCullScissor );
-	CreateRasterizerStateWrap( device, WireframeDesc(), &wireframe );
+    CreateRasterizerStateWrap( device, BackFaceCullScissorDesc(), &cullBackFacesScissor );
+    CreateRasterizerStateWrap( device, NoCullNoMSDesc(), &noCullNoMS );
+    CreateRasterizerStateWrap( device, NoCullScissorDesc(), &noCullScissor );
+    CreateRasterizerStateWrap( device, WireframeDesc(), &wireframe );
 }
 
 void RasterizerStates::DeInitialize()
 {
-	DX_SAFE_RELEASE( noCull );
-	DX_SAFE_RELEASE( cullFrontFaces );
-	DX_SAFE_RELEASE( cullFrontFacesScissor );
-	DX_SAFE_RELEASE( cullBackFaces );
+    DX_SAFE_RELEASE( noCull );
+    DX_SAFE_RELEASE( cullFrontFaces );
+    DX_SAFE_RELEASE( cullFrontFacesScissor );
+    DX_SAFE_RELEASE( cullBackFaces );
 
-	DX_SAFE_RELEASE( cullBackFacesScissor );
-	DX_SAFE_RELEASE( noCullNoMS );
-	DX_SAFE_RELEASE( noCullScissor );
-	DX_SAFE_RELEASE( wireframe );
+    DX_SAFE_RELEASE( cullBackFacesScissor );
+    DX_SAFE_RELEASE( noCullNoMS );
+    DX_SAFE_RELEASE( noCullScissor );
+    DX_SAFE_RELEASE( wireframe );
 }
 
 D3D11_RASTERIZER_DESC RasterizerStates::NoCullDesc()
@@ -255,7 +255,7 @@ D3D11_RASTERIZER_DESC RasterizerStates::FrontFaceCullDesc()
     rastDesc.DepthBiasClamp = 0.0f;
     rastDesc.DepthClipEnable = true;
     rastDesc.FillMode = D3D11_FILL_SOLID;
-	rastDesc.FrontCounterClockwise = true;
+    rastDesc.FrontCounterClockwise = true;
     rastDesc.MultisampleEnable = true;
     rastDesc.ScissorEnable = false;
     rastDesc.SlopeScaledDepthBias = 0;
@@ -291,7 +291,7 @@ D3D11_RASTERIZER_DESC RasterizerStates::BackFaceCullDesc()
     rastDesc.DepthBiasClamp = 0.0f;
     rastDesc.DepthClipEnable = true;
     rastDesc.FillMode = D3D11_FILL_SOLID;
-	rastDesc.FrontCounterClockwise = true;
+    rastDesc.FrontCounterClockwise = true;
     rastDesc.MultisampleEnable = true;
     rastDesc.ScissorEnable = false;
     rastDesc.SlopeScaledDepthBias = 0;
@@ -383,30 +383,30 @@ ID3D11DepthStencilState* DepthStencilStates::stencilEnabled;
 //
 void CreateDepthStencilStateWrap( ID3D11Device* device, const D3D11_DEPTH_STENCIL_DESC& desc, ID3D11DepthStencilState** dss )
 {
-	DXCall( device->CreateDepthStencilState( &desc, dss ) );
+    DXCall( device->CreateDepthStencilState( &desc, dss ) );
 }
 
 void DepthStencilStates::Initialize(ID3D11Device* device)
 {
-	CreateDepthStencilStateWrap( device, DepthDisabledDesc(), &depthDisabled );
-	CreateDepthStencilStateWrap( device, DepthEnabledDesc(), &depthEnabled );
-	CreateDepthStencilStateWrap( device, ReverseDepthEnabledDesc(), &revDepthEnabled );
-	CreateDepthStencilStateWrap( device, DepthWriteEnabledDesc(), &depthWriteEnabled );
-	CreateDepthStencilStateWrap( device, ReverseDepthWriteEnabledDesc(), &revDepthWriteEnabled );
-	CreateDepthStencilStateWrap( device, DepthStencilWriteEnabledDesc(), &depthStencilWriteEnabled );
-	CreateDepthStencilStateWrap( device, StencilEnabledDesc(), &stencilEnabled );
+    CreateDepthStencilStateWrap( device, DepthDisabledDesc(), &depthDisabled );
+    CreateDepthStencilStateWrap( device, DepthEnabledDesc(), &depthEnabled );
+    CreateDepthStencilStateWrap( device, ReverseDepthEnabledDesc(), &revDepthEnabled );
+    CreateDepthStencilStateWrap( device, DepthWriteEnabledDesc(), &depthWriteEnabled );
+    CreateDepthStencilStateWrap( device, ReverseDepthWriteEnabledDesc(), &revDepthWriteEnabled );
+    CreateDepthStencilStateWrap( device, DepthStencilWriteEnabledDesc(), &depthStencilWriteEnabled );
+    CreateDepthStencilStateWrap( device, StencilEnabledDesc(), &stencilEnabled );
 }
 
 void DepthStencilStates::DeInitialize()
 {
-	DX_SAFE_RELEASE( depthDisabled );
-	DX_SAFE_RELEASE( depthEnabled );
-	DX_SAFE_RELEASE( revDepthEnabled );
-	DX_SAFE_RELEASE( depthWriteEnabled );
+    DX_SAFE_RELEASE( depthDisabled );
+    DX_SAFE_RELEASE( depthEnabled );
+    DX_SAFE_RELEASE( revDepthEnabled );
+    DX_SAFE_RELEASE( depthWriteEnabled );
 
-	DX_SAFE_RELEASE( revDepthWriteEnabled );
-	DX_SAFE_RELEASE( depthStencilWriteEnabled );
-	DX_SAFE_RELEASE( stencilEnabled );
+    DX_SAFE_RELEASE( revDepthWriteEnabled );
+    DX_SAFE_RELEASE( depthStencilWriteEnabled );
+    DX_SAFE_RELEASE( stencilEnabled );
 }
 
 D3D11_DEPTH_STENCIL_DESC DepthStencilStates::DepthDisabledDesc()
@@ -547,30 +547,30 @@ ID3D11SamplerState* SamplerStates::shadowMapPCF;
 //
 void CreateSamplerStateWrap( ID3D11Device* device, const D3D11_SAMPLER_DESC& desc, ID3D11SamplerState** ss )
 {
-	DXCall( device->CreateSamplerState( &desc, ss ) );
+    DXCall( device->CreateSamplerState( &desc, ss ) );
 }
 
 void SamplerStates::Initialize(ID3D11Device* device)
 {
-	CreateSamplerStateWrap( device, LinearDesc(), &linear );
-	CreateSamplerStateWrap( device, LinearClampDesc(), &linearClamp );
-	CreateSamplerStateWrap( device, LinearBorderDesc(), &linearBorder );
-	CreateSamplerStateWrap( device, PointDesc(), &point );
-	CreateSamplerStateWrap( device, AnisotropicDesc(), &anisotropic );
-	CreateSamplerStateWrap( device, ShadowMapDesc(), &shadowMap );
-	CreateSamplerStateWrap( device, ShadowMapPCFDesc(), &shadowMapPCF );
+    CreateSamplerStateWrap( device, LinearDesc(), &linear );
+    CreateSamplerStateWrap( device, LinearClampDesc(), &linearClamp );
+    CreateSamplerStateWrap( device, LinearBorderDesc(), &linearBorder );
+    CreateSamplerStateWrap( device, PointDesc(), &point );
+    CreateSamplerStateWrap( device, AnisotropicDesc(), &anisotropic );
+    CreateSamplerStateWrap( device, ShadowMapDesc(), &shadowMap );
+    CreateSamplerStateWrap( device, ShadowMapPCFDesc(), &shadowMapPCF );
 }
 
 void SamplerStates::DeInitialize()
 {
-	DX_SAFE_RELEASE( linear );
-	DX_SAFE_RELEASE( linearClamp );
-	DX_SAFE_RELEASE( linearBorder );
-	DX_SAFE_RELEASE( point );
+    DX_SAFE_RELEASE( linear );
+    DX_SAFE_RELEASE( linearClamp );
+    DX_SAFE_RELEASE( linearBorder );
+    DX_SAFE_RELEASE( point );
 
-	DX_SAFE_RELEASE( anisotropic );
-	DX_SAFE_RELEASE( shadowMap );
-	DX_SAFE_RELEASE( shadowMapPCF );
+    DX_SAFE_RELEASE( anisotropic );
+    DX_SAFE_RELEASE( shadowMap );
+    DX_SAFE_RELEASE( shadowMapPCF );
 }
 
 D3D11_SAMPLER_DESC SamplerStates::LinearDesc()

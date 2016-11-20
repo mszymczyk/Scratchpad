@@ -24,8 +24,6 @@ FXCOMPILERDLL_API int __stdcall FxCompilerDll_Initialize( spad::log::LogCallback
 	_CrtSetDbgFlag( flag );
 #endif
 
-	int ires = 0;
-
 	log::logStartUp();
 	log::logSetCallback( logCallback );
 

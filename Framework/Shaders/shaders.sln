@@ -7,14 +7,21 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hlsl", "hlsl\hlsl.vcxproj",
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
-		Release|Win32 = Release|Win32
+		Debug|x64 = Debug|x64
+		Diagnostic|x64 = Diagnostic|x64
+		Release|x64 = Release|x64
+		Shipping|x64 = Shipping|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Debug|Win32.Build.0 = Debug|Win32
-		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Release|Win32.ActiveCfg = Release|Win32
-		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Release|Win32.Build.0 = Release|Win32
+		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Debug|x64.ActiveCfg = Debug|x64
+		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Debug|x64.Build.0 = Debug|x64
+		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Debug|x64.Build.2 = Diagnostic|x64
+		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Diagnostic|x64.ActiveCfg = Diagnostic|x64
+		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Diagnostic|x64.Build.0 = Diagnostic|x64
+		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Release|x64.ActiveCfg = Release|x64
+		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Release|x64.Build.0 = Release|x64
+		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Shipping|x64.ActiveCfg = Shipping|x64
+		{C9C7961D-D1E2-4A9A-A8A2-CC99F1A8B1FB}.Shipping|x64.Build.0 = Shipping|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

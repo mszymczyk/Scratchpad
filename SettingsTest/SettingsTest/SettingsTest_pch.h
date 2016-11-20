@@ -10,4 +10,3 @@
 #include <Gfx/Dx11/Dx11Wrappers.h>
 #include <Gfx/Math/DirectXMathWrap.h>
 #include <Util/Timer.h>
-#include <FxLib/FxRuntime.h>

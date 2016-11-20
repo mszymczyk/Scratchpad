@@ -595,7 +595,7 @@ Model::~Model()
 void Model::CreateFromSDKMeshFile(ID3D11Device* device, LPCSTR fileName, const char* normalMapSuffix,
                                   bool generateTangentFrame, bool overrideNormalMaps)
 {
-    FR_ASSERT(FileExists(fileName));
+    SPAD_ASSERT(FileExists(fileName));
 
     // Use the SDKMesh class to load in the data
     SDKMesh sdkMesh;

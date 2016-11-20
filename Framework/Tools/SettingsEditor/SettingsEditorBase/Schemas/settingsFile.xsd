@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema 
+    targetNamespace="SettingsEditor"
+    elementFormDefault="qualified"
+    xmlns="SettingsEditor"    
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+
+  <xs:simpleType name="floatListType">
+    <xs:list itemType="xs:float"></xs:list>
+  </xs:simpleType>
+
+  <xs:simpleType name="vector2Type">
+    <xs:restriction base="floatListType">
+      <xs:length value="2"></xs:length>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="float2Type">
+    <xs:restriction base="floatListType">
+      <xs:length value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="vector3Type">
+    <xs:restriction base="floatListType">
+      <xs:length value="3"></xs:length>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="vector4Type">
+    <xs:restriction base="floatListType">
+      <xs:length value="4"></xs:length>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="matrixType">
+    <xs:restriction base="floatListType">
+      <xs:length value="16"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- control point type-->
+  <xs:complexType name="controlPointType">
+    <xs:attribute name="x" type="xs:float" default="0.0"/>
+    <xs:attribute name="y" type="xs:float"   default="0.0"/>
+    <xs:attribute name="tangentIn" type="float2Type" use="required"/>
+    <xs:attribute name="tangentInType" type="xs:string" use="required"/>
+    <xs:attribute name="tangentOut" type="float2Type"  use="required"/>
+    <xs:attribute name="tangentOutType" type="xs:string" use="required"/>
+    <xs:attribute name="brokenTangents" type="xs:boolean" default="false"/>
+  </xs:complexType>
+
+  <!-- curve type -->
+  <xs:complexType name="curveType">
+    <xs:sequence>
+      <xs:element name="controlPoint" type="controlPointType"  minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <!--<xs:attribute name="name" type="xs:ID" use="required"/>-->
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="displayName" type="xs:string" default=""/>
+    <xs:attribute name="minX" type="xs:float" default="-1e6"/>
+    <xs:attribute name="maxX" type="xs:float" default="1e6"/>
+    <xs:attribute name="minY" type="xs:float" default="-1e6"/>
+    <xs:attribute name="maxY" type="xs:float" default="-1e6"/>
+    <xs:attribute name="preInfinity" type="xs:string" use="required"/>
+    <xs:attribute name="postInfinity" type="xs:string" use ="required"/>
+    <xs:attribute name="color" type="xs:integer" default="-65536" />
+    <xs:attribute name="xLabel" type="xs:string" default="X - Axis" />
+    <xs:attribute name="yLabel" type="xs:string" default="Y - Axis" />
+  </xs:complexType>
+
+
+  <xs:complexType name="dynamicPropertyType">
+
+    <xs:sequence>
+      <xs:element name="curve" type="curveType" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+    
+    <xs:attribute name="name" type="xs:string" />
+
+    <!--The name of the schema attribute to use as a value, e.g., "vector3Value"-->
+    <xs:attribute name="type" type="xs:string" />
+
+    <!--The user's data will be stored in one of the following attributes, according to
+    'valueType'.-->
+    <xs:attribute name="fval" type="xs:float" />
+    <!--<xs:attribute name="vector3Value" type="vector3Type" />-->
+    <xs:attribute name="ival" type="xs:int" />
+    <xs:attribute name="bval" type="xs:boolean" />
+    <xs:attribute name="eval" type="xs:int" />
+    <xs:attribute name="sval" type="xs:string" />
+    <!--<xs:attribute name="colorValue" type="xs:int" />-->
+    <!--<xs:attribute name="uriValue" type="xs:anyURI" />-->
+    <xs:attribute name="f4val" type="vector4Type" />
+    <xs:attribute name="dirval" type="vector3Type" default="0 0 1" />
+    <xs:attribute name="colval" type="vector3Type" default="1 1 1" />
+
+    <xs:attribute name="min" type="xs:float" />
+    <xs:attribute name="max" type="xs:float" />
+    <xs:attribute name="step" type="xs:float" />
+    <xs:attribute name="extraName" type="xs:string" />
+    <xs:attribute name="checked" type="xs:boolean" default="false" />
+
+  </xs:complexType>
+
+  <xs:complexType name="presetType">    
+    <xs:complexContent>
+      <xs:extension base="groupType">
+        <!--<xs:attribute name="presetName" type="xs:ID" use="required" />-->
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <!-- This is a base type for all dynamically created DomNodeTypes -->
+  <xs:complexType name="groupType">
+    <xs:sequence>
+      <!-- Order of elements is important. preset must come before group (preset is a group and GetChildInfo won't work correctly)-->
+      <xs:element name="prop" type="dynamicPropertyType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="preset" type="presetType" minOccurs="0" maxOccurs="unbounded" />
+      <xs:element name="group" type="groupType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="name" type="xs:ID" />
+    <xs:attribute name="selectedPresetRef" type="xs:IDREF" use="required" />
+  </xs:complexType>
+
+
+  <xs:complexType name="settingsFileType">
+    <xs:sequence>
+      <xs:element name="group" type="groupType" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="settingsDescFile" type="xs:string" default="thisMustBePathToDescriptionFile"/>
+    <xs:attribute name="shaderOutputFile" type="xs:string" default=""/>
+  </xs:complexType>
+
+  <xs:element name="settingsFile" type="settingsFileType"/>
+</xs:schema>

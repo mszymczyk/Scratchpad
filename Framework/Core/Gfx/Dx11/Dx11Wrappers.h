@@ -119,14 +119,14 @@ public:
 
 	void updateGpu( ID3D11DeviceContext* deviceContext )
 	{
-		FR_ASSERT( dxBuffer_ != nullptr );
+		SPAD_ASSERT( dxBuffer_ != nullptr );
 
 		deviceContext->UpdateSubresource( dxBuffer_, 0, nullptr, &data, 0, 0 );
 	}
 
 	void setVS( ID3D11DeviceContext* deviceContext, u32 slot ) const
 	{
-		FR_ASSERT( dxBuffer_ != nullptr );
+		SPAD_ASSERT( dxBuffer_ != nullptr );
 
 		ID3D11Buffer* bufferArray[1];
 		bufferArray[0] = dxBuffer_;
@@ -135,7 +135,7 @@ public:
 
 	void setPS( ID3D11DeviceContext* deviceContext, u32 slot ) const
 	{
-		FR_ASSERT( dxBuffer_ != nullptr );
+		SPAD_ASSERT( dxBuffer_ != nullptr );
 
 		ID3D11Buffer* bufferArray[1];
 		bufferArray[0] = dxBuffer_;
@@ -144,7 +144,7 @@ public:
 
 	void setGS( ID3D11DeviceContext* deviceContext, u32 slot ) const
 	{
-		FR_ASSERT( dxBuffer_ != nullptr );
+		SPAD_ASSERT( dxBuffer_ != nullptr );
 
 		ID3D11Buffer* bufferArray[1];
 		bufferArray[0] = dxBuffer_;
@@ -153,7 +153,7 @@ public:
 
 	void setCS( ID3D11DeviceContext* deviceContext, u32 slot ) const
 	{
-		FR_ASSERT( dxBuffer_ != nullptr );
+		SPAD_ASSERT( dxBuffer_ != nullptr );
 
 		ID3D11Buffer* bufferArray[1];
 		bufferArray[0] = dxBuffer_;
@@ -183,7 +183,7 @@ public:
 	~ConstantBuffer2()
 	{
 		DX_SAFE_RELEASE( dxBuffer_ );
-		frFreeAligned( data );
+		spadFreeAligned( data );
 	}
 
 	ConstantBuffer2( ConstantBuffer2&& other )
@@ -198,7 +198,7 @@ public:
 
 	ConstantBuffer2& operator=( ConstantBuffer2 && other )
 	{
-		frFreeAligned( data );
+		spadFreeAligned( data );
 		data = other.data;
 		other.data = nullptr;
 
@@ -215,7 +215,7 @@ public:
 	void Initialize( ID3D11Device* device, u32 dataSize, u8* initialData = nullptr )
 	{
 		DX_SAFE_RELEASE( dxBuffer_ );
-		frFreeAligned2( data );
+		spadFreeAligned2( data );
 
 		ReInitilize( device, dataSize, initialData );
 	}
@@ -232,7 +232,7 @@ public:
 
 		D3D11_SUBRESOURCE_DATA initData;
 		ZeroMemory( &initData, sizeof( initData ) );
-		data = reinterpret_cast<u8*>( frMallocAligned( dataSize, FR_CACHELINE_SIZE ) );
+		data = reinterpret_cast<u8*>( spadMallocAligned( dataSize, SPAD_CACHELINE_SIZE ) );
 		if ( initialData )
 			memcpy( data, initialData, dataSize );
 		else
@@ -249,7 +249,7 @@ public:
 
 	void updateGpu( ID3D11DeviceContext* deviceContext )
 	{
-		FR_ASSERT( dxBuffer_ != nullptr );
+		SPAD_ASSERT( dxBuffer_ != nullptr );
 
 		deviceContext->UpdateSubresource( dxBuffer_, 0, nullptr, data, 0, 0 );
 	}

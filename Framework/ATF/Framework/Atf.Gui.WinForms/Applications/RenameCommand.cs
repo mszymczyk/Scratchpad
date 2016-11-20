@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using Sce.Atf.Controls.PropertyEditing;
+using System.Collections.Generic;
 
 namespace Sce.Atf.Applications
 {
@@ -12,8 +13,9 @@ namespace Sce.Atf.Applications
     /// Component that defines a mass rename command</summary>
     [Export(typeof(RenameCommand))]
     [Export(typeof(IInitializable))]
+    [Export(typeof(IContextMenuCommandProvider))]
     [PartCreationPolicy(CreationPolicy.Shared)]
-    public class RenameCommand : ICommandClient, IInitializable
+    public class RenameCommand : ICommandClient, IInitializable, IContextMenuCommandProvider
     {
         /// <summary>
         /// Constructor</summary>
@@ -106,7 +108,7 @@ namespace Sce.Atf.Applications
 
         #region ICommandClient Members
 
-        bool ICommandClient.CanDoCommand(object commandTag)
+        private bool CanDoCommand(object commandTag)
         {
             // The dialog box is modal and not dockable, so only allow it to pop up if it can be used.
             bool canDo = false;
@@ -132,6 +134,11 @@ namespace Sce.Atf.Applications
             return canDo;
         }
 
+        bool ICommandClient.CanDoCommand(object commandTag)
+        {
+            return CanDoCommand(commandTag);
+        }
+
         void ICommandClient.DoCommand(object commandTag)
         {
             var selectionContext = m_contextRegistry.GetActiveContext<ISelectionContext>();
@@ -152,6 +159,16 @@ namespace Sce.Atf.Applications
 
         void ICommandClient.UpdateCommand(object commandTag, CommandState commandState)
         {
+        }
+
+        #endregion
+
+        #region IContextMenuCommandProvider Members
+
+        IEnumerable<object> IContextMenuCommandProvider.GetCommands(object context, object target)
+        {
+            if (CanDoCommand(Command.Rename))
+                yield return Command.Rename;
         }
 
         #endregion

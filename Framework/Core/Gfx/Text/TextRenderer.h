@@ -3,7 +3,7 @@
 #include "BMFont.h"
 #include "..\dx11\Dx11Wrappers.h"
 #include "..\dx11\Dx11DeviceContext.h"
-#include <fxLib\FxRuntime.h>
+#include "..\Dx11\Dx11Shader.h"
 #include <Shaders/hlsl/TextRendererConstants.h>
 
 namespace spad
@@ -45,7 +45,7 @@ protected:
 	void _Draw( Dx11DeviceContext& deviceContext, float x, float y, u32 colorABGR, float fontScale, const char* textUtf8 );
 
 protected:
-	FxRuntimePtr shi_;
+	HlslShaderPtr shi_;
 	//std::unique_ptr<BMFont> font_;
 	RingBuffer vertices_;
 	IndexBuffer indices_ = IndexBuffer( "TextRendererIndices" );

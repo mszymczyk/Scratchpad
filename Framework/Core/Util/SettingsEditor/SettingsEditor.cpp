@@ -712,7 +712,7 @@ struct SettingsFileImpl
 		for ( const pugi::xml_node& xmlPreset : xmlGroup.children( "preset" ) )
 		{
 			std::unique_ptr<_Preset> preset( new _Preset() );
-			pugi::xml_attribute attr = xmlPreset.attribute( "presetName" );
+			pugi::xml_attribute attr = xmlPreset.attribute( "name" );
 			preset->name_ = attr.value();
 			seAssert( !preset->name_.empty() );
 			preset->parent_ = group;

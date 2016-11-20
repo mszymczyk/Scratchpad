@@ -14,6 +14,7 @@
     <ClInclude Include="FxCompilerLib.h" />
     <ClInclude Include="FxCompilerLib_pch.h" />
     <ClInclude Include="FxState.h" />
+    <ClInclude Include="FxTypes.h" />
     <ClInclude Include="IncludeCache.h" />
     <ClInclude Include="IncludeDependencies.h" />
     <ClInclude Include="Options.h" />

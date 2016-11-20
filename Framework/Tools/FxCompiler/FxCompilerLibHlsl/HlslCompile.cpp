@@ -189,7 +189,7 @@ void CompileHlslProgram( HlslProgramData& outData, const HlslCompileContext& hls
 	if ( options.logProgress_ )
 		logInfo( "Compiling %s:%s", fxFile.getFileAbsolutePath().c_str(), fxProg.getUniqueName().c_str() );
 
-	const char* profiles[eProgramType_count] = {
+	const char* profiles[ShaderStage::count] = {
 		"vs_",
 		"ps_",
 		"gs_",
@@ -226,22 +226,22 @@ void CompileHlslProgram( HlslProgramData& outData, const HlslCompileContext& hls
 		defines.push_back( { entryDefine, "1" } );
 	}
 
-	if ( fxProg.getProgramType() == eProgramType_vertexShader )
+	if ( fxProg.getProgramType() == ShaderStage::vertex )
 	{
 		defines.push_back( { "progType_vp", "1" } );
 		defines.push_back( { "__VERTEX__", "1" } );
 	}
-	else if ( fxProg.getProgramType() == eProgramType_pixelShader )
+	else if ( fxProg.getProgramType() == ShaderStage::pixel )
 	{
 		defines.push_back( { "progType_fp", "1" } );
 		defines.push_back( { "__PIXEL__", "1" } );
 	}
-	else if ( fxProg.getProgramType() == eProgramType_geometryShader )
+	else if ( fxProg.getProgramType() == ShaderStage::geometry )
 	{
 		defines.push_back( { "progType_gp", "1" } );
 		defines.push_back( { "__GEOMETRY__", "1" } );
 	}
-	else if ( fxProg.getProgramType() == eProgramType_computeShader )
+	else if ( fxProg.getProgramType() == ShaderStage::compute )
 	{
 		defines.push_back( { "progType_cp", "1" } );
 		defines.push_back( { "__COMPUTE__", "1" } );
@@ -323,7 +323,7 @@ void CompileHlslProgram( HlslProgramData& outData, const HlslCompileContext& hls
 
 	outData.shaderBlob_ = shaderBlob;
 
-	if ( fxProg.getProgramType() == eProgramType_vertexShader )
+	if ( fxProg.getProgramType() == ShaderStage::vertex )
 	{
 		hr = D3DGetInputSignatureBlob( shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), &outData.vsSignatureBlob_ );
 		if ( FAILED( hr ) )
@@ -480,7 +480,7 @@ void WriteCompiledFx( const std::vector<HlslProgramData>& outData, const HlslCom
 			AppendU32( ofs, (u32)data.shaderBlob_->GetBufferSize() );
 			fwrite( data.shaderBlob_->GetBufferPointer(), data.shaderBlob_->GetBufferSize(), 1, ofs );
 
-			if ( prog.getProgramType() == eProgramType_vertexShader )
+			if ( prog.getProgramType() == ShaderStage::vertex )
 			{
 				AppendU32( ofs, (u32)data.vsSignatureBlob_->GetBufferSize() );
 				fwrite( data.vsSignatureBlob_->GetBufferPointer(), data.vsSignatureBlob_->GetBufferSize(), 1, ofs );

@@ -1,6 +1,5 @@
 #include "SettingsTest_pch.h"
 #include "SettingsTestApp.h"
-#include <FxLib/FxLib.h>
 #include <AppBase/Input.h>
 #include <Gfx\Dx11/Dx11DeviceStates.h>
 #include <Gfx\DebugDraw.h>
@@ -10,8 +9,6 @@ using namespace SampleSettingsNamespace;
 
 namespace spad
 {
-	using namespace FxLib;
-
 	bool SettingsTestApp::StartUp()
 	{
 		ID3D11Device* dxDevice = dx11_->getDevice();

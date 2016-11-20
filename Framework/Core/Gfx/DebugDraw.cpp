@@ -1,6 +1,5 @@
 #include "Gfx_pch.h"
 #include "DebugDraw.h"
-#include "..\fxLib\FxLib.h"
 #include "Text\TextRenderer.h"
 #include "shaders\hlsl\DebugRendererConstants.h"
 #include "dx11\Dx11DeviceStates.h"
@@ -272,7 +271,7 @@ namespace debugDraw
 		void Initialize( ID3D11Device* dxDevice );
 		void DeInitialize();
 
-		FxRuntimePtr debugShader_;
+		HlslShaderPtr debugShader_;
 		BMFont font_consolas_;
 		TextRenderer textRenderer_;
 		RingBuffer vertices_;
@@ -288,7 +287,7 @@ namespace debugDraw
 	{
 		std::lock_guard<std::mutex> lck( mutex_ );
 
-		debugShader_ = FxLib::loadCompiledFxFile( dxDevice, "DataWin\\Shaders\\DebugRenderer.hlsl" );
+		debugShader_ = LoadCompiledFxFile( "DataWin\\Shaders\\hlsl\\compiled\\DebugRenderer.hlslc_packed" );
 		font_consolas_.Initialize( dxDevice, "Data\\Fonts\\consolas.fnt" );
 		textRenderer_.Initialize( dxDevice );
 		vertices_.Initialize( dxDevice, 64 * 1024 );
@@ -303,7 +302,7 @@ namespace debugDraw
 
 	void DontTouchThis::Initialize( ID3D11Device* dxDevice )
 	{
-		FR_ASSERT( !_gImpl );
+		SPAD_ASSERT( !_gImpl );
 		_gImpl = new _Impl();
 		_gImpl->Initialize( dxDevice );
 	}
@@ -326,7 +325,7 @@ namespace debugDraw
 
 		ID3D11DeviceContext* context = deviceContext.context;
 
-		const FxLib::FxRuntimePass& fxPass = _gImpl->debugShader_->getPass( "DebugDraw" );
+		const HlslShaderPass& fxPass = *_gImpl->debugShader_->getPass( "DebugDraw" );
 		fxPass.setVS( context );
 		fxPass.setPS( context );
 

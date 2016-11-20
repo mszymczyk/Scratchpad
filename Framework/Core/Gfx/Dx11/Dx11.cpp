@@ -10,6 +10,7 @@ typedef HRESULT( WINAPI *MyDXGIGetDebugInterface )( REFIID riid, void **ppDebug 
 
 namespace spad
 {
+ID3D11Device* gDx11Device;
 
 Dx11::~Dx11()
 {
@@ -48,6 +49,7 @@ bool Dx11::StartUp( const Param& param )
 
 	DXCall( D3D11CreateDeviceAndSwapChain( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, NULL, 0, D3D11_SDK_VERSION, &desc, &swapChain_, &device_, NULL, &immediateContext_ ) );
 
+	gDx11Device = device_;
 	featureLevel_ = device_->GetFeatureLevel();
 
 	DXCall( swapChain_->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( &backBufferTexture_ ) ) );
@@ -55,8 +57,8 @@ bool Dx11::StartUp( const Param& param )
 
 	if ( debugDevice_ )
 	{
-		Dx11SetDebugName2( backBufferTexture_ );
-		Dx11SetDebugName2( backBufferRTV_ );
+		debug::Dx11SetDebugName2( backBufferTexture_ );
+		debug::Dx11SetDebugName2( backBufferRTV_ );
 	}
 
 	immediateContextWrapper_ = std::make_unique<Dx11DeviceContext>( "ImmediateContext" );
@@ -119,6 +121,7 @@ void Dx11::ShutDown()
 
 	if ( device_ )
 	{
+		gDx11Device = device_;
 		device_->Release();
 		device_ = nullptr;
 

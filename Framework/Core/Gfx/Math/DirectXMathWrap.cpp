@@ -392,7 +392,7 @@ namespace spad
 
 		Float3 Float3::Perpendicular( const Float3& vec )
 		{
-			FR_ASSERT( vec.Length() >= 0.00001f );
+			SPAD_ASSERT( vec.Length() >= 0.00001f );
 
 			Float3 perp;
 

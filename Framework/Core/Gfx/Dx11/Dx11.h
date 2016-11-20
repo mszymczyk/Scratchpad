@@ -71,4 +71,6 @@ namespace spad
 		std::unique_ptr<Dx11DeviceContext> immediateContextWrapper_;
 	};
 
+	extern ID3D11Device* gDx11Device;
+
 } // namespace spad

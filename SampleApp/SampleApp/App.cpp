@@ -23,7 +23,7 @@ namespace spad
 		//FxLib::FxFile fxFile;
 		//std::string fileFullPath = GetAbsolutePath( "code\\shaders\\hlsl\\font.hlsl" );
 		//int ires = fxFile.loadCompiledFxFile( fileFullPath.c_str() );
-		//FR_ASSERT( ires == 0 );
+		//SPAD_ASSERT( ires == 0 );
 		ID3D11Device* dxDevice = dx11_->getDevice();
 
 		//std::unique_ptr<FxLib::FxRuntime> fx = fxFile.createFxRuntime( dx11_->getDevice() );

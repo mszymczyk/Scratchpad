@@ -11,8 +11,8 @@ namespace spad
 Camera::Camera(float nearClip, float farClip) : nearZ(nearClip),
                                                 farZ(farClip)
 {
-    FR_ASSERT(nearZ >= 0.0f && nearZ < farZ);
-    FR_ASSERT(farZ >= 0.0f && farZ > nearZ);
+    SPAD_ASSERT(nearZ >= 0.0f && nearZ < farZ);
+    SPAD_ASSERT(farZ >= 0.0f && farZ > nearZ);
 
     world = Matrix4::identity();
     view = Matrix4::identity();
@@ -133,7 +133,7 @@ OrthographicCamera::OrthographicCamera(float minX, float minY, float maxX,
                                                                                     yMax(maxY)
 
 {
-    FR_ASSERT(xMax > xMin && yMax > yMin);
+    SPAD_ASSERT(xMax > xMin && yMax > yMin);
 
     CreateProjection();
 }
@@ -189,8 +189,8 @@ PerspectiveCamera::PerspectiveCamera(float aspectRatio, float fieldOfView,
                                                                         aspect(aspectRatio),
                                                                         fov(fieldOfView)
 {
-    FR_ASSERT(aspectRatio > 0);
-    FR_ASSERT(fieldOfView > 0 && fieldOfView <= 3.14159f);
+    SPAD_ASSERT(aspectRatio > 0);
+    SPAD_ASSERT(fieldOfView > 0 && fieldOfView <= 3.14159f);
     CreateProjection();
 }
 

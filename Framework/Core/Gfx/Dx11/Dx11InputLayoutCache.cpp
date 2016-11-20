@@ -12,16 +12,16 @@ namespace spad
 			const _Value& val = it->second;
 
 #ifdef FR_ASSERTIONS_ENABLED
-			FR_ASSERT( nElements == val.elements_.size() );
-			FR_ASSERT( inputSignatureSize == val.vsInputSignature_.size() );
-			FR_ASSERT( !memcmp( inputSignature, &val.vsInputSignature_[0], inputSignatureSize ) );
+			SPAD_ASSERT( nElements == val.elements_.size() );
+			SPAD_ASSERT( inputSignatureSize == val.vsInputSignature_.size() );
+			SPAD_ASSERT( !memcmp( inputSignature, &val.vsInputSignature_[0], inputSignatureSize ) );
 			u32 SemanticIndex_offset = offsetof( D3D11_INPUT_ELEMENT_DESC, SemanticIndex );
 			u32 InstanceDataStepRate_offset = offsetof( D3D11_INPUT_ELEMENT_DESC, InstanceDataStepRate );
 			u32 elemSize = InstanceDataStepRate_offset - SemanticIndex_offset + sizeof( UINT );
 			for ( u32 ielem = 0; ielem < nElements; ++ielem )
 			{
-				FR_ASSERT( elements[ielem].SemanticName == val.semanticNames_[ielem] );
-				FR_ASSERT( !memcmp( &elements[ielem].SemanticIndex, &val.elements_[ielem].SemanticIndex, elemSize ) );
+				SPAD_ASSERT( elements[ielem].SemanticName == val.semanticNames_[ielem] );
+				SPAD_ASSERT( !memcmp( &elements[ielem].SemanticIndex, &val.elements_[ielem].SemanticIndex, elemSize ) );
 			}
 #endif //
 

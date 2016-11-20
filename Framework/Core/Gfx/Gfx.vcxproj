@@ -17,16 +17,12 @@
     <ClCompile Include="Dx11\Dx11DeviceContext.cpp" />
     <ClCompile Include="Dx11\Dx11DeviceStates.cpp" />
     <ClCompile Include="Dx11\Dx11InputLayoutCache.cpp" />
+    <ClCompile Include="Dx11\Dx11Shader.cpp" />
     <ClCompile Include="Dx11\Dx11Wrappers.cpp" />
     <ClCompile Include="Gfx_pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Material\MaterialManager.cpp" />
-    <ClCompile Include="Material\MaterialParamsHandler.cpp" />
-    <ClCompile Include="Material\MaterialShader.cpp" />
-    <ClCompile Include="Material\MaterialShaderFactory.cpp" />
-    <ClCompile Include="Material\TextureModulesHandler.cpp" />
     <ClCompile Include="Math\DirectXMathWrap.cpp" />
     <ClCompile Include="Math\ViewFrustum.cpp" />
     <ClCompile Include="Mesh\Model.cpp" />
@@ -41,15 +37,9 @@
     <ClInclude Include="Dx11\Dx11DeviceContext.h" />
     <ClInclude Include="Dx11\Dx11DeviceStates.h" />
     <ClInclude Include="Dx11\Dx11InputLayoutCache.h" />
+    <ClInclude Include="Dx11\Dx11Shader.h" />
     <ClInclude Include="Dx11\Dx11Wrappers.h" />
     <ClInclude Include="Gfx_pch.h" />
-    <ClInclude Include="Material\IDynamicModule.h" />
-    <ClInclude Include="Material\IModuleHandler.h" />
-    <ClInclude Include="Material\MaterialManager.h" />
-    <ClInclude Include="Material\MaterialParamsHandler.h" />
-    <ClInclude Include="Material\MaterialShader.h" />
-    <ClInclude Include="Material\MaterialShaderFactory.h" />
-    <ClInclude Include="Material\TextureModulesHandler.h" />
     <ClInclude Include="Math\DirectXMathWrap.h" />
     <ClInclude Include="Math\ViewFrustum.h" />
     <ClInclude Include="Mesh\Model.h" />

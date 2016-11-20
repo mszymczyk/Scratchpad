@@ -32,9 +32,6 @@
     <ProjectReference Include="..\..\Framework\Core\FrameworkSettings\FrameworkSettings.vcxproj">
       <Project>{82227082-8738-4d1d-9945-37b95f7dc29c}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Framework\Core\FxLib\FxLib.vcxproj">
-      <Project>{f4f48ccb-d793-41e9-a76e-6b917a423a33}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Framework\Core\Gfx\Gfx.vcxproj">
       <Project>{c21fb832-6b29-44f9-8ea5-cfeb78f5612a}</Project>
     </ProjectReference>

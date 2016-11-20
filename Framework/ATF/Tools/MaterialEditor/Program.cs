@@ -93,6 +93,7 @@ namespace CircuitEditorSample
                 typeof(StandardSelectionCommands),      // standard Edit menu selection commands
                 typeof(StandardLayoutCommands),         // standard Format menu layout commands
                 typeof(StandardViewCommands),           // standard View menu commands
+                typeof(RenameCommand),                  // standard rename command
 
                 //StandardPrintCommands does not currently work with Direct2D
                 //typeof(StandardPrintCommands),        // standard File menu print commands

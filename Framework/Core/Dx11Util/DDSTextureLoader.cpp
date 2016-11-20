@@ -26,7 +26,7 @@
 //#include "DirectXHelpers.h"
 #include "PlatformHelpers.h"
 
-#define SetDebugObjectName spad::Dx11SetDebugName
+#define SetDebugObjectName spad::debug::Dx11SetDebugName
 
 using namespace DirectX;
 

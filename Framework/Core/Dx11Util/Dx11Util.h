@@ -59,6 +59,9 @@ protected:
     __pragma(warning(pop))
 
 
+namespace debug
+{
+
 template<class T>
 inline void Dx11SetDebugName( T* obj, const char* debugName )
 {
@@ -73,6 +76,8 @@ template<> inline void Dx11SetDebugName<ID3D11DeviceChild>( ID3D11DeviceChild* o
 #define Dx11SetDebugName2( obj ) Dx11SetDebugName( obj, #obj )
 
 void Dx11SetDebugName3( ID3D11DeviceChild* obj, const char* format, ... );
+
+} // namespace debug
 
 // Texture loading
 ID3D11ShaderResourceViewPtr LoadTexture( ID3D11Device* device, const char* filePath );

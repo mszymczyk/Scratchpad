@@ -13,7 +13,7 @@ RenderTarget2D::~RenderTarget2D()
 
 void RenderTarget2D::Initialize( ID3D11Device* device, u32 width, u32 height, DXGI_FORMAT format, u32 numMipLevels /*= 1*/, u32 multiSamples /*= 1*/, u32 msQuality /*= 0*/, u32 arraySize /*= 1*/, bool autoGenMipMaps /*= false*/, bool createUAV /*= false*/, bool cubeMap /*= false */ )
 {
-	FR_ASSERT2( !texture_, "RenderTarget2D already initialized" );
+	SPAD_ASSERT2( !texture_, "RenderTarget2D already initialized" );
 
 	D3D11_TEXTURE2D_DESC desc;
 	desc.Width = width;
@@ -33,13 +33,13 @@ void RenderTarget2D::Initialize( ID3D11Device* device, u32 width, u32 height, DX
 
 	if ( cubeMap )
 	{
-		FR_ASSERT2( arraySize == 6, "array size must be 6 for cubemap rt" );
+		SPAD_ASSERT2( arraySize == 6, "array size must be 6 for cubemap rt" );
 		desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 	}
 
 	DXCall( device->CreateTexture2D( &desc, nullptr, &texture_ ) );
 
-	Dx11SetDebugName3( texture_, "RenderTarget2D %s", debugName_.c_str() );
+	debug::Dx11SetDebugName3( texture_, "RenderTarget2D %s", debugName_.c_str() );
 
 	for ( u32 i = 0; i < arraySize; ++i )
 	{
@@ -78,7 +78,7 @@ void RenderTarget2D::Initialize( ID3D11Device* device, u32 width, u32 height, DX
 		ID3D11RenderTargetView* rtView;
 		DXCall( device->CreateRenderTargetView( texture_, &rtDesc, &rtView ) );
 
-		Dx11SetDebugName3( rtView, "RenderTarget2D %s, RTV(%u)", debugName_.c_str(), i );
+		debug::Dx11SetDebugName3( rtView, "RenderTarget2D %s, RTV(%u)", debugName_.c_str(), i );
 		rtvArraySlices_.push_back( rtView );
 	}
 
@@ -86,7 +86,7 @@ void RenderTarget2D::Initialize( ID3D11Device* device, u32 width, u32 height, DX
 	rtv_->AddRef();
 
 	DXCall( device->CreateShaderResourceView( texture_, nullptr, &srv_ ) );
-	Dx11SetDebugName3( srv_, "RenderTarget2D %s, SRV", debugName_.c_str() );
+	debug::Dx11SetDebugName3( srv_, "RenderTarget2D %s, SRV", debugName_.c_str() );
 
 	for ( u32 i = 0; i < arraySize; ++i )
 	{
@@ -126,7 +126,7 @@ void RenderTarget2D::Initialize( ID3D11Device* device, u32 width, u32 height, DX
 
 		ID3D11ShaderResourceView* srView;
 		DXCall( device->CreateShaderResourceView( texture_, &srvDesc, &srView ) );
-		Dx11SetDebugName3( srView, "RenderTarget2D %s, SRV(%u)", debugName_.c_str(), i );
+		debug::Dx11SetDebugName3( srView, "RenderTarget2D %s, SRV(%u)", debugName_.c_str(), i );
 		srvArraySlices_.push_back( srView );
 	}
 
@@ -143,7 +143,7 @@ void RenderTarget2D::Initialize( ID3D11Device* device, u32 width, u32 height, DX
 	if ( createUAV )
 	{
 		DXCall( device->CreateUnorderedAccessView( texture_, nullptr, &uav_ ) );
-		Dx11SetDebugName3( uav_, "RenderTarget2D %s, UAV", debugName_.c_str() );
+		debug::Dx11SetDebugName3( uav_, "RenderTarget2D %s, UAV", debugName_.c_str() );
 	}
 }
 
@@ -203,7 +203,7 @@ void DepthStencil::Initialize( ID3D11Device* device, u32 width, u32 height, u32 
 	desc.SampleDesc.Quality = msQuality;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	DXCall( device->CreateTexture2D( &desc, nullptr, &texture_ ) );
-	Dx11SetDebugName3( texture_, "DepthStencil %s", debugName_.c_str() );
+	debug::Dx11SetDebugName3( texture_, "DepthStencil %s", debugName_.c_str() );
 
 	for ( u32 i = 0; i < arraySize; ++i )
 	{
@@ -235,7 +235,7 @@ void DepthStencil::Initialize( ID3D11Device* device, u32 width, u32 height, u32 
 		dsvDesc.Flags = 0;
 		ID3D11DepthStencilView* dsView;
 		DXCall( device->CreateDepthStencilView( texture_, &dsvDesc, &dsView ) );
-		Dx11SetDebugName3( dsView, "DepthStencil %s DSV", debugName_.c_str() );
+		debug::Dx11SetDebugName3( dsView, "DepthStencil %s DSV", debugName_.c_str() );
 		dsvArraySlices_.push_back( dsView );
 
 		//if ( i == 0 )
@@ -282,7 +282,7 @@ void DepthStencil::Initialize( ID3D11Device* device, u32 width, u32 height, u32 
 		}
 
 		DXCall( device->CreateShaderResourceView( texture_, &srvDesc, &srv_ ) );
-		Dx11SetDebugName3( dsvReadOnly_, "DepthStencil %s SRV", debugName_.c_str() );
+		debug::Dx11SetDebugName3( dsvReadOnly_, "DepthStencil %s SRV", debugName_.c_str() );
 	}
 
 	this->width_ = width;
@@ -328,7 +328,7 @@ void RingBuffer::Initialize( ID3D11Device* dxDevice, u32 size )
 
 void RingBuffer::DeInitialize()
 {
-	FR_ASSERT( !allocatedSize_ );
+	SPAD_ASSERT( !allocatedSize_ );
 
 	DX_SAFE_RELEASE( buffer_ );
 	size_ = 0;
@@ -339,7 +339,7 @@ void RingBuffer::DeInitialize()
 void* RingBuffer::map( ID3D11DeviceContext* context, u32 nBytes )
 {
 	// make sure previous allocation finished
-	FR_ASSERT( !allocatedSize_ && nBytes && nBytes <= size_ );
+	SPAD_ASSERT( !allocatedSize_ && nBytes && nBytes <= size_ );
 
 	void* ptr = NULL;
 	if ( size_ >= nextFreeOffset_ + nBytes )
@@ -360,11 +360,11 @@ void* RingBuffer::map( ID3D11DeviceContext* context, u32 nBytes )
 
 void RingBuffer::unmap( ID3D11DeviceContext* context )
 {
-	FR_ASSERT( allocatedSize_ );
+	SPAD_ASSERT( allocatedSize_ );
 	lastAllocOffset_ = nextFreeOffset_;
 	nextFreeOffset_ += allocatedSize_;
 	allocatedSize_ = 0;
-	nextFreeOffset_ = frAlignU32_2( nextFreeOffset_, 256 );
+	nextFreeOffset_ = spadAlignU32_2( nextFreeOffset_, 256 );
 	mappedRes_.pData = nullptr;
 	mappedRes_.RowPitch = 0;
 	mappedRes_.DepthPitch = 0;
@@ -379,7 +379,7 @@ void RingBuffer::setVertexBuffer( ID3D11DeviceContext* context, u32 slot, u32 st
 
 void IndexBuffer::Initialize( ID3D11Device* dxDevice, DXGI_FORMAT format, u32 nIndices, void* initialData )
 {
-	FR_ASSERT( format == DXGI_FORMAT_R16_UINT || format == DXGI_FORMAT_R32_UINT );
+	SPAD_ASSERT( format == DXGI_FORMAT_R16_UINT || format == DXGI_FORMAT_R32_UINT );
 	D3D11_BUFFER_DESC bd;
 	u32 indexSize = format == DXGI_FORMAT_R16_UINT ? 2 : 4;
 	bd.ByteWidth = nIndices * indexSize;
@@ -395,7 +395,7 @@ void IndexBuffer::Initialize( ID3D11Device* dxDevice, DXGI_FORMAT format, u32 nI
 	initData.SysMemSlicePitch = 0;
 
 	DXCall( dxDevice->CreateBuffer( &bd, &initData, &buffer_ ) );
-	Dx11SetDebugName3( buffer_, "IndexBuffer %s", debugName_.c_str() );
+	debug::Dx11SetDebugName3( buffer_, "IndexBuffer %s", debugName_.c_str() );
 
 	size_ = bd.ByteWidth;
 	nIndices_ = nIndices;

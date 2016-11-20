@@ -15,6 +15,7 @@
     <ClCompile Include="Exceptions.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="Hash\MurmurHash3.cpp" />
+    <ClCompile Include="HiStream.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="MayaAnimCurve.cpp" />
     <ClCompile Include="pugixml\pugixml.cpp" />
@@ -38,6 +39,7 @@
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="Hash\HashUtil.h" />
     <ClInclude Include="Hash\MurmurHash3.h" />
+    <ClInclude Include="HiStream.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MayaAnimCurve.h" />
     <ClInclude Include="MultiDimensionalArray.h" />
