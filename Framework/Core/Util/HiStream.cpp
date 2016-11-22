@@ -1,4 +1,4 @@
-//#include "Util_pch.h"
+#include "Util_pch.h"
 #include "HiStream.h"
 
 namespace spad

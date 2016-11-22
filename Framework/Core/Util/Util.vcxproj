@@ -14,6 +14,7 @@
     <ClCompile Include="Def.cpp" />
     <ClCompile Include="Exceptions.cpp" />
     <ClCompile Include="FileIO.cpp" />
+    <ClCompile Include="hashtable.cpp" />
     <ClCompile Include="Hash\MurmurHash3.cpp" />
     <ClCompile Include="HiStream.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -37,6 +38,7 @@
     <ClInclude Include="Def.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="FileIO.h" />
+    <ClInclude Include="hashtable.h" />
     <ClInclude Include="Hash\HashUtil.h" />
     <ClInclude Include="Hash\MurmurHash3.h" />
     <ClInclude Include="HiStream.h" />
