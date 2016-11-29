@@ -194,6 +194,13 @@ inline uint64_t spadAlignU64_2( uint64_t val, uint64_t alignment )
 	return ( (val + alignment) & ~alignment );
 }
 
+inline size_t spadAlignPowerOfTwo( size_t val, size_t alignment )
+{
+	//SPAD_ASSERT2( ( alignment & ( alignment - 1 ) ) == 0, "alignment must be multiple of 2" );
+	alignment--;
+	return ( ( val + alignment ) & ~alignment );
+}
+
 //#ifdef __cplusplus
 //}
 //#endif //

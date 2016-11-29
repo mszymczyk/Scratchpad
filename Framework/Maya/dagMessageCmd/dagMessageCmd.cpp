@@ -81,13 +81,13 @@
 //
 MCallbackIdArray callbackIds;
 
-struct Node
+struct NodeProxy
 {
 	std::string name_;
 	//std::vector<Node*> children_;
 
-	Node() {}
-	Node( const char* name ) : name_( name ) {}
+	NodeProxy() {}
+	NodeProxy( const char* name ) : name_( name ) {}
 
 	//~Node()
 	//{
@@ -129,7 +129,7 @@ struct Node2
 
 struct NodePath
 {
-	NodePath( Node* node, NodePath* parent )
+	NodePath( NodeProxy* node, NodePath* parent )
 		: node_( node )
 		, parentPath_( parent )
 	{ }
@@ -147,7 +147,7 @@ struct NodePath
 		childrenPaths_.clear();
 	}
 
-	Node* node_ = nullptr;
+	NodeProxy* node_ = nullptr;
 	NodePath* parentPath_ = nullptr;
 	std::vector<NodePath*> childrenPaths_;
 };
@@ -156,10 +156,10 @@ struct NodePath
 
 typedef unsigned int u32;
 
-typedef std::map<std::string, Node*> NodeMap;
+typedef std::map<std::string, NodeProxy*> NodeProxyMap;
 typedef std::map<std::string, Node2*> Node2Map;
 
-NodeMap gNodes;
+NodeProxyMap gNodes;
 NodePath* gWorldPath = nullptr;
 
 Node2Map gNodes2;
@@ -693,16 +693,16 @@ void initNodes()
 		MFnDependencyNode curNode( mnodeObj );
 		MString curNodeName = curNode.name();
 		MUuid uuid = curNode.uuid();
-		Node* nod = nullptr;
+		NodeProxy* nod = nullptr;
 		MString uuidStr = uuid.asString();
-		NodeMap::iterator it = gNodes.find( uuidStr.asChar() );
+		NodeProxyMap::iterator it = gNodes.find( uuidStr.asChar() );
 		if (it != gNodes.end())
 		{
 			nod = it->second;
 		}
 		else
 		{
-			nod = new Node( curNodeName.asChar() );
+			nod = new NodeProxy( curNodeName.asChar() );
 			gNodes[uuidStr.asChar()] = nod;
 		}
 
