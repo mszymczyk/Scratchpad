@@ -31,29 +31,8 @@
 
 	#if defined(_MSC_VER)
 
-		#define SPAD_ASSERT(expression)		\
-			__pragma(warning(push))					\
-			__pragma(warning(disable:4127))			\
-			if ( (expression) )						\
-			{										\
-			}										\
-			else									\
-			{										\
-				assertPrintAndBreak( "ASSERTION FAILED " #expression " " AT "\n" );		\
-			}										\
-			__pragma(warning(pop))
-
-		#define SPAD_ASSERT2(expression, msg)		\
-			__pragma(warning(push))					\
-			__pragma(warning(disable:4127))			\
-			if ( (expression) )						\
-			{										\
-			}										\
-			else									\
-			{										\
-				assertPrintAndBreak2( "ASSERTION FAILED " #expression " " AT, (msg) );		\
-			}										\
-			__pragma(warning(pop))
+		#define SPAD_ASSERT(expression)			(void)( (!!(expression)) || (assertPrintAndBreak( "ASSERTION FAILED " #expression " " AT "\n" ), 0) )
+		#define SPAD_ASSERT2(expression, msg)	(void)( (!!(expression)) || (assertPrintAndBreak2( "ASSERTION FAILED " #expression " " AT "\n", (msg) ), 0) )
 
 	#endif //
 

@@ -32,8 +32,6 @@ namespace SettingsEditor
         //[STAThread]
         protected void StartUpBase( string[] args )
         {
-            Globals.ParseCommandLine( args );
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -92,8 +90,7 @@ namespace SettingsEditor
                 typeof( FileWatcherService ),                // service to watch for changes to files
                 typeof( CurveEditor ),
 
-                typeof( ZMQHubService ),
-                //typeof( pico.Hub.HubService ),
+                typeof( misz.HubService ),
 
                 typeof( SchemaLoader ),                   // component that loads XML schema and sets up types
                 typeof(Editor),                          // component that manages UI documents
@@ -111,7 +108,7 @@ namespace SettingsEditor
             //  generate toolbars.
             var toolStripContainer = new ToolStripContainer();
             toolStripContainer.Dock = DockStyle.Fill;
-            var mainForm = new MainForm(toolStripContainer)
+            mainForm = new MainForm(toolStripContainer)
             {
                 Text = "Settings Editor".Localize(),
                 Icon = GdiUtil.CreateIcon(ResourceUtil.GetImage(Sce.Atf.Resources.AtfIconImage))
@@ -144,13 +141,11 @@ namespace SettingsEditor
 
             CurveEditor curveEditor = container.GetExportedValue<CurveEditor>();
             curveEditor.Control.CurvesChanged += ( sender, e ) => curveEditor.Control.FitAll();
-
-
         }
 
         protected void Run()
         {
-            Application.Run(mainForm);
+            Application.Run( mainForm );
         }
 
         protected void ShutDownBase()

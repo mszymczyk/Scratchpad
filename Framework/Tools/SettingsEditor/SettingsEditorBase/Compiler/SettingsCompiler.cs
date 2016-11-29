@@ -295,7 +295,7 @@ namespace SettingsEditor
             fw.AddLine( "const " + structure.Name + "* getPreset( const char* presetName ) const" );
             fw.AddLine( "{" );
             fw.IncIndent();
-            fw.AddLine( "return reinterpret_cast<const " + structure.Name + "*>( " + "SettingsEditor::DontTouchIt::getPreset( presetName, impl_ ) );" );
+            fw.AddLine( "return reinterpret_cast<const " + structure.Name + "*>( " + "SettingsEditor::_internal::getPreset( presetName, impl_ ) );" );
             fw.DecIndent();
             fw.AddLine( "}" );
             fw.EmptyLine();
@@ -497,13 +497,13 @@ namespace SettingsEditor
         //    fw.AddLine( "void load( const char* filePath );" );
         //    //fw.AddLine( "{" );
         //    //fw.IncIndent();
-        //    //fw.AddLine( "if ( __settingsFile_ )" );
+        //    //fw.AddLine( "if ( settingsFile_ )" );
         //    //fw.IncIndent();
         //    //fw.AddLine( "return;" );
         //    //fw.DecIndent();
         //    //fw.AddLine( "" );
 
-        //    //fw.AddLine( "__settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), this );" );
+        //    //fw.AddLine( "settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), this );" );
 
         //    //fw.DecIndent();
         //    //fw.AddLine( "}" );
@@ -512,14 +512,14 @@ namespace SettingsEditor
 
         //    fw.AddLine( "void unload()" );
         //    fw.AddLine( "{" );
-        //    fw.AddLine( "\tSettingsEditor::releaseSettingsFile( __settingsFile_ );" );
+        //    fw.AddLine( "\tSettingsEditor::releaseSettingsFile( settingsFile_ );" );
         //    fw.AddLine( "}" );
         //    fw.AddLine( "" );
 
         //    fw.DecIndent();
         //    fw.AddLine( "private:" );
         //    fw.IncIndent();
-        //    fw.AddLine( "\tSettingsEditor::SettingsFile* __settingsFile_ = nullptr;" );
+        //    fw.AddLine( "\tSettingsEditor::SettingsFile* settingsFile_ = nullptr;" );
 
         //    fw.DecIndent();
         //    fw.AddLine( "}; // class " + outputName + "Wrap" );
@@ -609,13 +609,13 @@ namespace SettingsEditor
             fw.AddLine( "void load( const char* filePath );" );
             //fw.AddLine( "{" );
             //fw.IncIndent();
-            //fw.AddLine( "if ( __settingsFile_ )" );
+            //fw.AddLine( "if ( settingsFile_ )" );
             //fw.IncIndent();
             //fw.AddLine( "return;" );
             //fw.DecIndent();
             //fw.AddLine( "" );
 
-            //fw.AddLine( "__settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), this );" );
+            //fw.AddLine( "settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), this );" );
 
             //fw.DecIndent();
             //fw.AddLine( "}" );
@@ -626,11 +626,11 @@ namespace SettingsEditor
             fw.EmptyLine();
 
             //fw.AddLine( "{" );
-            //fw.AddLine( "\tSettingsEditor::releaseSettingsFile( __settingsFile_ );" );
+            //fw.AddLine( "\tSettingsEditor::releaseSettingsFile( settingsFile_ );" );
             //fw.AddLine( "}" );
             //fw.AddLine( "" );
 
-            fw.AddLine( "\tSettingsEditor::SettingsFile* __settingsFile_ = nullptr;" );
+            fw.AddLine( "\tSettingsEditor::SettingsFile settingsFile_;" );
 
             fw.DecIndent();
             fw.AddLine( "}; // class " + outputName + "Wrap" );
@@ -832,7 +832,7 @@ namespace SettingsEditor
             fw.AddLine( "void " + outputName + "Wrap::load( const char* filePath )" );
             fw.AddLine( "{" );
             fw.IncIndent();
-            fw.AddLine( "if ( __settingsFile_ )" );
+            fw.AddLine( "if ( settingsFile_.isValid() )" );
             fw.IncIndent();
             fw.AddLine( "return;" );
             fw.DecIndent();
@@ -854,7 +854,7 @@ namespace SettingsEditor
             fw.EmptyLine();
 
 
-            fw.AddLine( "__settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), addresses );" );
+            fw.AddLine( "settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), addresses );" );
 
             fw.DecIndent();
             fw.AddLine( "}" );
@@ -864,7 +864,7 @@ namespace SettingsEditor
             fw.AddLine( "{" );
             fw.IncIndent();
 
-            fw.AddLine( "SettingsEditor::releaseSettingsFile( __settingsFile_ );" );
+            fw.AddLine( "SettingsEditor::releaseSettingsFile( settingsFile_ );" );
             fw.EmptyLine();
 
             foreach (SettingGroup nestedStructure in rootStructure.NestedStructures)

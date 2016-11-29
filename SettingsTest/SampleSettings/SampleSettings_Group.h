@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Util/SettingsEditor/SettingsEditor.h>
+#include <Tools/SettingsEditor/ClientLib/SettingsEditor.h>
 #include "SampleSettings.h"
 
 namespace SampleSettingsNamespace
@@ -54,7 +54,7 @@ struct Group
 
 		const Inner* getPreset( const char* presetName ) const
 		{
-			return reinterpret_cast<const Inner*>( SettingsEditor::DontTouchIt::getPreset( presetName, impl_ ) );
+			return reinterpret_cast<const Inner*>( SettingsEditor::_internal::getPreset( presetName, impl_ ) );
 		}
 
 	} mInner;

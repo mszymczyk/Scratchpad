@@ -33,9 +33,15 @@ namespace SettingsEditor
         [STAThread]
         static void Main( string[] args )
         {
+            string SCRATCHPAD_DIR = System.Environment.GetEnvironmentVariable( "SCRATCHPAD_DIR" );
+            if ( string.IsNullOrEmpty( SCRATCHPAD_DIR ) )
+                throw new InvalidOperationException( "Couldn't read 'SCRATCHPAD_DIR' environment variable" );
+
             Program prog = new Program();
 
             // setup paths and hub
+            misz.HubService.SetImpl(new misz.ZMQHubService());
+            misz.Paths.SetupPaths( SCRATCHPAD_DIR, SCRATCHPAD_DIR );
 
             prog.StartUpBase(args);
 

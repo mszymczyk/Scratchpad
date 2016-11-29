@@ -1,7 +1,7 @@
 #include "AppBase_pch.h"
 #include "AppBase.h"
-#include <Util\SettingsEditor\SettingsEditor.h>
-#include <Util\SettingsEditor\SettingsEditorComm.h>
+#include <Tools\SettingsEditor\ClientLib\SettingsEditor.h>
+#include <Tools\SettingsEditor\ZMQHubLib\ZMQHubCommunication.h>
 #include <Util\ZMQHubUtil.h>
 #include <Gfx\DebugDraw.h>
 #include <FrameworkSettings/FrameworkSettings.h>
@@ -53,13 +53,13 @@ namespace spad
 		instance_ = this;
 
 		ZMQHubUtil::startUp();
-		::SettingsEditor::DontTouchIt::Param seParam;
+		::SettingsEditor::_internal::StartUpParam seParam;
 		seParam.readFile = SettingsEditorReadFile;
 		seParam.freeFile = SettingsEditorFreeFile;
 		seParam.logInfo = SettingsEditorLogInfo;
 		seParam.logWarning = SettingsEditorLogWarning;
 		seParam.logError = SettingsEditorLogError;
-		SettingsEditor::DontTouchIt::startUp( seParam );
+		SettingsEditor::_internal::startUp( seParam );
 		SettingsEditorZMQ::startUp();
 
 		gFrameworkSettings = new FrameworkSettingsNamespace::FrameworkSettingsWrap("Data\\FrameworkSettings.settings");
@@ -154,7 +154,7 @@ namespace spad
 		gFrameworkSettings = nullptr;
 
 		SettingsEditorZMQ::shutDown();
-		::SettingsEditor::DontTouchIt::shutDown();
+		::SettingsEditor::_internal::shutDown();
 		ZMQHubUtil::shutDown();
 
 		hThisInst_ = nullptr;
@@ -185,7 +185,7 @@ namespace spad
 			UpdateAndRender( timer_ );
 
 			ZMQHubUtil::processReceivedData( nullptr );
-			::SettingsEditor::DontTouchIt::update();
+			::SettingsEditor::_internal::update();
 
 			dx11_->Present();
 		}

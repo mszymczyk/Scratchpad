@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Util/SettingsEditor/SettingsEditor.h>
+#include <Tools/SettingsEditor/ClientLib/SettingsEditor.h>
 
 namespace SampleSettingsNamespace
 {
@@ -34,7 +34,7 @@ private:
 	void load( const char* filePath );
 	void unload();
 
-		SettingsEditor::SettingsFile* __settingsFile_ = nullptr;
+		SettingsEditor::SettingsFile settingsFile_;
 }; // class SampleSettingsWrap
 
 

@@ -11,48 +11,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Def.cpp" />
-    <ClCompile Include="Exceptions.cpp" />
-    <ClCompile Include="FileIO.cpp" />
-    <ClCompile Include="Hash\MurmurHash3.cpp" />
-    <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="MayaAnimCurve.cpp" />
-    <ClCompile Include="pugixml\pugixml.cpp" />
-    <ClCompile Include="pugixml\pugixmlHelpers.cpp" />
-    <ClCompile Include="StdHelp.cpp" />
-    <ClCompile Include="Threading.cpp" />
-    <ClCompile Include="Timer.cpp" />
-    <ClCompile Include="Util_pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Vectormath.cpp" />
-    <ClCompile Include="ZMQHubUtil.cpp" />
+    <ClInclude Include="impl\MayaAnimCurve.h" />
+    <ClInclude Include="impl\pugixml\pugiconfig.hpp" />
+    <ClInclude Include="impl\pugixml\pugixml.hpp" />
+    <ClInclude Include="impl\pugixml\pugixmlHelpers.h" />
+    <ClInclude Include="impl\SettingsEditorUtil.h" />
+    <ClInclude Include="SettingsEditor.h" />
+    <ClInclude Include="SettingsEditorConfig.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bits.h" />
-    <ClInclude Include="Def.h" />
-    <ClInclude Include="Exceptions.h" />
-    <ClInclude Include="FileIO.h" />
-    <ClInclude Include="Hash\HashUtil.h" />
-    <ClInclude Include="Hash\MurmurHash3.h" />
-    <ClInclude Include="Logger.h" />
-    <ClInclude Include="MayaAnimCurve.h" />
-    <ClInclude Include="MultiDimensionalArray.h" />
-    <ClInclude Include="pugixml\pugiconfig.hpp" />
-    <ClInclude Include="pugixml\pugixml.hpp" />
-    <ClInclude Include="pugixml\pugixmlHelpers.h" />
-    <ClInclude Include="ReferenceCounting.h" />
-    <ClInclude Include="StdHelp.h" />
-    <ClInclude Include="SysIncludes.h" />
-    <ClInclude Include="Threading.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="Util_pch.h" />
-    <ClInclude Include="Vectormath.h" />
-    <ClInclude Include="ZMQHubUtil.h" />
+    <ClCompile Include="impl\MayaAnimCurve.cpp" />
+    <ClCompile Include="impl\pugixml\pugixml.cpp" />
+    <ClCompile Include="impl\pugixml\pugixmlHelpers.cpp" />
+    <ClCompile Include="impl\SettingsEditorUtil.cpp" />
+    <ClCompile Include="SettingsEditor.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{09C2B703-4F69-493C-B377-79298CC88C21}</ProjectGuid>
+    <ProjectGuid>{F8CFA270-3667-43C3-AA2B-72841CF5A13A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Util</RootNamespace>
   </PropertyGroup>
@@ -72,11 +47,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\vsprops\common_x64_debug.props" />
+    <Import Project="..\..\..\vsprops\common_x64_debug.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\vsprops\common_x64_release.props" />
+    <Import Project="..\..\..\vsprops\common_x64_release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -89,6 +64,9 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <ClCompile />
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>

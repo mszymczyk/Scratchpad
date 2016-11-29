@@ -8,7 +8,7 @@ namespace SampleSettings
 {
     public class GeneratorConfig
     {
-        public static readonly string SettingsEditorHeaderInclude = "#include <Util/SettingsEditor/SettingsEditor.h>";
+        public static readonly string SettingsEditorHeaderInclude = "#include <Tools/SettingsEditor/ClientLib/SettingsEditor.h>";
         public static readonly string SettingsEditorCppInclude = "#include <SampleSettings_pch.h>";
     }
 

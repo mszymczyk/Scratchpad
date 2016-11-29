@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Util/SettingsEditor/SettingsEditor.h>
+#include <Tools/SettingsEditor/ClientLib/SettingsEditor.h>
 #include "FrameworkSettings.h"
 
 namespace FrameworkSettingsNamespace

@@ -1,0 +1,5 @@
+#pragma once
+
+#define SETTINGS_EDITOR_ASSERT_ENABLED 1
+//#define SETTINGS_EDITOR_FROZEN
+

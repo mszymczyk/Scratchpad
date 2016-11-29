@@ -3,12 +3,12 @@ using SettingsEditor;
 
 // The field 'xxx' is assigned but its value is never used
 #pragma warning disable 414
-
+    
 namespace FrameworkSettings
 {
     public class GeneratorConfig
     {
-        public static readonly string SettingsEditorHeaderInclude = "#include <Util/SettingsEditor/SettingsEditor.h>";
+        public static readonly string SettingsEditorHeaderInclude = "#include <Tools/SettingsEditor/ClientLib/SettingsEditor.h>";
         public static readonly string SettingsEditorCppInclude = "#include <FrameworkSettings_pch.h>";
     }
 

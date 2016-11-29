@@ -46,13 +46,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\PropertyEditing\EditButton.cs" />
-    <Compile Include="Controls\PropertyEditing\FlexibleFloatEditor.cs" />
-    <Compile Include="Controls\PropertyEditing\FlexibleFloatEditorForm.cs" />
-    <Compile Include="Controls\PropertyEditing\FlexibleFloatEditorForm.Designer.cs">
-      <DependentUpon>FlexibleFloatEditorForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\PropertyEditing\FlexibleFloatInputControl.cs" />
     <Compile Include="Paths.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZMQHubService.cs" />
@@ -70,11 +63,13 @@
       <Project>{4765c2a7-f989-40db-bc12-fcd67025b93f}</Project>
       <Name>Atf.Gui.vs2010</Name>
     </ProjectReference>
+    <ProjectReference Include="..\misz\misz.csproj">
+      <Project>{d53ebe16-9dfd-428a-bf51-d723b642c196}</Project>
+      <Name>misz</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Controls\PropertyEditing\FlexibleFloatEditorForm.resx">
-      <DependentUpon>FlexibleFloatEditorForm.cs</DependentUpon>
-    </EmbeddedResource>
+    <Folder Include="Controls\PropertyEditing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

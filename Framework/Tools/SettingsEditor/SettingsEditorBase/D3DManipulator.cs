@@ -120,7 +120,7 @@ namespace SettingsEditor
         #region IInitializable Members
 
         /// <summary>
-        /// Finishes initializing component by connecting to picoHub</summary>
+        /// Finishes initializing component by connecting to Hub</summary>
         void IInitializable.Initialize()
         {
             m_control = new Dx11Control( this );

@@ -60,7 +60,7 @@ namespace FrameworkSettingsNamespace
 
 	void FrameworkSettingsWrap::load( const char* filePath )
 	{
-		if ( __settingsFile_ )
+		if ( settingsFile_.isValid() )
 			return;
 		
 		mGeneral = new General;
@@ -68,12 +68,12 @@ namespace FrameworkSettingsNamespace
 		const void* addresses[1];
 		addresses[0] = mGeneral;
 
-		__settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), addresses );
+		settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), addresses );
 	}
 
 	void FrameworkSettingsWrap::unload()
 	{
-		SettingsEditor::releaseSettingsFile( __settingsFile_ );
+		SettingsEditor::releaseSettingsFile( settingsFile_ );
 
 		delete mGeneral; mGeneral = nullptr;
 	}

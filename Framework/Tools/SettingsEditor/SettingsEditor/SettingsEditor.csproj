@@ -65,31 +65,6 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IronPython, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ThirdParty\IronPython\IronPython.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Modules">
-      <HintPath>..\..\ThirdParty\IronPython\IronPython.Modules.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Dynamic, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ThirdParty\IronPython\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ThirdParty\SharpDX\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.D3DCompiler">
-      <HintPath>..\..\ThirdParty\SharpDX\SharpDX.D3DCompiler.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D11">
-      <HintPath>..\..\ThirdParty\SharpDX\SharpDX.Direct3D11.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DXGI, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ThirdParty\SharpDX\SharpDX.DXGI.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -102,9 +77,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Tao.OpenGl">
-      <HintPath>..\..\ThirdParty\Tao.OpenGl\Tao.OpenGl.dll</HintPath>
-    </Reference>
     <Reference Include="ZeroMQ, Version=4.1.0.42169, Culture=neutral, PublicKeyToken=4a9630883fd6c563, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Bin\ZeroMQ.dll</HintPath>
@@ -142,6 +114,14 @@
     <ProjectReference Include="..\..\..\ATF\Framework\Atf.IronPython\Atf.IronPython.vs2010.csproj">
       <Project>{7F794C24-7A8D-4D21-B443-F03509669F89}</Project>
       <Name>Atf.IronPython.vs2010</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\ATF\misz.scratchpad\misz.scratchpad.csproj">
+      <Project>{1818170e-067a-4cf4-a19d-cc868aed14a9}</Project>
+      <Name>misz.scratchpad</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\ATF\misz\misz.csproj">
+      <Project>{d53ebe16-9dfd-428a-bf51-d723b642c196}</Project>
+      <Name>misz</Name>
     </ProjectReference>
     <ProjectReference Include="..\SettingsEditorAttributes\SettingsEditorAttributes.csproj">
       <Project>{c61f717f-ff92-4d36-930e-1f49c198cbee}</Project>

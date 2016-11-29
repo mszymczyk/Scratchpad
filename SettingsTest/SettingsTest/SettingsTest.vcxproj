@@ -38,6 +38,12 @@
     <ProjectReference Include="..\..\Framework\Core\Util\Util.vcxproj">
       <Project>{09c2b703-4f69-493c-b377-79298cc88c21}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Tools\SettingsEditor\ClientLib\SettingsEditor.vcxproj">
+      <Project>{f8cfa270-3667-43c3-aa2b-72841cf5a13a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Framework\Tools\SettingsEditor\ZMQHubLib\ZMQHubLib.vcxproj">
+      <Project>{b0eced94-8e82-4dbd-a394-218ad5e55890}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\SampleSettings\SampleSettings.vcxproj">
       <Project>{82227082-8738-4d1d-9945-37b95f7dc29c}</Project>
     </ProjectReference>

@@ -352,7 +352,7 @@ void TextRenderer::_Draw( Dx11DeviceContext& deviceContext, float userX, float u
 	if ( ! nVisibleCharacters )
 		return;
 
-	SPAD_ASSERT( nVisibleCharacters*6 <= indices_.nIndices_ )
+	SPAD_ASSERT( nVisibleCharacters * 6 <= indices_.nIndices_ );
 
 	ID3D11DeviceContext* context = deviceContext.context;
 	const BMFont* bmFont = currentFont_;

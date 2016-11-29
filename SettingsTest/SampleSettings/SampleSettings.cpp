@@ -122,7 +122,7 @@ namespace SampleSettingsNamespace
 
 	void SampleSettingsWrap::load( const char* filePath )
 	{
-		if ( __settingsFile_ )
+		if ( settingsFile_.isValid() )
 			return;
 		
 		mGroup = new Group;
@@ -130,12 +130,12 @@ namespace SampleSettingsNamespace
 		const void* addresses[1];
 		addresses[0] = mGroup;
 
-		__settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), addresses );
+		settingsFile_ = SettingsEditor::createSettingsFile( filePath, GetDesc(), addresses );
 	}
 
 	void SampleSettingsWrap::unload()
 	{
-		SettingsEditor::releaseSettingsFile( __settingsFile_ );
+		SettingsEditor::releaseSettingsFile( settingsFile_ );
 
 		delete mGroup; mGroup = nullptr;
 	}

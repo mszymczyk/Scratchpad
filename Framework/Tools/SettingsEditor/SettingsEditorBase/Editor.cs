@@ -30,30 +30,30 @@ namespace SettingsEditor
         /// Finish MEF initialization for the component by creating DomNode tree for application data.</summary>
         void IInitializable.Initialize()
         {
-            {
-                string descr = "Root path for settings description files".Localize();
-                var codeDir =
-                    new BoundPropertyDescriptor( typeof( Globals ), () => Globals.CodeDirectory,
-                        "SettingsDescRoot".Localize(),
-                        null,
-                        descr,
-                        new FolderBrowserDialogUITypeEditor( descr ), null );
+            //{
+            //    string descr = "Root path for settings description files".Localize();
+            //    var codeDir =
+            //        new BoundPropertyDescriptor( typeof( Globals ), () => Globals.CodeDirectory,
+            //            "SettingsDescRoot".Localize(),
+            //            null,
+            //            descr,
+            //            new FolderBrowserDialogUITypeEditor( descr ), null );
 
-                m_settingsService.RegisterSettings( this, codeDir );
-                m_settingsService.RegisterUserSettings( "SettingsDescRoot".Localize(), codeDir );
-            }
-            {
-                string descr = "Root path for settings files".Localize();
-                var dataDir =
-                    new BoundPropertyDescriptor( typeof( Globals ), () => Globals.DataDirectory,
-                        "SettingsRoot".Localize(),
-                        null,
-                        descr,
-                        new FolderBrowserDialogUITypeEditor( descr ), null );
+            //    m_settingsService.RegisterSettings( this, codeDir );
+            //    m_settingsService.RegisterUserSettings( "SettingsDescRoot".Localize(), codeDir );
+            //}
+            //{
+            //    string descr = "Root path for settings files".Localize();
+            //    var dataDir =
+            //        new BoundPropertyDescriptor( typeof( Globals ), () => Globals.DataDirectory,
+            //            "SettingsRoot".Localize(),
+            //            null,
+            //            descr,
+            //            new FolderBrowserDialogUITypeEditor( descr ), null );
 
-                m_settingsService.RegisterSettings( this, dataDir );
-                m_settingsService.RegisterUserSettings( "SettingsRoot".Localize(), dataDir );
-            }
+            //    m_settingsService.RegisterSettings( this, dataDir );
+            //    m_settingsService.RegisterUserSettings( "SettingsRoot".Localize(), dataDir );
+            //}
 
             m_settingsService.RegisterSettings( this, new BoundPropertyDescriptor( this, () => GroupExpandedInfo, "GroupExpandedInfo", null, null ) );
 
@@ -108,17 +108,17 @@ namespace SettingsEditor
             m_groupExpandedInfo.Remove( e.Item.Uri );
         }
 
-        private string DataDirectory
-        {
-            get
-            {
-                return Globals.DataDirectory;
-            }
-            set
-            {
-                Globals.DataDirectory = value;
-            }
-        }
+        //private string DataDirectory
+        //{
+        //    get
+        //    {
+        //        return Globals.DataDirectory;
+        //    }
+        //    set
+        //    {
+        //        Globals.DataDirectory = value;
+        //    }
+        //}
 
         #endregion
 
@@ -211,8 +211,8 @@ namespace SettingsEditor
             document.Control = control;
 
             document.DescFilePath = descFullPath;
-            document.PathRelativeToData = Globals.GetPathRelativeToData( filePath );
-            string descFileRelativePath = Globals.GetPathRelativeToCode( descFullPath );
+            document.PathRelativeToData = misz.Paths.AbsolutePathToDataPath( filePath );
+            string descFileRelativePath = misz.Paths.AbsolutePathToCodePath( descFullPath );
             document.DescFileRelativePath = descFileRelativePath;
 
             document.Uri = settingsFile;
@@ -317,10 +317,7 @@ namespace SettingsEditor
 
             if ( File.Exists( filePath ) )
             {
-                string pathRelativeToData = Globals.GetPathRelativeToData( uri.LocalPath );
-                if ( string.IsNullOrEmpty( pathRelativeToData ) )
-                    throw new InvalidSettingsPathException( uri );
-
+                string pathRelativeToData = misz.Paths.AbsolutePathToDataPath( uri.LocalPath );
                 string descFullPath = ExtractDescFile( uri );
                 string shaderOutputPath = ExtractShaderFile( uri );
                 if ( !string.IsNullOrEmpty( descFullPath ) )
@@ -355,10 +352,7 @@ namespace SettingsEditor
         /// <param name="uri">New document URI</param>
         public void Save( IDocument document, Uri uri )
         {
-            string pathRelativeToData = Globals.GetPathRelativeToData( uri.LocalPath );
-            if ( string.IsNullOrEmpty( pathRelativeToData ) )
-                throw new Exception( "Path is not relative to SettingsRoot" );
-
+            string pathRelativeToData = misz.Paths.AbsolutePathToDataPath( uri.LocalPath );
             Document doc = document as Document;
             doc.PathRelativeToData = pathRelativeToData;
 
@@ -456,7 +450,7 @@ namespace SettingsEditor
             if ( string.IsNullOrEmpty( descFile ) )
                 return string.Empty;
 
-            string descFileFull = Globals.GetCodeFullPath( descFile );
+            string descFileFull = misz.Paths.CodePathToAbsolutePath( descFile );
             return descFileFull;
         }
         private string ExtractShaderFile( Uri uri )
@@ -477,7 +471,7 @@ namespace SettingsEditor
             string shaderFile = documentElement.GetAttribute( "shaderOutputFile" );
             if ( string.IsNullOrEmpty( shaderFile ) )
                 return string.Empty;
-            string shaderFileFull = Globals.GetCodeFullPath( shaderFile );
+            string shaderFileFull = misz.Paths.CodePathToAbsolutePath( shaderFile );
             return shaderFileFull;
         }
 
@@ -541,8 +535,8 @@ namespace SettingsEditor
                     if ( ext != ".cs" )
                         return;
 
-                    string picoPath = Globals.GetPathRelativeToCode( file );
-                    if ( string.IsNullOrEmpty( picoPath ) )
+                    string codePath = misz.Paths.AbsolutePathToCodePathTry( file );
+                    if ( string.IsNullOrEmpty( codePath ) )
                         return;
                 }
 

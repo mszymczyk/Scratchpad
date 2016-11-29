@@ -9,9 +9,9 @@
 		<prop name="sampleDir" type="dirval" dirval="0.4040146 0.7957078 0.451244116" />
 		<prop name="animCurve" type="curve">
 			<curve name="animCurve" displayName="FaderValue:animCurve" minX="0" maxX="1" minY="0" maxY="1" preInfinity="Constant" postInfinity="Constant" xLabel="Time" yLabel="Value">
-				<controlPoint tangentIn="0.120129548 0.9927582" tangentInType="Spline" tangentOut="0.120129548 0.9927582" tangentOutType="Spline" />
-				<controlPoint x="0.07836908" y="0.6476471" tangentIn="0.4008923 0.9161252" tangentInType="Spline" tangentOut="0.400892317 0.916125238" tangentOutType="Spline" />
-				<controlPoint x="0.128704578" y="0.294117659" tangentIn="0.9369825 -0.34937638" tangentInType="Spline" tangentOut="0.9369825 -0.3493764" tangentOutType="Spline" />
+				<controlPoint tangentIn="0.0763119 0.997084" tangentInType="Spline" tangentOut="0.0763119 0.997084" tangentOutType="Spline" />
+				<controlPoint x="0.041272305" y="0.53925997" tangentIn="0.400892317 0.9161252" tangentInType="Spline" tangentOut="0.400892317 0.9161252" tangentOutType="Spline" />
+				<controlPoint x="0.128704578" y="0.294117659" tangentIn="0.994651854 0.103284657" tangentInType="Spline" tangentOut="0.9946518 0.10328465" tangentOutType="Spline" />
 				<controlPoint x="0.29765147" y="0.5658824" tangentIn="0.997019351 0.07715108" tangentInType="Spline" tangentOut="0.9970194 0.07715108" tangentOutType="Spline" />
 				<controlPoint x="0.584808946" y="0.3294118" tangentIn="0.182512373 0.98320353" tangentInType="Fixed" tangentOut="0.182512373 0.98320353" tangentOutType="Fixed" />
 				<controlPoint x="1" y="1" tangentIn="0.5264142 0.85022825" tangentInType="Spline" tangentOut="0.5264142 0.85022825" tangentOutType="Spline" />
@@ -26,10 +26,10 @@
 			<prop name="color" type="colval" colval="1 0 0" />
 			<prop name="animCurve" type="curve">
 				<curve name="animCurve" displayName="Curve:animCurve" minX="0" maxX="1" minY="0" maxY="1" preInfinity="Constant" postInfinity="Constant" xLabel="Time" yLabel="Value">
-					<controlPoint tangentIn="0.30518803 0.952292144" tangentInType="Spline" tangentOut="0.30518803 0.952292144" tangentOutType="Spline" />
-					<controlPoint x="0.222637475" y="0.694705844" tangentIn="0.996019065 0.08914057" tangentInType="Spline" tangentOut="0.996019065 0.08914057" tangentOutType="Spline" />
-					<controlPoint x="0.2629077" y="0.0235294141" tangentIn="0.996866345 -0.07910385" tangentInType="Spline" tangentOut="0.9968664 -0.07910385" tangentOutType="Spline" />
-					<controlPoint x="0.66" y="0.66" tangentIn="0.602476358 0.7981368" tangentInType="Spline" tangentOut="0.6024763 0.7981367" tangentOutType="Spline" />
+					<controlPoint tangentIn="0.10027869 0.994959354" tangentInType="Spline" tangentOut="0.10027869 0.994959354" tangentOutType="Spline" />
+					<controlPoint x="0.0645344257" y="0.64030683" tangentIn="0.9712123 0.238215521" tangentInType="Fixed" tangentOut="0.9712123 0.238215521" tangentOutType="Fixed" />
+					<controlPoint x="0.263921529" y="0.0235294141" tangentIn="0.999453545 0.0330538563" tangentInType="Spline" tangentOut="0.9994536 0.0330538563" tangentOutType="Spline" />
+					<controlPoint x="0.66" y="0.66" tangentIn="0.601948142 0.7985352" tangentInType="Spline" tangentOut="0.601948142 0.7985352" tangentOutType="Spline" />
 					<controlPoint x="1" y="1" tangentIn="0.707106769 0.707106769" tangentInType="Spline" tangentOut="0.707106769 0.707106769" tangentOutType="Spline" />
 				</curve>
 			</prop>
@@ -43,16 +43,16 @@
 				<prop name="color" type="colval" colval="0 1 0.0235294141" />
 				<prop name="animCurve" type="curve">
 					<curve name="animCurve" displayName="Curve:animCurve" minX="0" maxX="1" minY="0" maxY="1" preInfinity="Constant" postInfinity="Constant" xLabel="Time" yLabel="Value">
-						<controlPoint tangentIn="0.206879377 0.9783665" tangentInType="Spline" tangentOut="0.206879377 0.9783665" tangentOutType="Spline" />
-						<controlPoint x="0.21145387" y="1" tangentIn="0.9525824 0.3042806" tangentInType="Spline" tangentOut="0.9525824 0.3042806" tangentOutType="Spline" />
-						<controlPoint x="0.6298043" y="0.201176524" tangentIn="1 0" tangentInType="Spline" tangentOut="1 0" tangentOutType="Spline" />
+						<controlPoint tangentIn="0.604654968 0.7964875" tangentInType="Spline" tangentOut="0.604654968 0.7964875" tangentOutType="Spline" />
+						<controlPoint x="0.2744562" y="0.361530036" tangentIn="0.9917282 0.128355712" tangentInType="Fixed" tangentOut="0.9917282 0.128355712" tangentOutType="Fixed" />
+						<controlPoint x="0.6298043" y="0.201176524" tangentIn="0.750717938 0.6606229" tangentInType="Spline" tangentOut="0.750717938 0.6606229" tangentOutType="Spline" />
 						<controlPoint x="1" y="1" tangentIn="0.4204696 0.9073066" tangentInType="Spline" tangentOut="0.4204696 0.9073066" tangentOutType="Spline" />
 					</curve>
 				</prop>
 				<prop name="stringParam" type="sval" sval="sample.txt" />
 			</preset>
 			<preset name="Preset1">
-				<prop name="boolParam" type="bval" bval="true" />
+				<prop name="boolParam" type="bval" />
 				<prop name="intParam" type="ival" ival="1" />
 				<prop name="enumParam" type="eval" />
 				<prop name="floatParam" type="fval" fval="0.790000141" max="1" step="0.01" extraName="tmp" />
@@ -60,10 +60,10 @@
 				<prop name="color" type="colval" colval="1 0 0" />
 				<prop name="animCurve" type="curve">
 					<curve name="animCurve" displayName="Curve:animCurve" minX="0" maxX="1" minY="0" maxY="1" preInfinity="Constant" postInfinity="Constant" xLabel="Time" yLabel="Value">
-						<controlPoint tangentIn="0.30518803 0.952292144" tangentInType="Spline" tangentOut="0.30518803 0.952292144" tangentOutType="Spline" />
-						<controlPoint x="0.222637475" y="0.694705844" tangentIn="0.996019065 0.08914057" tangentInType="Spline" tangentOut="0.996019065 0.08914057" tangentOutType="Spline" />
-						<controlPoint x="0.2629077" y="0.0235294141" tangentIn="0.996866345 -0.07910385" tangentInType="Spline" tangentOut="0.9968664 -0.07910385" tangentOutType="Spline" />
-						<controlPoint x="0.66" y="0.66" tangentIn="0.602476358 0.7981368" tangentInType="Spline" tangentOut="0.6024763 0.7981367" tangentOutType="Spline" />
+						<controlPoint tangentIn="0.143275231 0.9896829" tangentInType="Spline" tangentOut="0.143275231 0.9896829" tangentOutType="Spline" />
+						<controlPoint x="0.144094646" y="0.9953431" tangentIn="0.996047735 0.0888194144" tangentInType="Spline" tangentOut="0.996047735 0.08881942" tangentOutType="Spline" />
+						<controlPoint x="0.263865948" y="0.0235294141" tangentIn="0.838440239 -0.5449936" tangentInType="Spline" tangentOut="0.8384402 -0.5449936" tangentOutType="Spline" />
+						<controlPoint x="0.66" y="0.66" tangentIn="0.60197705 0.7985134" tangentInType="Spline" tangentOut="0.60197705 0.798513353" tangentOutType="Spline" />
 						<controlPoint x="1" y="1" tangentIn="0.707106769 0.707106769" tangentInType="Spline" tangentOut="0.707106769 0.707106769" tangentOutType="Spline" />
 					</curve>
 				</prop>

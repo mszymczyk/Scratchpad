@@ -412,7 +412,7 @@ namespace SettingsEditor
                     SettingsCompiler compiler = new SettingsCompiler();
                     string descFullPath = document.DescFilePath;
                     compiler.ReflectSettings( descFullPath );
-                    compiler.GenerateHeaderIfChanged( descFullPath, Globals.GetCodeFullPath( (string) e.NewValue ) );
+                    compiler.GenerateHeaderIfChanged( descFullPath, misz.Paths.CodePathToAbsolutePath( (string) e.NewValue ) );
                     return;
                 }
             }
@@ -458,7 +458,7 @@ namespace SettingsEditor
             string structureName = structure.AbsoluteName;
             string presetName = preset != null ? preset.PresetName : "";
 
-            ZMQHubMessage msg = new ZMQHubMessage( "settings" );
+            misz.HubMessageOut msg = new misz.HubMessageOut( "settings" );
 
             if ( prop.PropertyType == SettingType.Bool )
             {
@@ -575,7 +575,7 @@ namespace SettingsEditor
                 return;
             }
 
-            ZMQHubService.send( msg );
+            misz.HubService.Send( msg );
         }
 
         void DomNode_ChildInserted( object sender, ChildEventArgs e )

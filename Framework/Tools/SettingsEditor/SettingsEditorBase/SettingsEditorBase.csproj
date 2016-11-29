@@ -135,8 +135,6 @@
     <Compile Include="DomNodeAdapters\Preset.cs" />
     <Compile Include="DomNodeAdapters\SettingsReferenceValidator.cs" />
     <Compile Include="Editor.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="Globals.cs" />
     <Compile Include="ProgramBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Resources.cs" />
@@ -145,7 +143,6 @@
     <Compile Include="Schemas\SchemaLoader.cs" />
     <Compile Include="SettingsLister.cs" />
     <Compile Include="TreeView.cs" />
-    <Compile Include="ZMQHubService.cs" />
     <None Include="app.config" />
     <None Include="Schemas\GenSchemaDef.cmd" />
     <EmbeddedResource Include="Schemas\settingsFile.xsd">
