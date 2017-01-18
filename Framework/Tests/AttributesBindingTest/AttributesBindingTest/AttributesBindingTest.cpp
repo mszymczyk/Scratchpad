@@ -336,6 +336,8 @@ void printAttrInfo( const char* name, const DependencyNode& nod )
 	}
 }
 
+//void setBoolAttribute( DependencyNode& dn, const AttributeDesc& ad
+
 int main()
 {
 	//TransformNode::translateX::offset;
@@ -365,10 +367,17 @@ int main()
 	//std::array<int, 10> a;
 	//a::max_size
 
-	DagNode::getDagNodeAttrSet().finishAttrSetInitialization();
+	//DagNode::getDagNodeAttrSet().finishAttrSetInitialization();
 
 	DagNode dn;
 	printAttrInfo( "dagNode", dn );
+
+	//dn.visibility.valueBool;
+	//dn.setBool( dn.visibility, true );
+	dn.visibility.setBool( true );
+
+	Attr a( &dn, dn.visibility.desc );
+	a.setBool( false );
 
 	//bool b = dn.getVisibility();
 

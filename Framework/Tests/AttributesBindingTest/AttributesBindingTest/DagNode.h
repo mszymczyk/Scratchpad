@@ -74,19 +74,15 @@ public:
 
 	//static constexpr const size_t firstAttributeIndex = __COUNTER__;
 
-	//struct AttributeType_visibility
+	//struct Attribute_visibility
 	//{
-	//private:
-	//	bool bValue;
-
-	//public:
+	//	bool valueBool;
 	//	static const AttributeDesc desc;
 	//	static constexpr const AttributeType::Type aType = AttributeType::Bool;
 	//	static constexpr const size_t attrNo = __COUNTER__ - firstAttributeIndex - 1;
 	//	static constexpr const unsigned int hasNetwork = false;
 
 	//	bool getBool() const { return bValue; }
-
 	//} visibility;
 
 	//struct AttributeType_sortingPriority
@@ -115,8 +111,35 @@ public:
 
 	DECLARE_ATTRIBUTES_BEGIN;
 
-	DECLARE_ATTRIBUTE_BOOL( visibility     , true );
-	DECLARE_ATTRIBUTE_U8  ( sortingPriority, 0    );
+	//DECLARE_ATTRIBUTE_BOOL( visibility, true );
 
-	DECLARE_ATTRIBUTES_END(DagNode);
+
+	struct Attribute_visibility
+	{
+		bool valueBool;
+		static const AttributeDesc desc;
+		static constexpr const AttributeType::Type type = AttributeType::Bool;
+		static constexpr const size_t ordinal = __COUNTER__ - __firstAttributeIndex - 1;
+		static constexpr const unsigned int hasNetwork = false;
+
+		bool getBool() const { return valueBool; }
+		void setBool( bool val )
+		{
+			valueBool = val;
+			DagNode* dn = reinterpret_cast<DagNode*>( reinterpret_cast<uint8_t*>( &valueBool ) - ( offsetof(DagNode, visibility) + offsetof( Attribute_visibility, valueBool ) ) );
+			if ( hasNetwork )
+				dn->_SetBool_destinations( desc, val );
+		}
+
+	} visibility;
+
+	DECLARE_ATTRIBUTE_U8( sortingPriority, 100 );
+
+	DECLARE_ATTRIBUTES_END( DagNode );
+
+	void setVisibility( bool onOff )
+	{
+		 //visibility.valueBool = onOff;
+		
+	}
 };

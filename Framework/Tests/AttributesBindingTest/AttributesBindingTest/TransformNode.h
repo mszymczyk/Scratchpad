@@ -141,7 +141,51 @@ public:
 
 	DECLARE_ATTRIBUTES_BEGIN_INHERIT(DagNode);
 
-	DECLARE_ATTRIBUTE_DISTANCE_NETWORKED( translate, 0, 0, 0 );
+	//DECLARE_ATTRIBUTE_DISTANCE_NETWORKED( translate, 0, 0, 0 );
+
+	struct Attribute_translate
+	{
+	private:
+		float valueX = 0;
+		float valueY = 0;
+		float valueZ = 0;
+
+	public:
+		static const AttributeDesc descX;
+		static const AttributeDesc descY;
+		static const AttributeDesc descZ;
+		static const AttributeDesc desc;
+		static constexpr const AttributeType::Type typeX = AttributeType::Float;
+		static constexpr const AttributeType::Type typeY = AttributeType::Float;
+		static constexpr const AttributeType::Type typeZ = AttributeType::Float;
+		static constexpr const AttributeType::Type type = AttributeType::Distance;
+		static constexpr const size_t ordinalX = __COUNTER__ - __firstAttributeIndex - 1 + __nInheritedAttributes;
+		static constexpr const size_t ordinalY = __COUNTER__ - __firstAttributeIndex - 1 + __nInheritedAttributes;
+		static constexpr const size_t ordinalZ = __COUNTER__ - __firstAttributeIndex - 1 + __nInheritedAttributes;
+		static constexpr const size_t ordinal = __COUNTER__ - __firstAttributeIndex - 1 + __nInheritedAttributes;
+		static constexpr const unsigned int hasNetwork = true;
+
+		void setX( float val )
+		{
+			valueX = val;
+			TransformNode* dn = reinterpret_cast<TransformNode*>( reinterpret_cast<uint8_t*>( &valueX ) - ( offsetof( TransformNode, translate ) + offsetof( Attribute_translate, valueX ) ) );
+			if ( hasNetwork )
+				dn->_SetFloat_destinations( descX, val );
+		}
+
+		void setXYZ( float x, float y, float z )
+		{
+			valueX = x;
+			valueY = y;
+			valueZ = z;
+			TransformNode* dn = reinterpret_cast<TransformNode*>( reinterpret_cast<uint8_t*>( &valueX ) - ( offsetof( TransformNode, translate ) + offsetof( Attribute_translate, valueX ) ) );
+			if ( hasNetwork )
+				dn->_SetVector3_destinations( descX, x, y, z );
+		}
+
+	} translate;
+
+
 	DECLARE_ATTRIBUTE_DISTANCE_NETWORKED( rotate, 0, 0, 0 );
 
 	DECLARE_ATTRIBUTES_END( TransformNode );

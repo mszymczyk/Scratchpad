@@ -84,28 +84,40 @@ public:
 	//	return visibility.getBool();
 	//}
 
-	bool _GetBool( const AttributeDesc& adesc )
-	{
-		assert( adesc.type_ == AttributeType::Bool );
-		return *reinterpret_cast<const bool*>( reinterpret_cast<const uint8_t*>( this ) + adesc.offset_ );
-	}
+	//bool _GetBool( const AttributeDesc& adesc )
+	//{
+	//	assert( adesc.type_ == AttributeType::Bool );
+	//	return *reinterpret_cast<const bool*>( reinterpret_cast<const uint8_t*>( this ) + adesc.offset_ );
+	//}
 
-	uint8_t _GetU8( const AttributeDesc& adesc )
-	{
-		assert( adesc.type_ == AttributeType::UInt8 );
-		return *(reinterpret_cast<const uint8_t*>( this ) + adesc.offset_);
-	}
+	//uint8_t _GetU8( const AttributeDesc& adesc )
+	//{
+	//	assert( adesc.type_ == AttributeType::UInt8 );
+	//	return *(reinterpret_cast<const uint8_t*>( this ) + adesc.offset_);
+	//}
 
-	template<class T>
-	void _SetVector3( T& attr, float x, float y, float z )
-	{
-		attr.x = x;
-		attr.y = y;
-		attr.z = z;
+	//template<class T>
+	//void setBool( T& attr, bool b )
+	//{
+	//	void* addr = &attr.bValue - attr.offset;
 
-		if ( attr.hasNetwork )
-			_SetVector3_destinations( attr.desc, x, y, z );
-	}
+	//	if ( attr.hasNetwork )
+	//		_SetBool_destinations( attr.desc, b );
+	//}
+
+
+	//template<class T>
+	//void _SetVector3( T& attr, float x, float y, float z )
+	//{
+	//	attr.x = x;
+	//	attr.y = y;
+	//	attr.z = z;
+
+	//	if ( attr.hasNetwork )
+	//		_SetVector3_destinations( attr.desc, x, y, z );
+	//}
+
+
 
 	void _SetVector3( const AttributeDesc& adesc, float x, float y, float z )
 	{
@@ -136,6 +148,20 @@ public:
 			a.setVector3( x, y, z );
 	}
 
+	void _SetBool_destinations( const AttributeDesc& adesc, bool b )
+	{
+		AttrNetwork& an = getAttrNetwork( adesc );
+		for ( Attr& a : an.destinations_ )
+			a.setBool( b );
+	}
+
+	void _SetFloat_destinations( const AttributeDesc& adesc, float f )
+	{
+		AttrNetwork& an = getAttrNetwork( adesc );
+		for ( Attr& a : an.destinations_ )
+			a.setFloat( f );
+	}
+
 	//template<class T>
 	//AttrNetwork& getNetwork( const T& attr )
 	//{
@@ -164,8 +190,14 @@ public:
 
 inline bool Attr::getBool() const
 {
-	assert( desc_->type_ == AttributeType::Bool );
-	return *reinterpret_cast<const bool*>( reinterpret_cast<const unsigned char*>( node_ ) + desc_->offset_ );
+	assert( desc_.type_ == AttributeType::Bool );
+	return *reinterpret_cast<const bool*>( reinterpret_cast<const unsigned char*>( node_ ) + desc_.offset_ );
+}
+
+inline void Attr::setBool( bool b )
+{
+	assert( desc_.type_ == AttributeType::Bool );
+	*reinterpret_cast<bool*>( reinterpret_cast<uint8_t*>( node_ ) + desc_.offset_ ) = b;
 }
 
 inline void Attr::setVector3( float x, float y, float z )
@@ -175,5 +207,5 @@ inline void Attr::setVector3( float x, float y, float z )
 	//f[0] = x;
 	//f[1] = y;
 	//f[2] = z;
-	node_->_SetVector3( *desc_, x, y, z );
+	node_->_SetVector3( desc_, x, y, z );
 }

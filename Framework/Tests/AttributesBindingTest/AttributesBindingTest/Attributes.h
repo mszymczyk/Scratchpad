@@ -152,11 +152,18 @@ class DependencyNode;
 
 struct Attr
 {
+	Attr( DependencyNode* node, const AttributeDesc& adesc )
+		: node_( node )
+		, desc_( adesc )
+	{	}
+
 	DependencyNode* node_ = nullptr;
-	const AttributeDesc* desc_ = nullptr;
+	const AttributeDesc& desc_;
 
 	bool getBool() const;
 
+	void setBool( bool b );
+	void setFloat( float f );
 	void setVector3( float x, float y, float z );
 };
 
