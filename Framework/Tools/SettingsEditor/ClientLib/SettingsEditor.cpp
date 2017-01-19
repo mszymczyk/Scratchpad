@@ -73,6 +73,9 @@ struct _Struct
 	uint8_t* absoluteAddress_ = nullptr;
 	_StructUniquePtrArray nestedStructures_;
 	_PresetUniquePtrArray presets_;
+	_Preset* activePreset_ = nullptr; // active preset, temporary or editor
+	_Preset* editorPreset_ = nullptr; // active preset, set in editor
+	uint8_t* memoryCopy_ = nullptr; // when preset is active, this block will contain original group values
 
 	~_Struct();
 	_Struct* getNestedGroup( const char* name ) const;
@@ -101,9 +104,15 @@ struct _SettingsFileImpl
 
 	bool findStruct( const char* structName, _Struct*& dstStruct );
 	bool findGroupPresetAndField( const char* groupName, const char* presetName, const char* paramName, _Struct*& dstStruct, _Preset*& dstPreset, const FieldDescription*& dstField );
-	void updateParam( const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues );
-	void updateParam( const char* groupName, const char* presetName, const char* paramName, const float* newValues, int nNewValues );
-	void updateParam( const char* groupName, const char* presetName, const char* paramName, const char* newVal );
+	void updateParamInt( const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues );
+	void setInt( const char* groupName, const FieldDescription* field, uint8_t* dstMem, const int* newValues, int nNewValues );
+	void updateParamFloat( const char* groupName, const char* presetName, const char* paramName, const float* newValues, int nNewValues );
+	void setFloat( const char* groupName, const FieldDescription* field, uint8_t* dstMem, const float* newValues, int nNewValues );
+	void updateParamString( const char* groupName, const char* presetName, const char* paramName, const char* newVal );
+	void setString( const char* groupName, const FieldDescription* field, uint8_t* dstMem, const char* newVal );
+	void setActivePreset( _Struct* group, _Preset* newActivePreset, bool tmpSetting );
+	void trySetTempActivePresetRecursively( _Struct* group, const char* presetName );
+	void restoreTempActivePresetRecursively( _Struct* group );
 	void initStructures( _Struct& parent, const uint8_t* settingsBaseAddress[] );
 	int fillGroupOrPreset( const pugi::xml_node& xmlGroupOrPreset, const _Struct* group, uint8_t* groupOrPresetAddress );
 	int initRecurse( const pugi::xml_node& xmlGroup, _Struct* group );
@@ -140,9 +149,9 @@ struct _Impl
 	_SettingsFileClientSide createSettingsFile( const char* settingsFilename, const StructDescription* rootStructDescription, const void* settingsBaseAddress[] );
 	void releaseSettingsFile( _SettingsFileClientSide& settingsFile );
 
-	void updateParam( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues );
-	void updateParam( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const float* newValues, int nNewValues );
-	void updateParam( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const char* newVal );
+	void updateParamInt( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues );
+	void updateParamFloat( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const float* newValues, int nNewValues );
+	void updateParamString( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const char* newVal );
 };
 
 // _DEBUG_NEW must be declared at this point to not interfere with DECLARE_ALIGNED_NEW inside structures
@@ -184,7 +193,13 @@ void freeDynamicSettings( const StructDescription* desc, uint8_t* absoluteAddres
 
 inline _Struct::~_Struct()
 {
-	freeDynamicSettings( desc_, absoluteAddress_ );
+	if ( activePreset_ )
+	{
+		freeDynamicSettings( desc_, memoryCopy_ );
+		memFree( memoryCopy_ );
+	}
+	else
+		freeDynamicSettings( desc_, absoluteAddress_ );
 }
 
 _Struct* _Struct::getNestedGroup( const char* name ) const
@@ -432,131 +447,317 @@ bool _SettingsFileImpl::findGroupPresetAndField( const char* groupName, const ch
 	return false;
 }
 
-void _SettingsFileImpl::updateParam( const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues )
+void _SettingsFileImpl::updateParamInt( const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues )
 {
 	// support for bool2, bool3 or bool4 and int3/4/5 respectively might be added in the future
 	//
 	SETTINGS_EDITOR_ASSERT( nNewValues == 1 );
 
-	_Struct* structure;
+	_Struct* group;
 	_Preset* preset = nullptr;
 	const FieldDescription* field;
-	if (findGroupPresetAndField( groupName, presetName, paramName, structure, preset, field ))
+	if (findGroupPresetAndField( groupName, presetName, paramName, group, preset, field ))
 	{
-		uint8_t* absoluteAddress = preset ? preset->memory_ : structure->absoluteAddress_;
+		if ( preset )
+			setInt( groupName, field, preset->memory_, newValues, nNewValues );
 
-		if (field->type_ == eParamType_bool)
-		{
-			bool* bval = reinterpret_cast<bool*>(absoluteAddress + field->offset_);
-			*bval = newValues[0] != 0;
-		}
-		else if (field->type_ == eParamType_int || field->type_ == eParamType_enum)
-		{
-			int* ival = reinterpret_cast<int*>(absoluteAddress + field->offset_);
-			*ival = newValues[0];
-		}
-		else
-		{
-			seLogError( "updateParam: '%s,%s' inconsistent types. Found '%s', now 'boolX or intX'", groupName, paramName, _GetParamTypeName( field->type_ ) );
-			return;
-		}
+		if ( !preset || group->activePreset_ == preset )
+			setInt( groupName, field, group->absoluteAddress_, newValues, nNewValues );
 	}
 }
 
-void _SettingsFileImpl::updateParam( const char* groupName, const char* presetName, const char* paramName, const float* newValues, int nNewValues )
+void _SettingsFileImpl::setInt( const char* groupName, const FieldDescription* field, uint8_t* dstMem, const int* newValues, int /*nNewValues*/ )
+{
+	uint8_t* absoluteAddress = dstMem + field->offset_;
+
+	if ( field->type_ == eParamType_bool )
+	{
+		bool* bval = reinterpret_cast<bool*>( absoluteAddress );
+		*bval = newValues[0] != 0;
+	}
+	else if ( field->type_ == eParamType_int || field->type_ == eParamType_enum )
+	{
+		int* ival = reinterpret_cast<int*>( absoluteAddress );
+		*ival = newValues[0];
+	}
+	else
+	{
+		seLogError( "setInt: '%s,%s' inconsistent types. Found '%s', now 'bool' or 'int' or 'enum'", groupName, field->name_, _GetParamTypeName( field->type_ ) );
+	}
+}
+
+void _SettingsFileImpl::updateParamFloat( const char* groupName, const char* presetName, const char* paramName, const float* newValues, int nNewValues )
 {
 	SETTINGS_EDITOR_ASSERT( nNewValues <= 4 );
 
-	_Struct* structure;
+	_Struct* group;
 	_Preset* preset = nullptr;
 	const FieldDescription* field;
-	if (findGroupPresetAndField( groupName, presetName, paramName, structure, preset, field ))
+
+	if (findGroupPresetAndField( groupName, presetName, paramName, group, preset, field ))
 	{
-		uint8_t* absoluteAddress = preset ? preset->memory_ : structure->absoluteAddress_;
+		if ( preset )
+			setFloat( groupName, field, preset->memory_, newValues, nNewValues );
 
-		if (field->type_ == eParamType_float)
-		{
-			SETTINGS_EDITOR_ASSERT( nNewValues == 1 );
-
-			float* fval = reinterpret_cast<float*>(absoluteAddress + field->offset_);
-			*fval = newValues[0];
-		}
-		else if (field->type_ == eParamType_floatBool)
-		{
-			SETTINGS_EDITOR_ASSERT( nNewValues == 2 );
-
-			FloatBool* fbval = reinterpret_cast<FloatBool*>(absoluteAddress + field->offset_);
-			fbval->value = newValues[0];
-			fbval->enabled = newValues[1] > 0 ? true : false;
-		}
-		else if (field->type_ == eParamType_float4)
-		{
-			SETTINGS_EDITOR_ASSERT( nNewValues == 4 );
-			Float4* f4val = reinterpret_cast<Float4*>(absoluteAddress + field->offset_);
-			f4val->set( newValues );
-		}
-		else if (field->type_ == eParamType_color)
-		{
-			SETTINGS_EDITOR_ASSERT( nNewValues == 3 );
-			Color* cval = reinterpret_cast<Color*>(absoluteAddress + field->offset_);
-			cval->set( newValues );
-		}
-		else if (field->type_ == eParamType_direction)
-		{
-			SETTINGS_EDITOR_ASSERT( nNewValues == 3 );
-			Direction* cval = reinterpret_cast<Direction*>(absoluteAddress + field->offset_);
-			cval->set( newValues );
-		}
-		else
-		{
-			seLogError( "updateParam: '%s,%s' inconsistent types. Found '%s', now 'float or float4'", groupName/*, presetName*/, paramName, _GetParamTypeName( field->type_ ), _GetParamTypeName( field->type_ ) );
-			return;
-		}
+		if ( !preset || group->activePreset_ == preset )
+			setFloat( groupName, field, group->absoluteAddress_, newValues, nNewValues );
 	}
 }
 
-void _SettingsFileImpl::updateParam( const char* groupName, const char* presetName, const char* paramName, const char* newVal )
+void _SettingsFileImpl::setFloat( const char* groupName, const FieldDescription* field, uint8_t* dstMem, const float* newValues, int nNewValues )
 {
-	_Struct* structure;
-	_Preset* preset = nullptr;
-	const FieldDescription* field;
-	if (findGroupPresetAndField( groupName, presetName, paramName, structure, preset, field ))
+	uint8_t* absoluteAddress = dstMem + field->offset_;
+
+	if ( field->type_ == eParamType_float )
 	{
-		uint8_t* absoluteAddress = preset ? preset->memory_ : structure->absoluteAddress_;
+		SETTINGS_EDITOR_ASSERT( nNewValues == 1 );
 
-		if (field->type_ == eParamType_string)
-		{
-			char** sval = reinterpret_cast<char**>(absoluteAddress + field->offset_);
-			memFree( *sval );
-			size_t newValLen = strlen( newVal );
-			char* str = (char*)memAlloc( newValLen + 1, 1 );
-			strcpy( str, newVal );
-			*sval = str;
-		}
-		else if (field->type_ == eParamType_animCurve)
-		{
-			pugi::xml_document doc;
-			pugi::xml_parse_result res = doc.load_buffer( newVal, strlen( newVal ), pugi::parse_default );
-			if (!res)
-				seLogError( "xml_document::load_buffer failed! %s, Err=%s", filename_.c_str(), res.description() );
+		float* fval = reinterpret_cast<float*>( absoluteAddress );
+		*fval = newValues[0];
+	}
+	else if ( field->type_ == eParamType_floatBool )
+	{
+		SETTINGS_EDITOR_ASSERT( nNewValues == 2 );
 
-			pugi::xml_node curve = doc.child( "curve" );
-			if (!curve.empty())
+		FloatBool* fbval = reinterpret_cast<FloatBool*>( absoluteAddress );
+		fbval->value = newValues[0];
+		fbval->enabled = newValues[1] > 0 ? true : false;
+	}
+	else if ( field->type_ == eParamType_float4 )
+	{
+		SETTINGS_EDITOR_ASSERT( nNewValues == 4 );
+		Float4* f4val = reinterpret_cast<Float4*>( absoluteAddress );
+		f4val->set( newValues );
+	}
+	else if ( field->type_ == eParamType_color )
+	{
+		SETTINGS_EDITOR_ASSERT( nNewValues == 3 );
+		Color* cval = reinterpret_cast<Color*>( absoluteAddress );
+		cval->set( newValues );
+	}
+	else if ( field->type_ == eParamType_direction )
+	{
+		SETTINGS_EDITOR_ASSERT( nNewValues == 3 );
+		Direction* cval = reinterpret_cast<Direction*>( absoluteAddress );
+		cval->set( newValues );
+	}
+	else
+	{
+		seLogError( "setFloat: '%s,%s' inconsistent types. Found '%s', now 'float' or 'floatBool' or 'float4' or 'color' or 'direction'", groupName, field->name_, _GetParamTypeName( field->type_ ) );
+	}
+}
+
+void _SettingsFileImpl::updateParamString( const char* groupName, const char* presetName, const char* paramName, const char* newVal )
+{
+	if ( !strcmp( paramName, "%$curPreset%$" ) )
+	{
+		// changing current preset
+		// new val contains new current preset name
+		_Struct* group;
+		if ( findStruct( groupName, group ) )
+		{
+			if ( !strcmp( presetName, "%$nullPreset%$" ) )
 			{
-				MayaAnimCurve* mac = readCurve( curve );
-
-				_AnimCurveClientSide* ac = reinterpret_cast<_AnimCurveClientSide*>(absoluteAddress + field->offset_);
-				MayaAnimCurve* oldMac = reinterpret_cast<MayaAnimCurve*>(ac->impl_);
-				delete oldMac;
-				ac->impl_ = mac;
+				setActivePreset( group, nullptr, false );
+			}
+			else
+			{
+				_Preset* preset = group->findPreset( presetName );
+				if ( preset )
+					setActivePreset( group, preset, false );
+				else
+					seLogError( "updateParam: Can't change current preset, %s,%s not found!", groupName, presetName );
 			}
 		}
 		else
 		{
-			seLogError( "updateParam: '%s,%s' inconsistent types. Found '%s', now 'string'", groupName/*, presetName*/, paramName, _GetParamTypeName( field->type_ ) );
-			return;
+			seLogError( "updateParam: Can't change current preset, group %s not found!", groupName );
+		}
+
+		return;
+	}
+	// adding new preset is quite complicated, because we don't have default values for it
+	// at this point group is initialized with values from settings file, but on tool side, preset is created with default values
+	// syncing these is quite complicated
+	// may add this in the future
+	else if ( !strcmp( paramName, "%$newPreset%$" ) )
+	{
+		// changing current preset
+		// new val contains new current preset name
+		_Struct* group;
+		if ( findStruct( groupName, group ) )
+		{
+			std::unique_ptr<_Preset> preset( new _Preset() );
+			preset->name_ = presetName;
+			SETTINGS_EDITOR_ASSERT( !preset->name_.empty() );
+			preset->parent_ = group;
+			preset->memory_ = reinterpret_cast<uint8_t*>( memAlloc( group->desc_->sizeInBytes_, 16 ) );
+			// clear preset memory, following messages will fill it with correct values
+			memset( preset->memory_, 0, group->desc_->sizeInBytes_ );
+
+			group->presets_.push_back( std::move( preset ) );
+		}
+		else
+		{
+			seLogError( "updateParam: Can't add new preset, group %s not found!", groupName );
+		}
+
+		return;
+	}
+	else if ( !strcmp( paramName, "%$delPreset%$" ) )
+	{
+		_Struct* group;
+		if ( findStruct( groupName, group ) )
+		{
+			for ( _PresetUniquePtrArray::iterator it = group->presets_.begin(); it != group->presets_.end(); ++it )
+			{
+				std::unique_ptr<_Preset>& p = *it;
+				if ( p->name_ == presetName )
+				{
+					if ( group->activePreset_ == p.get() )
+					{
+						group->activePreset_ = nullptr;
+						if ( group->memoryCopy_ )
+						{
+							memcpy( group->absoluteAddress_, group->memoryCopy_, group->desc_->sizeInBytes_ );
+							memFree( group->memoryCopy_ );
+							group->memoryCopy_ = nullptr;
+						}
+					}
+
+					group->presets_.erase( it );
+					return;
+				}
+			}
+
+			seLogError( "updateParam: Can't delete preset '%s'. (%s)", presetName, filename_.c_str() );
+		}
+
+		return;
+	}
+	else if ( !strcmp( paramName, "%$renPreset%$" ) )
+	{
+		_Struct* group;
+		if ( findStruct( groupName, group ) )
+		{
+			_Preset* preset = group->findPreset( presetName );
+			if ( preset )
+			{
+				preset->name_ = newVal;
+			}
+			else
+				seLogError( "updateParam: can't change preset name, %s,%s not found!", groupName, presetName );
+		}
+
+		return;
+	}
+
+	_Struct* group;
+	_Preset* preset = nullptr;
+	const FieldDescription* field;
+
+	if (findGroupPresetAndField( groupName, presetName, paramName, group, preset, field ))
+	{
+		if ( preset )
+			setString( groupName, field, preset->memory_, newVal );
+
+		if ( preset && group->activePreset_ == preset )
+			// strings and anim curves are different from POD types
+			// we need to just copy the address from preset
+			// don't free/allocate any memory
+			memcpy( group->absoluteAddress_ + field->offset_, preset->memory_ + field->offset_, sizeof( void* ) );
+		else if ( ! preset )
+			setString( groupName, field, group->absoluteAddress_, newVal );
+	}
+}
+
+void _SettingsFileImpl::setString( const char* groupName, const FieldDescription* field, uint8_t* dstMem, const char* newVal )
+{
+	uint8_t* absoluteAddress = dstMem + field->offset_;
+
+	if ( field->type_ == eParamType_string )
+	{
+		char** sval = reinterpret_cast<char**>( absoluteAddress );
+		memFree( *sval );
+		size_t newValLen = strlen( newVal );
+		char* str = (char*)memAlloc( newValLen + 1, 1 );
+		strcpy( str, newVal );
+		*sval = str;
+	}
+	else if ( field->type_ == eParamType_animCurve )
+	{
+		pugi::xml_document doc;
+		pugi::xml_parse_result res = doc.load_buffer( newVal, strlen( newVal ), pugi::parse_default );
+		if ( !res )
+			seLogError( "xml_document::load_buffer failed! %s, Err=%s", filename_.c_str(), res.description() );
+
+		pugi::xml_node curve = doc.child( "curve" );
+		if ( !curve.empty() )
+		{
+			MayaAnimCurve* mac = readCurve( curve );
+
+			_AnimCurveClientSide* ac = reinterpret_cast<_AnimCurveClientSide*>( absoluteAddress );
+			MayaAnimCurve* oldMac = reinterpret_cast<MayaAnimCurve*>( ac->impl_ );
+			delete oldMac;
+			ac->impl_ = mac;
 		}
 	}
+	else
+	{
+		seLogError( "setString: '%s,%s' inconsistent types. Found '%s', now 'string' or 'animCurve'", groupName/*, presetName*/, field->name_, _GetParamTypeName( field->type_ ) );
+		return;
+	}
+}
+
+void _SettingsFileImpl::setActivePreset( _Struct* group, _Preset* newActivePreset, bool tmpSetting )
+{
+	if ( ! newActivePreset )
+	{
+		group->activePreset_ = nullptr;
+		if ( !tmpSetting )
+			group->editorPreset_ = nullptr;
+
+		if ( group->memoryCopy_ )
+		{
+			memcpy( group->absoluteAddress_, group->memoryCopy_, group->desc_->sizeInBytes_ );
+			memFree( group->memoryCopy_ );
+			group->memoryCopy_ = nullptr;
+		}
+	}
+	else
+	{
+		group->activePreset_ = newActivePreset;
+		if ( !tmpSetting )
+			group->editorPreset_ = newActivePreset;
+
+		if ( !group->memoryCopy_ )
+		{
+			group->memoryCopy_ = reinterpret_cast<uint8_t*>( memAlloc( group->desc_->sizeInBytes_, 16 ) );
+			memcpy( group->memoryCopy_, group->absoluteAddress_, group->desc_->sizeInBytes_ );
+		}
+
+		SETTINGS_EDITOR_ASSERT( group->desc_->sizeInBytes_ == newActivePreset->parent_->desc_->sizeInBytes_ );
+		memcpy( group->absoluteAddress_, newActivePreset->memory_, group->desc_->sizeInBytes_ );
+	}
+}
+
+void _SettingsFileImpl::trySetTempActivePresetRecursively( _Struct* group, const char* presetName )
+{
+	_Preset* p = group->findPreset( presetName );
+	if ( p )
+		setActivePreset( group, p, true );
+
+	for ( std::unique_ptr<_Struct>& g : group->nestedStructures_ )
+		trySetTempActivePresetRecursively( g.get(), presetName );
+}
+
+void _SettingsFileImpl::restoreTempActivePresetRecursively( _Struct* group )
+{
+	if ( group->editorPreset_ && group->editorPreset_ != group->activePreset_ )
+		setActivePreset( group, group->editorPreset_, false );
+
+	for ( std::unique_ptr<_Struct>& g : group->nestedStructures_ )
+		restoreTempActivePresetRecursively( g.get() );
 }
 
 void _SettingsFileImpl::initStructures( _Struct& parent, const uint8_t* settingsBaseAddress[] )
@@ -732,9 +933,7 @@ int _SettingsFileImpl::initRecurse( const pugi::xml_node& xmlGroup, _Struct* gro
 		preset->memory_ = reinterpret_cast<uint8_t*>(memAlloc( group->desc_->sizeInBytes_, 16 ));
 		// init preset to defaults (values declared in the struct)
 		memcpy( preset->memory_, group->absoluteAddress_, group->desc_->sizeInBytes_ );
-
-		_GroupClientSide* gcs = reinterpret_cast<_GroupClientSide*>(preset->memory_);
-		gcs->impl_ = nullptr;
+		// preset->impl_ will point to the same address as group, don't clear it
 
 		int ires = fillGroupOrPreset( xmlPreset, group, preset->memory_ );
 		if (ires)
@@ -752,7 +951,6 @@ int _SettingsFileImpl::initRecurse( const pugi::xml_node& xmlGroup, _Struct* gro
 		//return ires;
 		seLogError( "fillGroupOrPreset: initialization failed! State of '%s' may be incosistent... (%s)", group->desc_->name_, filename_.c_str() );
 	}
-
 
 	for (const pugi::xml_node& xmlGroupChild : xmlGroup.children( "group" ))
 	{
@@ -777,6 +975,14 @@ int _SettingsFileImpl::initRecurse( const pugi::xml_node& xmlGroup, _Struct* gro
 		{
 			seLogError( "initRecurse: Group '%s' not found! It will keep it's default values! (%s)", groupName, filename_.c_str() );
 		}
+	}
+
+	// select active preset
+	pugi::xml_attribute selectedPresetRef = xmlGroup.attribute( "selectedPresetRef" );
+	if ( !selectedPresetRef.empty() )
+	{
+		const char* presetName = selectedPresetRef.as_string();
+		setActivePreset( group, group->findPreset( presetName ), false );
 	}
 
 	return 0;
@@ -888,7 +1094,7 @@ void _Impl::releaseSettingsFile( _SettingsFileClientSide& settingsFile )
 
 
 
-void _Impl::updateParam( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues )
+void _Impl::updateParamInt( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues )
 {
 	std::lock_guard<std::mutex> lck( mutex_ );
 
@@ -899,7 +1105,7 @@ void _Impl::updateParam( const char* settingsFile, const char* groupName, const 
 		_SettingsFileImpl* cfi = cf.impl_;
 		if ( cfi->filename_ == settingsFile )
 		{
-			cfi->updateParam( groupName, presetName, paramName, newValues, nNewValues );
+			cfi->updateParamInt( groupName, presetName, paramName, newValues, nNewValues );
 			return;
 		}
 	}
@@ -907,7 +1113,7 @@ void _Impl::updateParam( const char* settingsFile, const char* groupName, const 
 	seLogWarning( "Settings file '%s' not registered?", settingsFile );
 }
 
-void _Impl::updateParam( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const float* newValues, int nNewValues )
+void _Impl::updateParamFloat( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const float* newValues, int nNewValues )
 {
 	std::lock_guard<std::mutex> lck( mutex_ );
 
@@ -918,7 +1124,7 @@ void _Impl::updateParam( const char* settingsFile, const char* groupName, const 
 		_SettingsFileImpl* cfi = cf.impl_;
 		if ( cfi->filename_ == settingsFile )
 		{
-			cfi->updateParam( groupName, presetName, paramName, newValues, nNewValues );
+			cfi->updateParamFloat( groupName, presetName, paramName, newValues, nNewValues );
 			return;
 		}
 	}
@@ -926,7 +1132,7 @@ void _Impl::updateParam( const char* settingsFile, const char* groupName, const 
 	seLogWarning( "Settings file '%s' not registered?", settingsFile );
 }
 
-void _Impl::updateParam( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const char* newVal )
+void _Impl::updateParamString( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const char* newVal )
 {
 	std::lock_guard<std::mutex> lck( mutex_ );
 
@@ -937,7 +1143,7 @@ void _Impl::updateParam( const char* settingsFile, const char* groupName, const 
 		_SettingsFileImpl* cfi = cf.impl_;
 		if ( cfi->filename_ == settingsFile )
 		{
-			cfi->updateParam( groupName, presetName, paramName, newVal );
+			cfi->updateParamString( groupName, presetName, paramName, newVal );
 			return;
 		}
 	}
@@ -1000,19 +1206,31 @@ float evaluateAnimCurve( const void* curve, float time )
 	return mac->evaluate( time, &cache );
 }
 
+void* allocGroup( size_t size, size_t alignment )
+{
+	void* m = memAlloc( size, alignment );
+	memset( m, 0, size );
+	return m;
+}
+
+void freeGroup( void* p )
+{
+	memFree( p );
+}
+
 void updateParam( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues )
 {
-	_gImpl->updateParam( settingsFile, groupName, presetName, paramName, newValues, nNewValues );
+	_gImpl->updateParamInt( settingsFile, groupName, presetName, paramName, newValues, nNewValues );
 }
 
 void updateParam( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const float* newValues, int nNewValues )
 {
-	_gImpl->updateParam( settingsFile, groupName, presetName, paramName, newValues, nNewValues );
+	_gImpl->updateParamFloat( settingsFile, groupName, presetName, paramName, newValues, nNewValues );
 }
 
 void updateParam( const char* settingsFile, const char* groupName, const char* presetName, const char* paramName, const char* newVal )
 {
-	_gImpl->updateParam( settingsFile, groupName, presetName, paramName, newVal );
+	_gImpl->updateParamString( settingsFile, groupName, presetName, paramName, newVal );
 }
 }
 

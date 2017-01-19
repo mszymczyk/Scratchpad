@@ -8,22 +8,22 @@ namespace misz
     /// <summary>
     /// Component for communication with Hub
     /// </summary>
-    [Export( typeof( IInitializable ) )]
-    [Export( typeof( HubService ) )]
-    [PartCreationPolicy( CreationPolicy.Shared )]
-    public class HubService : IInitializable
+    //[Export( typeof( IInitializable ) )]
+    //[Export( typeof( HubService ) )]
+    //[PartCreationPolicy( CreationPolicy.Shared )]
+    public static class HubService //: IInitializable
     {
-        #region IInitializable Members
+        //#region IInitializable Members
 
-        /// <summary>
-        /// Finishes initializing component by connecting to Hub</summary>
-        void IInitializable.Initialize()
-        {
-            BlockOutboundTraffic = false;
-            BlockInboundTraffic = false;
-        }
+        ///// <summary>
+        ///// Finishes initializing component by connecting to Hub</summary>
+        //void IInitializable.Initialize()
+        //{
+        //    BlockOutboundTraffic = false;
+        //    BlockInboundTraffic = false;
+        //}
 
-        #endregion
+        //#endregion
 
         public static bool BlockOutboundTraffic { get; set; }
         public static bool BlockInboundTraffic { get; set; }
@@ -66,6 +66,8 @@ namespace misz
                 Outputs.WriteLine( OutputMessageType.Error, "Send failed! " + ex.Message );
             }
         }
+
+        public static EventHandler<MessagesReceivedEventArgs> MessageReceived;
 
         public static void SetImpl( IHubServiceImplementation impl )
         {

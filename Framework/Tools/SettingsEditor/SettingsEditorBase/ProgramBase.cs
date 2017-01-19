@@ -90,7 +90,7 @@ namespace SettingsEditor
                 typeof( FileWatcherService ),                // service to watch for changes to files
                 typeof( CurveEditor ),
 
-                typeof( misz.HubService ),
+                //typeof( misz.HubService ),
 
                 typeof( SchemaLoader ),                   // component that loads XML schema and sets up types
                 typeof(Editor),                          // component that manages UI documents
@@ -104,6 +104,11 @@ namespace SettingsEditor
 
             // Configure the main Form
 
+            // extract program icon from dll resource
+            //System.Reflection.Assembly thisExe = System.Reflection.Assembly.GetExecutingAssembly();
+            //System.IO.Stream file = thisExe.GetManifestResourceStream( "SettingsEditor.Resources.ProgramIcon.ico" );
+            //Icon icon = new Icon( file );
+
             // Configure the main Form with a ToolStripContainer so the CommandService can
             //  generate toolbars.
             var toolStripContainer = new ToolStripContainer();
@@ -111,7 +116,7 @@ namespace SettingsEditor
             mainForm = new MainForm(toolStripContainer)
             {
                 Text = "Settings Editor".Localize(),
-                Icon = GdiUtil.CreateIcon(ResourceUtil.GetImage(Sce.Atf.Resources.AtfIconImage))
+                Icon = GdiUtil.CreateIcon( ResourceUtil.GetImage( Resources.ProgramIcon ) )
             };
 
             // Add the main Form instance to the container

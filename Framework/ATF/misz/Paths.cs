@@ -111,7 +111,7 @@ namespace misz
         /// <returns></returns>
         public static string CodePathToAbsolutePath( string localPath )
         {
-            return DATA_ROOT_DIR + localPath;
+            return CODE_ROOT_DIR + localPath;
         }
 
         public static string CanonicalizePathSimple( string srcPath )

@@ -2,6 +2,7 @@
 
 #include "SettingsEditorConfig.h"
 #include <stdint.h>
+#include <math.h>
 
 namespace SettingsEditor
 {
@@ -64,6 +65,18 @@ struct StructDescription
 		static const SettingsEditor::StructDescription* GetDesc() { return &__desc; }
 
 
+// shader constants must have 16-byte alignment
+// assuming void* is 8 byte wide:/
+// in constant buffer generated for group, there will be fake float4 field added to account for impl_ and _padding_
+#define SETTINGS_EDITOR_STRUCT_DESC_SHADER_CONSTANTS \
+	private: \
+		static SettingsEditor::StructDescription __desc; \
+		void* impl_ = nullptr; \
+		void* _padding_ = nullptr; \
+	public: \
+		static const SettingsEditor::StructDescription* GetDesc() { return &__desc; }
+
+
 
 struct FloatBool
 {
@@ -79,6 +92,44 @@ struct FloatBool
 	bool enabled;
 private:
 	bool _padding_[3];
+};
+
+
+struct Float3
+{
+	Float3()
+		: x( 0 ), y( 0 ), z( 0 )
+	{	}
+
+	Float3( float _x, float _y, float _z )
+		: x( _x ), y( _y ), z( _z )
+	{	}
+
+	float x;
+	float y;
+	float z;
+};
+
+
+struct Float4
+{
+	Float4()
+		: x( 0 ), y( 0 ), z( 0 ), w( 0 )
+	{	}
+
+	Float4( float _x, float _y, float _z, float _w )
+		: x( _x ), y( _y ), z( _z ), w( _w )
+	{	}
+
+	void set( const float f[4] )
+	{
+		x = f[0];	y = f[1];	z = f[2];	w = f[3];
+	}
+
+	float x;
+	float y;
+	float z;
+	float w;
 };
 
 
@@ -117,31 +168,19 @@ struct Color
 		return 0xff000000 | ( R << 16 ) | ( G << 8 ) | ( B );
 	}
 
+	Float3 toFloat3() const
+	{
+		return Float3( r, g, b );
+	}
+
+	Float3 toFloat3Gamma() const
+	{
+		return Float3( powf( r, 2.2f ), powf( g, 2.2f ), powf( b, 2.2f ) );
+	}
+
 	float r;
 	float g;
 	float b;
-};
-
-
-struct Float4
-{
-	Float4()
-		: x( 0 ), y( 0 ), z( 0 ), w( 0 )
-	{	}
-
-	Float4( float _x, float _y, float _z, float _w )
-		: x( _x ), y( _y ), z( _z ), w( _w )
-	{	}
-
-	void set( const float f[4] )
-	{
-		x = f[0];	y = f[1];	z = f[2];	w = f[3];
-	}
-
-	float x;
-	float y;
-	float z;
-	float w;
 };
 
 
@@ -217,6 +256,9 @@ void update();
 
 const void* getPreset( const char* presetName, const void* impl );
 float evaluateAnimCurve( const void* curve, float time );
+
+void* allocGroup( size_t size, size_t alignment ); // clears memory to all zeros
+void freeGroup( void* p );
 
 #ifndef SETTINGS_EDITOR_FROZEN
 void updateParam( const char* configFile, const char* groupName, const char* presetName, const char* paramName, const int* newValues, int nNewValues );

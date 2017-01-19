@@ -71,6 +71,11 @@ namespace Sce.Atf.Applications
 
                     // pass this invocation's command line to running single instance
                     singleInstanceService.CommandLine = Environment.GetCommandLineArgs();
+
+                    // our MainForm will become foreground window
+					// misz/pico
+                    if ( singleInstanceService.MainForm != null )
+                        singleInstanceService.MainForm.Activate();
                 }
                 catch
                 {
@@ -120,6 +125,9 @@ namespace Sce.Atf.Applications
             }
         }
 
+		// misz/pico
+        public MainForm MainForm { get { return m_mainForm; } }
+
         /// <summary>
         /// Event that is raised after the command line changes. This event is raised every
         /// time another instance of this application launches.</summary>
@@ -143,5 +151,8 @@ namespace Sce.Atf.Applications
 
         private Mutex m_mutex; //we can't dispose of this until our app shuts down
         private string[] m_commandLine;
+
+        [Import( AllowDefault = true )]
+        private MainForm m_mainForm = null;
     }
 }

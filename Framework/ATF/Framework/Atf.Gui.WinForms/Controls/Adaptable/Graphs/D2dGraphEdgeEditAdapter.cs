@@ -431,7 +431,10 @@ namespace Sce.Atf.Controls.Adaptable.Graphs
 
                     // only if dragging reaches both start/end pins, make a new wire
                     if (m_draggingContext.DragToNode != null && m_draggingContext.DragToRoute != null &&
-                        m_draggingContext.DragFromNode != null && m_draggingContext.DragFromRoute != null)
+                        m_draggingContext.DragFromNode != null && m_draggingContext.DragFromRoute != null
+                        && !m_draggingContext.DragFromNode.Equals(m_draggingContext.DragToNode)
+                        && !m_draggingContext.DragFromRoute.Equals( m_draggingContext.DragToRoute )
+                        )
                     {
                         // make sure drag changed the edge
                         if (m_draggingContext.ExistingEdge == null || // this is a new edge

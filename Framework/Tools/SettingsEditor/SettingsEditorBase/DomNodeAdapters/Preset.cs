@@ -13,9 +13,9 @@ namespace SettingsEditor
         public static Preset CreatePreset( Group group )
         {
             DomNode presetNode = new DomNode( Schema.presetType.Type );
-            Preset preset = presetNode.Cast<Preset>();
+            Preset preset = presetNode.Cast<Preset>(); // OnNodeSet is called at this point with DomNode.Parent == null
+            preset.Group = group;
             presetNode.SetAttribute( Schema.presetType.Type.IdAttribute, group.Name + "Preset" );
-            group.Presets.Add( preset );
 
             // preset is also a Group
             Group presetGroup = preset.Cast<Group>();
@@ -28,6 +28,16 @@ namespace SettingsEditor
                 presetGroup.Properties.Add( dpCopy );
             }
 
+			// add preset to group, child added gets called with all preset props ready
+            // preset.DomNode.Parent is set at this point
+            group.Presets.Add( preset );
+
+			// don't change selected preset, if it's null, then group properties will be used
+			// user might have done it on purpose
+            //// if this is first preset, then select it
+            //if ( group.Presets.Count == 1 || group.SelectedPresetRef == null )
+            //    group.SelectedPresetRef = preset;
+
             return preset;
         }
 
@@ -36,6 +46,11 @@ namespace SettingsEditor
         /// The DomNode property is only ever set once for the lifetime of this adapter.</summary>
         protected override void OnNodeSet()
         {
+            // when creating new preset with CreatePreset, DomNode.Parent will be null
+            // it won't be null when reading from file, for instance
+            if ( DomNode.Parent != null )
+                Group = DomNode.Parent.Cast<Group>();
+
             base.OnNodeSet();
         }
 
@@ -43,7 +58,10 @@ namespace SettingsEditor
         /// Gets preset's parent</summary>
         public Group Group
         {
-            get { return DomNode.Parent.As<Group>(); }
+            // can't use "get { return DomNode.Parent.As<Group>(); }" because PresetUniqueIdValidator uses Preset's Group as a category
+            // when Preset is deleted, then it's parent is cleared and validator crashes with null pointer exception
+            get;
+            private set;
         }
 
         /// <summary>

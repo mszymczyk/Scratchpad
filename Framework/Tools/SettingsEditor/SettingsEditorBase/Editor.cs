@@ -222,7 +222,7 @@ namespace SettingsEditor
 
             rootNode.InitializeExtensions();
 
-            var edContext = rootNode.Cast<DocumentEditingContext>();
+            DocumentEditingContext edContext = rootNode.Cast<DocumentEditingContext>();
             edContext.Set( rootNode );
 
             m_contextRegistry.ActiveContext = rootNode;
@@ -262,7 +262,11 @@ namespace SettingsEditor
                 foreach ( Group s in rootNode.Subtree.AsIEnumerable<Group>() )
                 {
                     if ( s.Name == groupToSelect )
-                        control.SetSelectedDomNode( s.DomNode );
+                    {
+                        // have to use AdaptablePath here so PropertyEditor can extract right properties from leaf node
+                        edContext.Selection.Set( new AdaptablePath<object>( s.DomNode.GetPath() ) );
+                        break;
+                    }
                 }
             }
 
@@ -304,7 +308,8 @@ namespace SettingsEditor
                 "SettingsFile".Localize(),   // file type
                 ".settings",                      // file extension
                 null,                       // "new document" icon
-                null );                      // "open document" icon
+                null )                      // "open document" icon
+            { InitialDirectory = misz.Paths.DATA_ROOT_DIR + "settings" };
 
         /// <summary>
         /// Opens or creates a document at the given URI</summary>
@@ -493,16 +498,17 @@ namespace SettingsEditor
             SettingsCompiler compiler = null;
             try
             {
+                // Olej: I moved this output here because (I think) it adds delay that removes
+                // contention on file access with something that occured before in the callstack.
+                Outputs.WriteLine( OutputMessageType.Info, "Reloading: " + document.Uri.LocalPath );
                 compiler = new SettingsCompiler();
                 compiler.ReflectSettings( descFilePath );
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 Outputs.WriteLine( OutputMessageType.Error, string.Format( "Reload failed! Exception while processing '{0}': {1}", descFilePath, ex.Message ) );
                 return;
             }
-
-            Outputs.WriteLine( OutputMessageType.Info, "Reloading: " + document.Uri.LocalPath );
 
             m_reloadInfo = new ReloadInfo();
             m_reloadInfo.m_compiler = compiler;

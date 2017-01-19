@@ -26,7 +26,7 @@ namespace SettingsEditor
         {
             DomNode.AttributeChanged += DomNode_AttributeChanged;
             DomNode.ChildInserted += DomNode_ChildInserted;
-            DomNode.ChildRemoved += (sender,e)=> ItemRemoved.Raise(this, new ItemRemovedEventArgs<object>(e.Index, e.Child, e.Parent));
+            DomNode.ChildRemoved += DomNode_ChildRemoved;
 
             SelectionChanged += DocumentEditingContext_SelectionChanged;
 
@@ -69,8 +69,10 @@ namespace SettingsEditor
         {
             get
             {
-                return new object[] { LastSelected };
-                //return Selection;
+                // are there any problems with returning 'Selection' here
+                // 'Selection' is required for grid property editor to work on multiple objects simultaneously
+                //return new object[] { LastSelected };
+                return Selection;
             }
         }
 
@@ -302,6 +304,58 @@ namespace SettingsEditor
         {
             base.OnEnded();
 
+            Document document = this.Cast<Document>();
+
+            // must send info about preset in OnEnded because unique name validator will change preset name after childInserted event
+            foreach ( Preset preset in m_addedPresets )
+            {
+                Group group = preset.Group;
+
+                misz.HubMessageOut msg2 = new misz.HubMessageOut( "settings" );
+
+                msg2.appendString( "setString" );
+                msg2.appendString( document.PathRelativeToData );
+                msg2.appendString( group.AbsoluteName );
+                msg2.appendString( preset.PresetName );
+                msg2.appendString( "%$newPreset%$" );
+                msg2.appendString( "" );
+
+                misz.HubService.Send( msg2 );
+
+                Group presetGroup = preset.Cast<Group>(); // preset is also a Group
+                foreach ( DynamicProperty prop in presetGroup.Properties )
+                {
+                    SendProperty( prop, document );
+                }
+            }
+
+            foreach ( KeyValuePair<Preset, string> entry in m_presetRenames )
+            {
+				// note: rename can happen also during creating new preset
+                if ( !m_addedPresets.Contains(entry.Key) )
+                {
+                    Preset preset = entry.Key;
+                    if ( preset.PresetName == entry.Value )
+                        continue;
+
+                    Group group = preset.Group;
+
+                    misz.HubMessageOut msg2 = new misz.HubMessageOut( "settings" );
+
+                    msg2.appendString( "setString" );
+                    msg2.appendString( document.PathRelativeToData );
+                    msg2.appendString( group.AbsoluteName );
+                    msg2.appendString( entry.Value );
+                    msg2.appendString( "%$renPreset%$" );
+                    msg2.appendString( preset.PresetName );
+
+                    misz.HubService.Send( msg2 );
+                }
+            }
+
+            m_presetRenames.Clear();
+            m_addedPresets.Clear();
+
             if ( m_saveFileTimer_.Enabled )
                 m_saveFileTimer_.Stop();
 
@@ -403,6 +457,30 @@ namespace SettingsEditor
             else if ( e.AttributeInfo.Equivalent( Schema.groupType.selectedPresetRefAttribute ) )
             {
                 Reloaded.Raise( this, EventArgs.Empty );
+
+				// selected preset has changed
+
+                Group group = e.DomNode.Cast<Group>();
+
+                misz.HubMessageOut msg2 = new misz.HubMessageOut( "settings" );
+
+                msg2.appendString( "setString" );
+                msg2.appendString( document.PathRelativeToData );
+                msg2.appendString( group.AbsoluteName );
+                if ( group.SelectedPresetRef == null )
+                    msg2.appendString( "%$nullPreset%$" );
+                else
+                    msg2.appendString( group.SelectedPresetRef.PresetName );
+                msg2.appendString( "%$curPreset%$" );
+                msg2.appendString( "" );
+
+                misz.HubService.Send( msg2 );
+            }
+            else if ( e.AttributeInfo.Equivalent( Schema.presetType.nameAttribute ) )
+            {
+                Preset preset = e.DomNode.Cast<Preset>();
+                if ( !m_presetRenames.ContainsKey(preset) )
+                    m_presetRenames.Add( preset, e.OldValue as string );
             }
 
             if (e.NewValue is string)
@@ -441,6 +519,11 @@ namespace SettingsEditor
                     return;
             }
 
+            SendProperty( prop, document );
+        }
+
+        private void SendProperty( DynamicProperty prop, Document document )
+        {
             Preset preset = prop.DomNode.Parent.As<Preset>();
             Group structure = null;
             if ( preset != null )
@@ -468,7 +551,7 @@ namespace SettingsEditor
                 msg.appendString( presetName );
                 msg.appendString( prop.Name );
                 msg.appendInt( 1 );
-                bool bval = (bool)e.NewValue;
+                bool bval = prop.BoolValue;
                 msg.appendInt( bval ? 1 : 0 );
             }
             else if ( prop.PropertyType == SettingType.Int || prop.PropertyType == SettingType.Enum )
@@ -479,7 +562,8 @@ namespace SettingsEditor
                 msg.appendString( presetName );
                 msg.appendString( prop.Name );
                 msg.appendInt( 1 );
-                msg.appendInt( (int)e.NewValue );
+                int ival = prop.PropertyType == SettingType.Int ? prop.IntValue :  prop.EnumValue;
+                msg.appendInt( ival );
             }
             else if ( prop.PropertyType == SettingType.Float )
             {
@@ -489,7 +573,8 @@ namespace SettingsEditor
                 msg.appendString( presetName );
                 msg.appendString( prop.Name );
                 msg.appendInt( 1 );
-                msg.appendFloat( (float)e.NewValue );
+                float fval = prop.FloatValue;
+                msg.appendFloat( fval );
             }
             else if ( prop.PropertyType == SettingType.FloatBool )
             {
@@ -499,7 +584,8 @@ namespace SettingsEditor
                 msg.appendString( presetName );
                 msg.appendString( prop.Name );
                 msg.appendInt( 2 );
-                msg.appendFloat( (float)e.NewValue );
+                float fval = prop.FloatValue;
+                msg.appendFloat( fval );
                 msg.appendFloat( prop.Checked ? 1 : 0 );
             }
             else if ( prop.PropertyType == SettingType.Float4 )
@@ -509,10 +595,11 @@ namespace SettingsEditor
                 msg.appendString( structureName );
                 msg.appendString( presetName );
                 msg.appendString( prop.Name );
-                float[] farray = (float[])e.NewValue;
-                msg.appendInt( farray.Length );
-                foreach ( float f in farray )
-                    msg.appendFloat( f );
+                msg.appendInt( 4 );
+                msg.appendFloat( prop.Float4Value.X );
+                msg.appendFloat( prop.Float4Value.Y );
+                msg.appendFloat( prop.Float4Value.Z );
+                msg.appendFloat( prop.Float4Value.W );
             }
             else if ( prop.PropertyType == SettingType.Color )
             {
@@ -521,10 +608,10 @@ namespace SettingsEditor
                 msg.appendString( structureName );
                 msg.appendString( presetName );
                 msg.appendString( prop.Name );
-                float[] farray = (float[])e.NewValue;
-                msg.appendInt( farray.Length );
-                foreach ( float f in farray )
-                    msg.appendFloat( f );
+                msg.appendInt( 3 );
+                msg.appendFloat( prop.ColorValue.R );
+                msg.appendFloat( prop.ColorValue.G );
+                msg.appendFloat( prop.ColorValue.B );
             }
             else if ( prop.PropertyType == SettingType.String )
             {
@@ -533,7 +620,7 @@ namespace SettingsEditor
                 msg.appendString( structureName );
                 msg.appendString( presetName );
                 msg.appendString( prop.Name );
-                msg.appendString( (string)e.NewValue );
+                msg.appendString( prop.StringValue );
             }
             else if ( prop.PropertyType == SettingType.Direction )
             {
@@ -542,10 +629,10 @@ namespace SettingsEditor
                 msg.appendString( structureName );
                 msg.appendString( presetName );
                 msg.appendString( prop.Name );
-                float[] farray = (float[])e.NewValue;
-                msg.appendInt( farray.Length );
-                foreach ( float f in farray )
-                    msg.appendFloat( f );
+                msg.appendInt( 3 );
+                msg.appendFloat( prop.DirectionValue.X );
+                msg.appendFloat( prop.DirectionValue.Y );
+                msg.appendFloat( prop.DirectionValue.Z );
             }
             else if ( prop.PropertyType == SettingType.AnimCurve )
             {
@@ -563,7 +650,7 @@ namespace SettingsEditor
                     DomXmlWriter writer = new DomXmlWriter( SchemaLoader.s_schemaLoader.TypeCollection );
                     //writer.PersistDefaultAttributes = true;
 
-                    writer.Write( prop.AnimCurveValue.DomNode, stream, new Uri("sync", UriKind.Relative) );
+                    writer.Write( prop.AnimCurveValue.DomNode, stream, new Uri( "sync", UriKind.Relative ) );
                     byte[] bytes = stream.ToArray();
                     msg.appendInt( bytes.Length - 3 );
                     msg.appendBytes( bytes, 3, bytes.Length - 3 ); // skip BOM, 3 bytes, 0xEF, 0xBB, 0xBF
@@ -581,11 +668,45 @@ namespace SettingsEditor
         void DomNode_ChildInserted( object sender, ChildEventArgs e )
         {
             ItemInserted.Raise( this, new ItemInsertedEventArgs<object>( e.Index, e.Child, e.Parent ) );
+
+            Preset preset = e.Child.As<Preset>();
+            if ( preset != null )
+            {
+                // don't send info about new preset immediately, because near transaction end, unique name validator may change preset name to make it unique
+                // just remember pointer to preset and do everything in transaction OnEnded
+                m_addedPresets.Add( preset );
+            }
+        }
+
+        private void DomNode_ChildRemoved( object sender, ChildEventArgs e )
+        {
+            ItemRemoved.Raise( this, new ItemRemovedEventArgs<object>( e.Index, e.Child, e.Parent ) );
+
+            Preset preset = e.Child.As<Preset>();
+            if ( preset != null )
+            {
+                Document document = this.Cast<Document>();
+                Group group = e.Parent.Cast<Group>();
+
+                misz.HubMessageOut msg2 = new misz.HubMessageOut( "settings" );
+
+                msg2.appendString( "setString" );
+                msg2.appendString( document.PathRelativeToData );
+                msg2.appendString( group.AbsoluteName );
+                msg2.appendString( preset.PresetName );
+                msg2.appendString( "%$delPreset%$" );
+                msg2.appendString( "" );
+
+                misz.HubService.Send( msg2 );
+            }
         }
 
         // timer used to defer saving settings to file, useful for reducing save operations while user is dragging sliders
         System.Windows.Forms.Timer m_saveFileTimer_ = new System.Windows.Forms.Timer();
         // timer for to defer ItemChanged event, improves perf while working with sliders and controls where smooth mouse move is required
         System.Windows.Forms.Timer m_itemChangedTimer = new System.Windows.Forms.Timer();
+
+        private HashSet<Preset> m_addedPresets = new HashSet<Preset>();
+        private Dictionary<Preset, string> m_presetRenames = new Dictionary<Preset, string>();
     }
 }

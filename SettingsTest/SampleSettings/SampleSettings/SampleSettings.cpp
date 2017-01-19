@@ -125,7 +125,7 @@ namespace SampleSettingsNamespace
 		if ( settingsFile_.isValid() )
 			return;
 		
-		mGroup = new ( SettingsEditor::_internal::allocMemory( sizeof( Group ), alignof( Group ) ) ) Group();
+		mGroup = new ( SettingsEditor::_internal::allocGroup(sizeof(Group), alignof(Group)) ) Group();
 
 		const void* addresses[1];
 		addresses[0] = mGroup;
@@ -137,7 +137,7 @@ namespace SampleSettingsNamespace
 	{
 		SettingsEditor::releaseSettingsFile( settingsFile_ );
 
-		if ( mGroup ) { mGroup->~Group(); SettingsEditor::_internal::freeMemory( const_cast<Group*>(mGroup) ); mGroup = nullptr; }
+		if ( mGroup ) { mGroup->~Group(); SettingsEditor::_internal::freeGroup( const_cast<Group*>( mGroup ) ); mGroup = nullptr; }
 	}
 	
 

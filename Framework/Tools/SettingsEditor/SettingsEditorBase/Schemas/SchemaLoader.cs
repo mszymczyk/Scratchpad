@@ -56,7 +56,7 @@ namespace SettingsEditor
 
                 // register extensions
                 Schema.settingsFileType.Type.Define( new ExtensionInfo<DocumentEditingContext>() );
-                Schema.settingsFileType.Type.Define( new ExtensionInfo<UniqueIdValidator>() );
+                Schema.settingsFileType.Type.Define( new ExtensionInfo<PresetUniqueIdValidator>() ); // preset names are unique within their group
                 Schema.settingsFileType.Type.Define( new ExtensionInfo<Document>() );
                 Schema.settingsFileType.Type.Define( new ExtensionInfo<TreeView>() );
                 Schema.settingsFileType.Type.Define( new ExtensionInfo<SettingsReferenceValidator>() );        // tracks preset references

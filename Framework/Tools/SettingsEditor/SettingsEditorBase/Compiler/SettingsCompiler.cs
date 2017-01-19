@@ -28,8 +28,10 @@ namespace SettingsEditor
             CompilerParameters compilerParams = new CompilerParameters();
             compilerParams.GenerateInMemory = true;
             compilerParams.ReferencedAssemblies.Add( "System.dll" );
-            //compilerParams.ReferencedAssemblies.Add( "SettingsCompilerAttributes.dll" );
-            compilerParams.ReferencedAssemblies.Add( "SettingsEditorAttributes.dll" );
+			// look for SettingsEditorAttributes.dll in exe directory
+            string SettingsEditorExeFile = System.Reflection.Assembly.GetEntryAssembly().Location;
+            string SettingsEditorExeDir = System.IO.Path.GetDirectoryName( SettingsEditorExeFile );
+            compilerParams.ReferencedAssemblies.Add( SettingsEditorExeDir + "\\SettingsEditorAttributes.dll" );
             CompilerResults results = compiler.CompileAssemblyFromSource( compilerParams, sources );
             if ( results.Errors.HasErrors )
             {
@@ -292,12 +294,7 @@ namespace SettingsEditor
                 return;
 
             fw.EmptyLine();
-            fw.AddLine( "const " + structure.Name + "* getPreset( const char* presetName ) const" );
-            fw.AddLine( "{" );
-            fw.IncIndent();
-            fw.AddLine( "return reinterpret_cast<const " + structure.Name + "*>( " + "SettingsEditor::_internal::getPreset( presetName, impl_ ) );" );
-            fw.DecIndent();
-            fw.AddLine( "}" );
+            fw.AddLine( "const " + structure.Name + "* getPreset( const char* presetName ) const { return reinterpret_cast<const " + structure.Name + "*>( " + "SettingsEditor::_internal::getPreset( presetName, impl_ ) ); }" );
             fw.EmptyLine();
         }
 
@@ -309,8 +306,16 @@ namespace SettingsEditor
             fw.AddLine( "{" );
 
             fw.IncIndent();
-            fw.AddLine( "SETTINGS_EDITOR_STRUCT_DESC // this macro is required for SettingsEditor to work" );
-            fw.EmptyLine();
+            if ( shaderSettings )
+            {
+                fw.AddLine( "SETTINGS_EDITOR_STRUCT_DESC_SHADER_CONSTANTS // this macro is required for SettingsEditor to work" );
+                fw.EmptyLine();
+            }
+            else
+            {
+                fw.AddLine( "SETTINGS_EDITOR_STRUCT_DESC // this macro is required for SettingsEditor to work" );
+                fw.EmptyLine();
+            }
 
             // write enums
             //
@@ -840,7 +845,8 @@ namespace SettingsEditor
 
             foreach (SettingGroup nestedStructure in rootStructure.NestedStructures)
             {
-                fw.AddLine( "m" + nestedStructure.Name + " = new " + nestedStructure.Name + ";" );
+                string sn = nestedStructure.Name;
+                fw.AddLine( "m" + sn + " = new ( SettingsEditor::_internal::allocGroup(sizeof(" + sn + "), alignof(" + sn + ")) ) " + sn + "();" );
             }
             fw.EmptyLine();
 
@@ -869,7 +875,9 @@ namespace SettingsEditor
 
             foreach (SettingGroup nestedStructure in rootStructure.NestedStructures)
             {
-                fw.AddLine( "delete m" + nestedStructure.Name + "; m" + nestedStructure.Name + " = nullptr;" );
+                string sn = nestedStructure.Name;
+                string mn = "m" + sn;
+                fw.AddLine( "if ( " + mn + " ) { " + mn + "->~" + sn + "(); SettingsEditor::_internal::freeGroup( const_cast<" + sn + "*>( " + mn + " ) ); " + mn + " = nullptr; }" );
             }
 
             fw.DecIndent();
@@ -907,14 +915,14 @@ namespace SettingsEditor
             fw.AddLine( "#ifndef " + headerGuard );
             fw.AddLine( "#define " + headerGuard );
             fw.AddLine( "" );
-            fw.AddLine( "#include \"picoShaderDef.h\"" );
+            fw.AddLine( "#include \"../interopBase.h\"" );
+            fw.AddLine( "#include \"../shaderResourceMap.h\"" );
             fw.AddLine( "" );
-            fw.AddLine( "#ifdef __GLSL__" );
-            fw.AddLine( "layout( binding = PICO_OPENGL_QUICKDEBUG_BINDING ) uniform cb_" + outputName );
-            fw.AddLine( "#else" );
-            fw.AddLine( "cbuffer cb_" + outputName + " : PICO_DX11_QUICKDEBUG_REGISTER" );
-            fw.AddLine( "#endif //" );
+            fw.AddLine( "CBUFFER " + outputName + "Constants REGISTER_B(PICO_DX11_QUICKDEBUG_CONSTANTS_SLOT)" );
             fw.AddLine( "{" );
+
+            // fake padding to account for impl_ field in a group
+            fw.AddLine( "\tFloat4 __fieldRequiredBySettingsEditorDontUseIt; // cpu side structure contains void* impl_ and void* _padding_ fields" );
 
             int bytes = 0;
             foreach (SettingGroup settingGroup in settingGroups)
@@ -930,7 +938,7 @@ namespace SettingsEditor
                             bytes += 4;
                             break;
                         case SettingType.Bool:
-                            typeString = "bool";
+                            typeString = "Bool32";
                             bytes += 4;
                             break;
                         case SettingType.Float:
@@ -968,7 +976,7 @@ namespace SettingsEditor
             //if (padding < 4)
             //    lines.Add("\tfloat pad_" + bytes + "[" + padding + "];"); // bytes in name serves as unique name generator.
 
-            fw.AddLine( "}" );
+            fw.AddLine( "};" );
             fw.AddLine( "" );
 
             foreach (Type enumType in enumTypes)
@@ -1008,7 +1016,7 @@ namespace SettingsEditor
         public void GenerateHeaderIfChanged( string filePath, string shaderOutputPath )
         {
             string fileName = Path.GetFileNameWithoutExtension( filePath );
-            string outputDir = Path.GetDirectoryName( filePath );
+            string outputDir = Path.GetDirectoryName( filePath ) + "\\" + fileName + "\\"; ;
             m_outputPathHeaderWithoutExtension = Path.Combine( outputDir, fileName );
             string outputPathHeader = m_outputPathHeaderWithoutExtension + ".h";
             string outputPathCpp = Path.Combine( outputDir, fileName ) + ".cpp";

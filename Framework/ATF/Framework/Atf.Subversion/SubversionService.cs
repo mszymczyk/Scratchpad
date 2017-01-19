@@ -302,6 +302,32 @@ namespace Atf.Subversion
         }
 
         /// <summary>
+        /// misz/pico extension
+        /// Deletes an item from source control</summary>
+        /// <param name="uri">Uri, representing the path to item</param>
+        public void Delete2(Uri uri, bool keepLocalFile)
+        {
+            CheckUri( uri );
+            if ( ClientInitialized() )
+            {
+                if ( keepLocalFile )
+                {
+                    if ( RunCommand( "delete --keep-local", GetQuotedCanonicalPath( uri ) ) )
+                    {
+                        SetStatus( uri, SourceControlStatus.NotControlled );
+                    }
+                }
+                else
+                {
+                    if ( RunCommand( "delete --force", GetQuotedCanonicalPath( uri ) ) )
+                    {
+                        SetStatus( uri, SourceControlStatus.Deleted );
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Checks in the given items</summary>
         /// <param name="uriEnum">URIs representing the path to items</param>
         /// <param name="description">Check-in description</param>
@@ -416,6 +442,22 @@ namespace Atf.Subversion
 
             List<FileInfo> info = GetInfo(uris, false);
             SourceControlStatus[] result = GetStatusArray(info);
+
+            return result;
+        }
+
+        /// <summary>
+        /// misz/pico extension
+        /// Gets the source control status of each item.</summary>
+        /// <param name="uris">URIs representing the paths to items</param>
+        /// <returns>Status of each item, in the same order as the given URIs.</returns>
+        public SourceControlStatus[] GetStatus2( IEnumerable<Uri> uris, bool refreshCache )
+        {
+            foreach ( Uri uri in uris )
+                CheckUri( uri );
+
+            List<FileInfo> info = GetInfo( uris, refreshCache );
+            SourceControlStatus[] result = GetStatusArray( info );
 
             return result;
         }

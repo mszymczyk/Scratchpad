@@ -8,6 +8,11 @@ namespace SettingsEditor
     public static class Resources
     {
         /// <summary>
+        /// Default program icon</summary>
+        [ImageResource( "ProgramIcon.ico" )]
+        public static readonly string ProgramIcon;
+
+        /// <summary>
         /// Group image resource filename</summary>
         [ImageResource( "group.png" )]
         public static readonly string Group;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -136,5 +137,29 @@ namespace misz
             return fval;
         }
     };
+
+
+    /// <summary>
+    /// Arguments for "item inserted" event</summary>
+    /// <typeparam name="T">Type of inserted item</typeparam>
+    public class MessagesReceivedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Constructor using index, inserted item and parent</summary>
+        /// <param name="index">Index of insertion</param>
+        /// <param name="item">Inserted item</param>
+        /// <param name="parent">Parent item</param>
+        public MessagesReceivedEventArgs( IList<HubMessageIn> messages )
+        {
+            m_messages = messages;
+        }
+
+        public IList<HubMessageIn> Messages
+        {
+            get { return m_messages; }
+        }
+
+        IList<HubMessageIn> m_messages;
+    }
 }
 

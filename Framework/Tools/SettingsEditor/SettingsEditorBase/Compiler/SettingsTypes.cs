@@ -63,6 +63,14 @@ namespace SettingsEditor
         public abstract void WriteDeclaration( FileWriter fw );
 
         private List<Tuple<string, bool>> m_dependsOn;
+
+        public static string FloatToString( float v )
+        {
+            string s = v.ToString( CultureInfo.InvariantCulture );
+            if ( s.Contains( "." ) )
+                s = s + "f";
+            return s;
+        }
     }
 
 
@@ -251,13 +259,10 @@ namespace SettingsEditor
 
         public override void WriteDeclaration( FileWriter fw )
         {
-            string val = Value.ToString( CultureInfo.InvariantCulture );
-            if ( val.Contains( "." ) )
-                val = val + 'f';
             if ( HasCheckBox )
-                fw.AddLine( "SettingsEditor::FloatBool " + Name + " = SettingsEditor::FloatBool( " + val + ", " + ValueChecked.ToString().ToLower() + " );" );
+                fw.AddLine( "SettingsEditor::FloatBool " + Name + " = SettingsEditor::FloatBool( " + FloatToString(Value) + ", " + ValueChecked.ToString().ToLower() + " );" );
             else
-                fw.AddLine( "float " + Name + " = " + val + ";" );
+                fw.AddLine( "float " + Name + " = " + FloatToString(Value) + ";" );
         }
     }
 
@@ -277,7 +282,10 @@ namespace SettingsEditor
             if (string.IsNullOrEmpty( Value ))
                 fw.AddLine( "const char* " + Name + " = nullptr;" );
             else
-                fw.AddLine( "const char* " + Name + " = \"" + Value + "\";" );
+            {
+                string str = Value.Replace( "\\", "\\\\" );
+                fw.AddLine( "const char* " + Name + " = \"" + str + "\";" );
+            }
         }
     }
 
@@ -294,7 +302,7 @@ namespace SettingsEditor
 
         public override void WriteDeclaration( FileWriter fw )
         {
-            fw.AddLine( "SettingsEditor::Direction " + Name + " = SettingsEditor::Direction(" + Value.X + ", " + Value.Y + ", " + Value.Z + ");" );
+            fw.AddLine( "SettingsEditor::Direction " + Name + " = SettingsEditor::Direction(" + FloatToString(Value.X) + ", " + FloatToString(Value.Y) + ", " + FloatToString(Value.Z) + ");" );
         }
     }
 
@@ -341,7 +349,7 @@ namespace SettingsEditor
 
         public override void WriteDeclaration( FileWriter fw )
         {
-            fw.AddLine( "SettingsEditor::Color " + Name + " = SettingsEditor::Color(" + Value.R + ", " + Value.G + ", " + Value.B + ");" );
+            fw.AddLine( "SettingsEditor::Color " + Name + " = SettingsEditor::Color(" + FloatToString(Value.R) + ", " + FloatToString(Value.G) + ", " + FloatToString(Value.B) + ");" );
         }
     }
 
@@ -358,7 +366,7 @@ namespace SettingsEditor
 
         public override void WriteDeclaration( FileWriter fw )
         {
-            fw.AddLine( "SettingsEditor::Float4 " + Name + " = SettingsEditor::Float4(" + Value.X + ", " + Value.Y + ", " + Value.Z + ", " + Value.W + ");" );
+            fw.AddLine( "SettingsEditor::Float4 " + Name + " = SettingsEditor::Float4(" + FloatToString(Value.X) + ", " + FloatToString(Value.Y) + ", " + FloatToString(Value.Z) + ", " + FloatToString(Value.W) + ");" );
         }
     }
 

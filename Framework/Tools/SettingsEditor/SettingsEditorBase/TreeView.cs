@@ -134,6 +134,12 @@ namespace SettingsEditor
                     ItemChanged.Raise( this, new ItemChangedEventArgs<object>( preset.DomNode ) );
                 }
             }
+            else
+            {
+                Preset preset = e.DomNode.As<Preset>();
+                if ( preset != null )
+                    ItemChanged.Raise( this, new ItemChangedEventArgs<object>( preset.DomNode ) );
+            }
         }
 
         private void root_ChildInserted( object sender, ChildEventArgs e )

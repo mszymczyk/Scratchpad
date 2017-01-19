@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SettingsEditor.h"
+#include "..\SettingsEditor.h"
 #include <mutex>
 #include <memory>
 #include <vector>
@@ -90,7 +90,7 @@ inline void aligned_free_dbg( void * p )
 
 #else
 
-inline void* aligned_malloc( size_t size, size_t align )
+inline void* aligned_malloc_rel( size_t size, size_t align )
 {
 	if (gAllocFunc)
 		return gAllocFunc( size, align );
@@ -102,7 +102,7 @@ inline void* aligned_malloc( size_t size, size_t align )
 #endif
 }
 
-inline void aligned_free( void * p )
+inline void aligned_free_rel( void * p )
 {
 	if (gFreeFunc)
 	{
@@ -117,8 +117,8 @@ inline void aligned_free( void * p )
 #endif
 }
 
-#define memAlloc( size, alignment ) aligned_malloc( size, alignment )
-#define memFree( p ) aligned_free( p )
+#define memAlloc( size, alignment ) aligned_malloc_rel( size, alignment )
+#define memFree( p ) aligned_free_rel( p )
 
 #endif //
 
@@ -134,38 +134,38 @@ inline void aligned_free( void * p )
 	}												\
 	\
 	inline void operator delete (void *p) {			\
-		aligned_free_dbg(p);								\
+		aligned_free_dbg(p);						\
 	}												\
 	\
 	inline void operator delete[] (void *p) {		\
-		aligned_free_dbg(p);								\
+		aligned_free_dbg(p);						\
 	}												\
 	\
 	inline void operator delete (void *p, const char * /*szFileName*/, int /*nLine*/) {			\
-		aligned_free_dbg(p);								\
+		aligned_free_dbg(p);						\
 	}												\
 	\
 	inline void operator delete[] (void *p, const char * /*szFileName*/, int /*nLine*/) {		\
-		aligned_free_dbg(p);								\
+		aligned_free_dbg(p);						\
 	}
 
 #else // ! defined(_DEBUG)
 
 #define DECLARE_ALIGNED_NEW(boundary)			\
 	inline void* operator new (size_t size) {		\
-		return aligned_malloc(size, boundary);		\
+		return aligned_malloc_rel(size, boundary);	\
 	}												\
 	\
 	inline void* operator new[] (size_t size) {		\
-		return aligned_malloc(size, boundary);		\
+		return aligned_malloc_rel(size, boundary);	\
 	}												\
 	\
 	inline void operator delete (void *p) {			\
-		aligned_free(p)(p);	\
+		aligned_free_rel(p);						\
 	}												\
 	\
 	inline void operator delete[] (void *p) {		\
-		aligned_free(p);	\
+		aligned_free_rel(p);						\
 	}
 
 #endif // ! defined(_DEBUG)

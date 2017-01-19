@@ -61,7 +61,7 @@ namespace SettingsEditor
 
                 if ( dpOld != null && dpOld.ValueType == p.ValueType )
                 {
-                    p.IntValue = MathUtil.Clamp<int>( dpOld.IntValue, 0, esett.NumEnumValues - 1 );
+                    p.EnumValue = dpOld.EnumValue;
                 }
             }
             else if ( sett is FloatSetting )

@@ -44,7 +44,7 @@
     <ProjectReference Include="..\..\Framework\Tools\SettingsEditor\ZMQHubLib\ZMQHubLib.vcxproj">
       <Project>{b0eced94-8e82-4dbd-a394-218ad5e55890}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\SampleSettings\SampleSettings.vcxproj">
+    <ProjectReference Include="..\SampleSettings\SampleSettings\SampleSettings.vcxproj">
       <Project>{82227082-8738-4d1d-9945-37b95f7dc29c}</Project>
     </ProjectReference>
   </ItemGroup>

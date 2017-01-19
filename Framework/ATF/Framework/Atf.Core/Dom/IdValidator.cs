@@ -122,6 +122,10 @@ namespace Sce.Atf.Dom
             {
                 if (e.AttributeInfo.Equivalent(e.DomNode.Type.IdAttribute))
                 {
+                    // misz/pico extension
+                    if ( string.IsNullOrWhiteSpace( e.NewValue.ToString() ) )
+                        throw new InvalidTransactionException( "Id can't be empty" );
+
                     // only store the first renaming of the node, as we only need the original id
                     if (!m_renamed.ContainsKey(e.DomNode))
                         m_renamed.Add(e.DomNode, e.OldValue.ToString());
