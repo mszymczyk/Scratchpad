@@ -42,6 +42,8 @@ namespace SettingsEditor
             Controls.Add( m_splitContainer );
         }
 
+        public Sce.Atf.Controls.PropertyEditing.PropertyGrid PropertyGrid { get { return m_propertyGrid; } }
+
         private void TreeControl_MouseUp( object sender, MouseEventArgs e )
         {
             if ( e.Button == MouseButtons.Right )

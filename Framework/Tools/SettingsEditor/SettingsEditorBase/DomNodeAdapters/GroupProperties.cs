@@ -30,6 +30,9 @@ namespace SettingsEditor
             if (miParameters.Count == 0)
                 return baseDescriptors;
 
+            if ( group.PropertyDescriptors != null )
+                return group.PropertyDescriptors;
+
             var result = new List<System.ComponentModel.PropertyDescriptor>(baseDescriptors);
             int childIndex = 0;
             foreach (var child in miParameters)
@@ -193,7 +196,8 @@ namespace SettingsEditor
                 childIndex++;
             }
 
-            return result.ToArray();
+            group.PropertyDescriptors = result.ToArray();
+            return group.PropertyDescriptors;
         }
 
         /// <summary>

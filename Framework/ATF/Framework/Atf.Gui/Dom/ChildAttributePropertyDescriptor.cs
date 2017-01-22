@@ -226,6 +226,11 @@ namespace Sce.Atf.Dom
             if (!PropertyUtils.PropertyDescriptorsEqual(this, other))
                 return false;
 
+            // misz: checking only child types is not sufficient in case, where all child types are equal
+            // we must also check indices
+            // this was a bug in SettingsEditor, showing up when properties where added/deleted dynamically
+            // different ChildAttributePropertyDescriptor were equal even when having different indices
+
             // Make sure that the path of child types is identical.
             IEnumerator<ChildInfo> myEnumerator = m_childPath.GetEnumerator();
             IEnumerator<ChildInfo> otherEnumerator = other.m_childPath.GetEnumerator();
@@ -236,10 +241,27 @@ namespace Sce.Atf.Dom
                 if (myNextExists != otherNextExists)
                     return false;
                 if (!myNextExists)
-                    return true;
+                    //return true;
+                    // misz: break here to jump to 'indices' loop
+                    break;
                 if (!myEnumerator.Current.Equivalent(otherEnumerator.Current))
                     return false;
             } while (true);
+
+            // Make sure that indices, if present, are equal
+            IEnumerator<int> myEnumeratorIndices = m_childIndices.GetEnumerator();
+            IEnumerator<int> otherEnumeratorIndices = other.m_childIndices.GetEnumerator();
+            do
+            {
+                bool myNextExists = myEnumeratorIndices.MoveNext();
+                bool otherNextExists = otherEnumeratorIndices.MoveNext();
+                if ( myNextExists != otherNextExists )
+                    return false;
+                if ( !myNextExists )
+                    return true;
+                if ( myEnumeratorIndices.Current != otherEnumeratorIndices.Current )
+                    return false;
+            } while ( true );
         }
 
         /// <summary>

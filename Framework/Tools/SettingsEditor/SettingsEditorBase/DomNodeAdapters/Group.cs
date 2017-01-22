@@ -88,6 +88,8 @@ namespace SettingsEditor
                 return curves;
             }
         }
+
+        public System.ComponentModel.PropertyDescriptor[] PropertyDescriptors { get; set; }
     }
 }
 

@@ -65,6 +65,27 @@ namespace Sce.Atf.Controls.PropertyEditing
         }
 
         /// <summary>
+        /// misz extension
+        /// Clears cached properties. If descriptors or properties are reloaded while application is running, this might be necessary for PropertyView to display up-to-date values.
+        /// Typically descriptors and controls are created at startup and don't change over application's lifetime.
+        /// </summary>
+        public void ClearCachedProperties()
+        {
+            ClearCurrentProperties();
+
+            // Mark old controls as no longer being visible.
+            foreach ( KeyValuePair<PropertyDescriptor, Property> oldPair in m_cacheableProperties )
+            {
+                Control control = oldPair.Value.Control;
+                Controls.Remove( control );
+                control.Font = null;
+                control.Dispose();
+            }
+
+            m_cacheableProperties.Clear();
+        }
+
+        /// <summary>
         /// Raises the System.Windows.Forms.Control.VisibleChanged event and performs custom actions</summary>
         /// <param name="e">An System.EventArgs that contains the event data</param>
         protected override void OnVisibleChanged(EventArgs e)

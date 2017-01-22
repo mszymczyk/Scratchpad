@@ -179,6 +179,16 @@ namespace SettingsEditor
                 dynamicSchema.CreateNodes( rootNode );
             }
 
+            // for better performance, Atf caches controls internally and assumes the pair 'descriptor-control' won't change over application's lifetime
+            // SettingsEditor on the other hand, allows dynamic change of all properties, so it's necessary to clear cached descriptors/controls
+            // so properties like Max/Min will display up-to-date values
+            // there are two global editors: PropertyEditor and GridPropertyEditor
+            // and one for each document, embedded in DocumentControl
+            if ( m_propertyEditor != null )
+                m_propertyEditor.PropertyGrid.PropertyGridView.ClearCachedProperties();
+            if ( m_gridPropertyEditor != null )
+                m_gridPropertyEditor.GridControl.GridView.ClearCachedProperties();
+
             string filePath = settingsFile.LocalPath;
             string fileName = Path.GetFileName( filePath );
 
@@ -191,6 +201,7 @@ namespace SettingsEditor
             if ( m_reloadInfo != null )
             {
                 control = m_reloadInfo.m_documentControl;
+                control.PropertyGrid.PropertyGridView.ClearCachedProperties();
                 control.Setup( rootNode );
                 controlInfo = m_reloadInfo.m_documentControl.ControlInfo;
             }
@@ -755,6 +766,12 @@ namespace SettingsEditor
 
         [Import( AllowDefault = false )]
         private SettingsService m_settingsService = null;
+
+        [Import( AllowDefault = true )]
+        private PropertyEditor m_propertyEditor = null;
+
+        [Import( AllowDefault = true )]
+        private GridPropertyEditor m_gridPropertyEditor = null;
 
         private string m_descFileToUseWhenCreatingNewDocument = null;
         private ReloadInfo m_reloadInfo = null;
