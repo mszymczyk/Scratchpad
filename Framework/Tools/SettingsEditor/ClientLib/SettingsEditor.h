@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SettingsEditorConfig.h"
+#include <stddef.h>
 #include <stdint.h>
 #include <math.h>
 
@@ -20,6 +21,7 @@ enum e_ParamType
 	eParamType_string,
 	eParamType_direction,
 	eParamType_animCurve,
+	eParamType_stringArray,
 	eParamType_count
 };
 
@@ -58,7 +60,7 @@ struct StructDescription
 
 
 #define SETTINGS_EDITOR_STRUCT_DESC \
-	private: \
+	protected: \
 		static SettingsEditor::StructDescription __desc; \
 		void* impl_ = nullptr; \
 	public: \
@@ -69,7 +71,7 @@ struct StructDescription
 // assuming void* is 8 byte wide:/
 // in constant buffer generated for group, there will be fake float4 field added to account for impl_ and _padding_
 #define SETTINGS_EDITOR_STRUCT_DESC_SHADER_CONSTANTS \
-	private: \
+	protected: \
 		static SettingsEditor::StructDescription __desc; \
 		void* impl_ = nullptr; \
 		void* _padding_ = nullptr; \
@@ -215,6 +217,17 @@ private:
 	const void* impl_ = nullptr;
 };
 
+struct StringArray
+{
+public:
+	size_t size() const;
+	const char* c_str( size_t index ) const;
+	size_t length( size_t index ) const;
+
+private:
+	const void* impl_ = nullptr;
+};
+
 
 class SettingsFile
 {
@@ -257,6 +270,11 @@ void update();
 const void* getPreset( const char* presetName, const void* impl );
 float evaluateAnimCurve( const void* curve, float time );
 
+size_t stringArraySize( const void* impl );
+const char* stringArrayString( const void* impl, size_t index );
+size_t stringArrayStringLength( const void* impl, size_t index );
+
+
 void* allocGroup( size_t size, size_t alignment ); // clears memory to all zeros
 void freeGroup( void* p );
 
@@ -269,12 +287,27 @@ void updateParam( const char* configFile, const char* groupName, const char* pre
 
 
 
-inline float SettingsEditor::AnimCurve::eval( float x ) const
+inline float AnimCurve::eval( float x ) const
 {
 	if (impl_)
 		return _internal::evaluateAnimCurve( impl_, x );
 	else
 		return 0.0f;
+}
+
+inline size_t StringArray::size() const
+{
+	return _internal::stringArraySize( impl_ );
+}
+
+inline const char* StringArray::c_str( size_t index ) const
+{
+	return _internal::stringArrayString( impl_, index );
+}
+
+inline size_t StringArray::length( size_t index ) const
+{
+	return _internal::stringArrayStringLength( impl_, index );
 }
 
 } // namespace SettingsEditor

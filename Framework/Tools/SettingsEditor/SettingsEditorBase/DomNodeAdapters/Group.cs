@@ -13,6 +13,30 @@ namespace SettingsEditor
     public class Group : DomNodeAdapter, ICurveSet
     {
         /// <summary>
+        /// Performs one-time initialization when this adapter's DomNode property is set.
+        /// The DomNode property is only ever set once for the lifetime of this adapter.</summary>
+        protected override void OnNodeSet()
+        {
+            DomNode.ChildInserted += DomNode_ChildInserted;
+
+            base.OnNodeSet();
+        }
+
+        private void DomNode_ChildInserted(object sender, ChildEventArgs e)
+        {
+            // we have to fill Preset here because there's no 'ParentSet' event
+            // this callback will be called for every group in the hierarchy
+            // that's why we're checking if parent is actually this node
+            if (!e.Parent.Equals(this.DomNode))
+                return;
+
+            Preset preset = e.Child.As<Preset>();
+            Group group = e.Parent.Cast<Group>();
+            if (preset != null && group != null)
+                preset.GroupName = group.AbsoluteName;
+        }
+
+        /// <summary>
         /// Gets or sets the referenced UI object</summary>
         public Preset SelectedPresetRef
         {

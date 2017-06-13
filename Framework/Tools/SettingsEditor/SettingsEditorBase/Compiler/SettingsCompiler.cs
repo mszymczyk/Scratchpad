@@ -28,7 +28,6 @@ namespace SettingsEditor
             CompilerParameters compilerParams = new CompilerParameters();
             compilerParams.GenerateInMemory = true;
             compilerParams.ReferencedAssemblies.Add( "System.dll" );
-			// look for SettingsEditorAttributes.dll in exe directory
             string SettingsEditorExeFile = System.Reflection.Assembly.GetEntryAssembly().Location;
             string SettingsEditorExeDir = System.IO.Path.GetDirectoryName( SettingsEditorExeFile );
             compilerParams.ReferencedAssemblies.Add( SettingsEditorExeDir + "\\SettingsEditorAttributes.dll" );
@@ -81,6 +80,8 @@ namespace SettingsEditor
                     group.Settings.Add( new Float4Setting( (Float4) fieldValue, field, group ) );
                 else if ( fieldType == typeof( AnimCurve ) )
                     group.Settings.Add( new AnimCurveSetting( field, group ) );
+                else if (fieldType == typeof(string[]))
+                    group.Settings.Add(new StringArraySetting(field, group));
                 else
                     throw new Exception( "Invalid type for setting " + field.Name );
             }
@@ -219,6 +220,8 @@ namespace SettingsEditor
                 return "eParamType_float4";
             else if ( type == SettingType.AnimCurve )
                 return "eParamType_animCurve";
+            else if (type == SettingType.StringArray)
+                return "eParamType_stringArray";
             else
                 throw new Exception( "Unsupported setting type" );
         }

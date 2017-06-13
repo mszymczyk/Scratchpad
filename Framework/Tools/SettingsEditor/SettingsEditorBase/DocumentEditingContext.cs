@@ -427,6 +427,18 @@ namespace SettingsEditor
             return false;
         }
 
+        bool IsStringArrayElement(DomNode node, out DynamicProperty prop)
+        {
+            if (node.Type.Equals(Schema.stringType.Type))
+            {
+                prop = node.Parent.Cast<DynamicProperty>();
+                return true;
+            }
+
+            prop = null;
+            return false;
+        }
+
         void DomNode_AttributeChanged( object sender, AttributeEventArgs e )
         {
             // for instance, will refresh all PropertyViews that are displaying this property
@@ -478,8 +490,8 @@ namespace SettingsEditor
             }
             else if ( e.AttributeInfo.Equivalent( Schema.presetType.nameAttribute ) )
             {
-                Preset preset = e.DomNode.Cast<Preset>();
-                if ( !m_presetRenames.ContainsKey(preset) )
+                Preset preset = e.DomNode.As<Preset>();
+                if ( preset != null && !m_presetRenames.ContainsKey(preset) )
                     m_presetRenames.Add( preset, e.OldValue as string );
             }
 
@@ -496,18 +508,21 @@ namespace SettingsEditor
             }
 
             DynamicProperty prop = null;
-            if ( IsCurveElement( e.DomNode, out prop ) )
+            if (IsCurveElement(e.DomNode, out prop))
+            {
+            }
+            else if (IsStringArrayElement(e.DomNode, out prop))
             {
             }
             else
             {
                 prop = e.DomNode.As<DynamicProperty>();
 
-                if ( prop == null )
+                if (prop == null)
                     // not a DynamicProperty, ignore
                     return;
 
-                if (   e.AttributeInfo != Schema.dynamicPropertyType.bvalAttribute
+                if (e.AttributeInfo != Schema.dynamicPropertyType.bvalAttribute
                     && e.AttributeInfo != Schema.dynamicPropertyType.ivalAttribute
                     && e.AttributeInfo != Schema.dynamicPropertyType.evalAttribute
                     && e.AttributeInfo != Schema.dynamicPropertyType.fvalAttribute
@@ -637,7 +652,7 @@ namespace SettingsEditor
             else if ( prop.PropertyType == SettingType.AnimCurve )
             {
                 // send whole curve as a string
-                // this may be optimized in the future to reduce ammount of trafic
+                // this may be optimized in the future to reduce amount of trafic
 
                 msg.appendString( "setString" );
                 msg.appendString( document.PathRelativeToData );
@@ -654,6 +669,28 @@ namespace SettingsEditor
                     byte[] bytes = stream.ToArray();
                     msg.appendInt( bytes.Length - 3 );
                     msg.appendBytes( bytes, 3, bytes.Length - 3 ); // skip BOM, 3 bytes, 0xEF, 0xBB, 0xBF
+                }
+            }
+            else if (prop.PropertyType == SettingType.StringArray)
+            {
+                // send whole string array as a xml
+                // this may be optimized in the future to reduce amount of trafic
+
+                msg.appendString("setString");
+                msg.appendString(document.PathRelativeToData);
+                msg.appendString(structureName);
+                msg.appendString(presetName);
+                msg.appendString(prop.Name);
+
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    DomXmlWriter writer = new DomXmlWriter(SchemaLoader.s_schemaLoader.TypeCollection);
+                    //writer.PersistDefaultAttributes = true;
+                    writer.Write( prop.DomNode, stream, new Uri("sync", UriKind.Relative) );
+
+                    byte[] bytes = stream.ToArray();
+                    msg.appendInt(bytes.Length - 3);
+                    msg.appendBytes(bytes, 3, bytes.Length - 3); // skip BOM, 3 bytes, 0xEF, 0xBB, 0xBF
                 }
             }
             else

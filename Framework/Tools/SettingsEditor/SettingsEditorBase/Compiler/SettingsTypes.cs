@@ -20,6 +20,7 @@ namespace SettingsEditor
         Direction,
         //Orientation,
         AnimCurve,
+        StringArray,
     }
 
     public struct EnumValue
@@ -380,6 +381,19 @@ namespace SettingsEditor
         public override void WriteDeclaration( FileWriter fw )
         {
             fw.AddLine( "SettingsEditor::AnimCurve " + Name + ";" );
+        }
+    }
+
+    public class StringArraySetting : Setting
+    {
+        public StringArraySetting(FieldInfo field, SettingGroup group)
+            : base(field, SettingType.StringArray, group)
+        {
+        }
+
+        public override void WriteDeclaration(FileWriter fw)
+        {
+            fw.AddLine("SettingsEditor::StringArray " + Name + ";");
         }
     }
 }

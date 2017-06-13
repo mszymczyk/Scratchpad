@@ -6,6 +6,7 @@ using Sce.Atf;
 using misz;
 using Sce.Atf.Controls.CurveEditing;
 using Sce.Atf.VectorMath;
+using System.Collections.Generic;
 
 namespace SettingsEditor
 {
@@ -78,51 +79,10 @@ namespace SettingsEditor
                 if ( dpOld != null && dpOld.ValueType == p.ValueType )
                 {
                     p.FloatValue = MathUtil.Clamp<float>( dpOld.FloatValue, fsett.MinValue, fsett.MaxValue );
-                    // if old SoftMinValue/SoftMaxValues/Step equal fsett values, then assume
-                    // that user didn't change default values of these properties via three-dot-dialog
-                    // and set new DynamicProperty values to fsett values
-                    // this aids creating/editing new settings because "soft" values can be live-edited
-                    // old behavior prevented this
-                    if ( MathHelp.EqualApprox( dpOld.SoftMinValue, dpOld.InitialSoftMinValue, 0.0001f ) )
-                    {
-                        p.SoftMinValue = fsett.SoftMinValue;
-                        p.InitialSoftMinValue = fsett.SoftMinValue;
-                    }
-                    else
-                    {
-                        p.SoftMinValue = MathUtil.Clamp<float>( dpOld.SoftMinValue, fsett.MinValue, fsett.MaxValue );
-                        p.InitialSoftMinValue = dpOld.InitialSoftMinValue;
-                    }
-
-                    if ( MathHelp.EqualApprox( dpOld.SoftMaxValue, dpOld.InitialSoftMaxValue, 0.0001f ) )
-                    {
-                        p.SoftMaxValue = fsett.SoftMaxValue;
-                        p.InitialSoftMaxValue = fsett.SoftMaxValue;
-                    }
-                    else
-                    {
-                        p.SoftMaxValue = MathUtil.Clamp<float>( dpOld.SoftMaxValue, fsett.MinValue, fsett.MaxValue ); ;
-                        p.InitialSoftMaxValue = dpOld.InitialSoftMaxValue;
-                    }
-
-                    if ( MathHelp.EqualApprox( dpOld.StepValue, fsett.StepSize, 0.0001f ) )
-                    {
-                        p.StepValue = fsett.StepSize;
-                        p.InitialStepValue = fsett.StepSize;
-                    }
-                    else
-                    {
-                        p.StepValue = dpOld.StepValue;
-                        p.InitialStepValue = dpOld.StepValue;
-                    }
-
+                    p.SoftMinValue = MathUtil.Clamp<float>( dpOld.SoftMinValue, fsett.MinValue, fsett.MaxValue );
+                    p.SoftMaxValue = MathUtil.Clamp<float>( dpOld.SoftMaxValue, fsett.MinValue, fsett.MaxValue ); ;
+                    p.StepValue = dpOld.StepValue;
                     p.Checked = dpOld.Checked;
-                }
-                else
-                {
-                    p.InitialSoftMinValue = p.SoftMinValue;
-                    p.InitialSoftMaxValue = p.SoftMaxValue;
-                    p.InitialStepValue = p.StepValue;
                 }
             }
             else if ( sett is Float4Setting )
@@ -186,6 +146,25 @@ namespace SettingsEditor
                 else
                 {
                     p.AnimCurveValue = CreateSampleCurve( p.Name );
+                }
+            }
+            else if (sett is StringArraySetting)
+            {
+                StringArraySetting sasett = (StringArraySetting)sett;
+
+                p.ValueType = Schema.dynamicPropertyType.savalChild.Type.Name;
+                p.StringValue = "";
+
+                if (dpOld != null && dpOld.ValueType == p.ValueType)
+                {
+                    //p.StringArrayValue = dpOld.StringArrayValue;
+                    foreach (var s in dpOld.StringArrayValue)
+                    {
+                        //p.StringArrayValue.Add(s);
+                        DomNode sCopy = DomNode.Copy(s);
+                        sCopy.InitializeExtensions();
+                        p.StringArrayValue.Add(sCopy);
+                    }
                 }
             }
 
@@ -318,6 +297,11 @@ namespace SettingsEditor
             set { DomNode.SetChild( Schema.dynamicPropertyType.curveChild, value.DomNode ); }
         }
 
+        public IList<DomNode> StringArrayValue
+        {
+            get { return GetChildList<DomNode>(Schema.dynamicPropertyType.savalChild); }
+        }
+
         public float SoftMinValue
         {
             get { return (float)DomNode.GetAttribute( Schema.dynamicPropertyType.minAttribute ); }
@@ -348,9 +332,9 @@ namespace SettingsEditor
             set { DomNode.SetAttribute( Schema.dynamicPropertyType.checkedAttribute, value ); }
         }
 
-        public float InitialSoftMinValue { get; set; }
-        public float InitialSoftMaxValue { get; set; }
-        public float InitialStepValue { get; set; }
+        //public float InitialSoftMinValue { get; set; }
+        //public float InitialSoftMaxValue { get; set; }
+        //public float InitialStepValue { get; set; }
 
         public Setting Setting
         {

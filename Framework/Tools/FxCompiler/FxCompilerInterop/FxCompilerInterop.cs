@@ -34,7 +34,13 @@ namespace FxCompiler
 
         public static bool StartUp( LogCallbackType logCallback )
         {
-            s_libHandle = LoadLibrary( FxCompilerDll );
+            string dllPath = System.Environment.GetEnvironmentVariable("SCRATCHPAD_DIR");
+            if (dllPath == null)
+                dllPath = FxCompilerDll;
+            else
+                dllPath = dllPath + "\\Framework\\Bin\\" + FxCompilerDll;
+
+            s_libHandle = LoadLibrary( dllPath );
             if ( s_libHandle == IntPtr.Zero )
                 return false;
 

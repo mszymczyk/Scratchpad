@@ -1,9 +1,12 @@
-#pragma once
-
 #include "SettingsEditorUtil.h"
+
+#if _MSC_VER
+
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+
+#endif
 
 #if defined(_MSC_VER) && defined(_DEBUG)
 #define new _DEBUG_NEW
@@ -13,7 +16,7 @@ namespace SettingsEditor
 {
 namespace _internal
 {
-#if SETTINGS_EDITOR_ASSERT_ENABLED
+#if SETTINGS_EDITOR_ASSERT_ENABLED && _MSC_VER
 
 void assertPrintAndBreak( const char* text )
 {

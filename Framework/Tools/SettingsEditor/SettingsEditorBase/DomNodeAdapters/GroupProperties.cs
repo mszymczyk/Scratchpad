@@ -187,6 +187,82 @@ namespace SettingsEditor
                         , null
                         );
                 }
+                else if (child.Setting is StringArraySetting)
+                {
+                    StringArraySetting sasett = child.Setting as StringArraySetting;
+
+                    //EmbeddedCollectionEditor edit children (edit, add, remove, move).
+                    // note: EmbeddedCollectionEditor needs some work (efficiency and implementation issues).
+                    var collectionEditor = new EmbeddedCollectionEditor();
+
+                    // the following  lambda's handles (add, remove, move ) items.
+                    collectionEditor.GetItemInsertersFunc = (context) =>
+                    {
+                        var insertors
+                            = new EmbeddedCollectionEditor.ItemInserter[1];
+
+                        var list = context.GetValue() as IList<DomNode>;
+                        if (list != null)
+                        {
+                            var childDescriptor
+                                = context.Descriptor as ChildOfChildPropertyDescriptor;
+                            if (childDescriptor != null)
+                            {
+                                insertors[0] = new EmbeddedCollectionEditor.ItemInserter(childDescriptor.ChildOfChildInfo.Type.Name,
+                                    delegate
+                                    {
+                                        DomNode node = new DomNode(childDescriptor.ChildOfChildInfo.Type);
+                                        if (node.Type.IdAttribute != null)
+                                        {
+                                            node.SetAttribute(node.Type.IdAttribute, node.Type.Name);
+                                        }
+                                        list.Add(node);
+                                        return node;
+                                    });
+                                return insertors;
+                            }
+                        }
+                        return EmptyArray<EmbeddedCollectionEditor.ItemInserter>.Instance;
+                    };
+
+
+                    collectionEditor.RemoveItemFunc = (context, item) =>
+                    {
+                        var list = context.GetValue() as IList<DomNode>;
+                        if (list != null)
+                            list.Remove(item.Cast<DomNode>());
+                    };
+
+
+                    collectionEditor.MoveItemFunc = (context, item, delta) =>
+                    {
+                        var list = context.GetValue() as IList<DomNode>;
+                        if (list != null)
+                        {
+                            DomNode node = item.Cast<DomNode>();
+                            int index = list.IndexOf(node);
+                            int insertIndex = index + delta;
+                            if (insertIndex < 0 || insertIndex >= list.Count)
+                                return;
+                            list.RemoveAt(index);
+                            list.Insert(insertIndex, node);
+                        }
+
+                    };
+
+                    string displayName = string.IsNullOrEmpty(child.ExtraName) ? sett.DisplayName : string.Format("{0}({1})", sett.DisplayName, child.ExtraName);
+
+                    newDescriptor = new ChildOfChildPropertyDescriptor(
+                           displayName,
+                           childIndex,
+                           Schema.groupType.propChild,
+                           Schema.dynamicPropertyType.savalChild,
+                           sett.Category,
+                           sett.HelpText,
+                           false,
+                           collectionEditor
+                           );
+                }
                 //else
                 //    throw new InvalidOperationException( "Unknown valueType attribute '" + valueType +
                 //        "' for dynamic property: " + displayName );

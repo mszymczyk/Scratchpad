@@ -57,6 +57,7 @@ namespace SettingsEditor
             dynamicPropertyType.extraNameAttribute = dynamicPropertyType.Type.GetAttributeInfo("extraName");
             dynamicPropertyType.checkedAttribute = dynamicPropertyType.Type.GetAttributeInfo("checked");
             dynamicPropertyType.curveChild = dynamicPropertyType.Type.GetChildInfo("curve");
+            dynamicPropertyType.savalChild = dynamicPropertyType.Type.GetChildInfo("saval");
 
             curveType.Type = getNodeType("SettingsEditor", "curveType");
             curveType.nameAttribute = curveType.Type.GetAttributeInfo("name");
@@ -80,6 +81,9 @@ namespace SettingsEditor
             controlPointType.tangentOutAttribute = controlPointType.Type.GetAttributeInfo("tangentOut");
             controlPointType.tangentOutTypeAttribute = controlPointType.Type.GetAttributeInfo("tangentOutType");
             controlPointType.brokenTangentsAttribute = controlPointType.Type.GetAttributeInfo("brokenTangents");
+
+            stringType.Type = getNodeType("SettingsEditor", "stringType");
+            stringType.strAttribute = stringType.Type.GetAttributeInfo("str");
 
             presetType.Type = getNodeType("SettingsEditor", "presetType");
             presetType.nameAttribute = presetType.Type.GetAttributeInfo("name");
@@ -128,6 +132,7 @@ namespace SettingsEditor
             public static AttributeInfo extraNameAttribute;
             public static AttributeInfo checkedAttribute;
             public static ChildInfo curveChild;
+            public static ChildInfo savalChild;
         }
 
         public static class curveType
@@ -157,6 +162,12 @@ namespace SettingsEditor
             public static AttributeInfo tangentOutAttribute;
             public static AttributeInfo tangentOutTypeAttribute;
             public static AttributeInfo brokenTangentsAttribute;
+        }
+
+        public static class stringType
+        {
+            public static DomNodeType Type;
+            public static AttributeInfo strAttribute;
         }
 
         public static class presetType

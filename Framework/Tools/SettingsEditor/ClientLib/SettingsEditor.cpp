@@ -2,6 +2,7 @@
 #include "impl/SettingsEditorUtil.h"
 #include "impl/pugixml/pugixmlHelpers.h"
 #include "impl/MayaAnimCurve.h"
+#include <string>
 
 namespace SettingsEditor
 {
@@ -40,12 +41,18 @@ struct _Struct;
 // there's impl_ field, followed by user defined fields
 struct _GroupClientSide
 {
-	void* impl_;
+	void* impl_; // points to group proxy structure (_Struct), in preset, points also to group's _Struct
 	// more data
 };
 
 // helper structure for working with AnimCurve
 struct _AnimCurveClientSide
+{
+	void* impl_;
+};
+
+// helper structure for working with StringArray
+struct _StringArrayClientSide
 {
 	void* impl_;
 };
@@ -64,6 +71,7 @@ struct _Preset
 
 typedef std::vector< std::unique_ptr<_Struct>, SimpleStdAllocator<std::unique_ptr<_Struct>> > _StructUniquePtrArray;
 typedef std::vector< std::unique_ptr<_Preset>, SimpleStdAllocator<std::unique_ptr<_Preset>> > _PresetUniquePtrArray;
+typedef std::vector< String, SimpleStdAllocator<String> > _StringArrayArray;
 
 struct _Struct
 {
@@ -82,6 +90,13 @@ struct _Struct
 	_Preset* findPreset( const char* presetName );
 	const uint8_t* getPresetMemory( const char* presetName ) const;
 };
+
+struct _StringArrayImpl
+{
+	_StringArrayArray strings_;
+};
+
+_StringArrayImpl* createStringArrayImpl() { return new _StringArrayImpl(); }
 
 struct _SettingsFileImpl
 {
@@ -184,6 +199,17 @@ void freeDynamicSettings( const StructDescription* desc, uint8_t* absoluteAddres
 			if (ac->impl_)
 			{
 				MayaAnimCurve* mac = reinterpret_cast<MayaAnimCurve*>(ac->impl_);
+				delete mac;
+				ac->impl_ = nullptr;
+			}
+		}
+		else if ( f.type_ == eParamType_stringArray )
+		{
+			// string array is dynamically created, release it when unloading
+			_StringArrayClientSide* ac = reinterpret_cast<_StringArrayClientSide*>( absoluteAddress + f.offset_ );
+			if ( ac->impl_ )
+			{
+				_StringArrayImpl* mac = reinterpret_cast<_StringArrayImpl*>( ac->impl_ );
 				delete mac;
 				ac->impl_ = nullptr;
 			}
@@ -377,6 +403,8 @@ static const char* _GetParamTypeName( e_ParamType ptype )
 		return "direction";
 	case eParamType_animCurve:
 		return "animCurve";
+	case eParamType_stringArray:
+		return "stringArray";
 	default:
 		return "unknown";
 	}
@@ -466,7 +494,7 @@ void _SettingsFileImpl::updateParamInt( const char* groupName, const char* prese
 	}
 }
 
-void _SettingsFileImpl::setInt( const char* groupName, const FieldDescription* field, uint8_t* dstMem, const int* newValues, int /*nNewValues*/ )
+void _SettingsFileImpl::setInt( const char* groupName, const FieldDescription* field, uint8_t* dstMem, const int* newValues, int nNewValues )
 {
 	uint8_t* absoluteAddress = dstMem + field->offset_;
 
@@ -702,6 +730,26 @@ void _SettingsFileImpl::setString( const char* groupName, const FieldDescription
 			ac->impl_ = mac;
 		}
 	}
+	else if ( field->type_ == eParamType_stringArray )
+	{
+		pugi::xml_document doc;
+		pugi::xml_parse_result res = doc.load_buffer( newVal, strlen( newVal ), pugi::parse_default );
+		if ( !res )
+			seLogError( "xml_document::load_buffer failed! %s, Err=%s", filename_.c_str(), res.description() );
+
+		SETTINGS_EDITOR_ASSERT( false );
+
+		//pugi::xml_node curve = doc.child( "stringArray" );
+		//if ( !curve.empty() )
+		//{
+			//MayaAnimCurve* mac = readCurve( curve );
+
+			//_AnimCurveClientSide* ac = reinterpret_cast<_AnimCurveClientSide*>( absoluteAddress );
+			//MayaAnimCurve* oldMac = reinterpret_cast<MayaAnimCurve*>( ac->impl_ );
+			//delete oldMac;
+			//ac->impl_ = mac;
+		//}
+	}
 	else
 	{
 		seLogError( "setString: '%s,%s' inconsistent types. Found '%s', now 'string' or 'animCurve'", groupName/*, presetName*/, field->name_, _GetParamTypeName( field->type_ ) );
@@ -791,23 +839,26 @@ int _SettingsFileImpl::fillGroupOrPreset( const pugi::xml_node& xmlGroupOrPreset
 	const uint32_t nParams = group->desc_->nFields_;
 	const FieldDescription* fields = group->desc_->fields_;
 
-	for (const pugi::xml_node& xmlProp : xmlGroupOrPreset.children( "prop" ))
+	// we iterate over all fields and see if xml file has stored value for given field
+	// if not, field's default value is used
+	// this iteration order is important in case of strings (we must do a copy!)
+	for ( uint32_t iparam = 0; iparam < nParams; ++iparam )
 	{
-		const char* name = attribute_get_string( xmlProp, "name" );
-		if (!name)
-		{
-			seLogError( "fillGroupOrPreset: Property must have 'name' attribute! Skipping... (%s)", filename_.c_str() );
-			continue;
-		}
+		const FieldDescription& field = fields[iparam];
+		e_ParamType ptype = field.type_;
+		const char* pname = field.name_;
 
 		bool found = false;
 
-		for (uint32_t iparam = 0; iparam < nParams; ++iparam)
+		for ( const pugi::xml_node& xmlProp : xmlGroupOrPreset.children( "prop" ) )
 		{
-			const FieldDescription& field = fields[iparam];
+			const char* name = attribute_get_string( xmlProp, "name" );
+			if (!name)
+			{
+				seLogError( "fillGroupOrPreset: Property must have 'name' attribute! Skipping... (%s)", filename_.c_str() );
+				continue;
+			}
 
-			e_ParamType ptype = field.type_;
-			const char* pname = field.name_;
 			if (strcmp( pname, name ))
 				continue;
 
@@ -900,6 +951,26 @@ int _SettingsFileImpl::fillGroupOrPreset( const pugi::xml_node& xmlGroupOrPreset
 				if (!curve.empty())
 					ac->impl_ = readCurve( curve );
 			}
+			else if ( ptype == eParamType_stringArray )
+			{
+				size_t nStrings = 0;
+				for ( pugi::xml_node saval : xmlProp.children( "saval" ) )
+				{
+					(void)saval;
+					++nStrings;
+				}
+
+				_StringArrayClientSide* ac = reinterpret_cast<_StringArrayClientSide*>( groupOrPresetAddress + field.offset_ );
+				ac->impl_ = createStringArrayImpl();
+				_StringArrayImpl* sa = reinterpret_cast<_StringArrayImpl*>( ac->impl_ );
+				sa->strings_.reserve( nStrings );
+
+				for ( pugi::xml_node saval : xmlProp.children( "saval" ) )
+				{
+					const char* str = saval.attribute( "str" ).as_string();
+					sa->strings_.push_back( str );
+				}
+			}
 			else
 			{
 				seLogError( "initRecurse: unsupported setting type (%s)", filename_.c_str() );
@@ -911,7 +982,22 @@ int _SettingsFileImpl::fillGroupOrPreset( const pugi::xml_node& xmlGroupOrPreset
 
 		if (!found)
 		{
-			seLogError( "fillGroupOrPreset: Can't find desc for '%s'! Skipping... (%s)", name, filename_.c_str() );
+			seLogError( "fillGroupOrPreset: Can't find xml value for '%s'! Skipping... (%s)", pname, filename_.c_str() );
+			if ( ptype == eParamType_string )
+			{
+				// for strings it's we make copy a copy of default value
+				// freeDynamicSettings always releases strings
+				char** strBuf = reinterpret_cast<char**>( groupOrPresetAddress + field.offset_ );
+				char* defValue = *strBuf;
+
+				if ( defValue )
+				{
+					size_t defValueLen = strlen( defValue );
+					char* defValueCopy = (char*)memAlloc( defValueLen + 1, 1 );
+					strcpy( defValueCopy, defValue );
+					*strBuf = defValueCopy;
+				}
+			}
 		}
 	}
 
@@ -933,7 +1019,6 @@ int _SettingsFileImpl::initRecurse( const pugi::xml_node& xmlGroup, _Struct* gro
 		preset->memory_ = reinterpret_cast<uint8_t*>(memAlloc( group->desc_->sizeInBytes_, 16 ));
 		// init preset to defaults (values declared in the struct)
 		memcpy( preset->memory_, group->absoluteAddress_, group->desc_->sizeInBytes_ );
-		// preset->impl_ will point to the same address as group, don't clear it
 
 		int ires = fillGroupOrPreset( xmlPreset, group, preset->memory_ );
 		if (ires)
@@ -952,28 +1037,35 @@ int _SettingsFileImpl::initRecurse( const pugi::xml_node& xmlGroup, _Struct* gro
 		seLogError( "fillGroupOrPreset: initialization failed! State of '%s' may be incosistent... (%s)", group->desc_->name_, filename_.c_str() );
 	}
 
-	for (const pugi::xml_node& xmlGroupChild : xmlGroup.children( "group" ))
+	// iterate over groups and try values corresponding values in xml file
+	// it sometimes happens that xml file doesn't contain values for all groups
+	for ( std::unique_ptr<_Struct>& childGroup : group->nestedStructures_ )
 	{
-		const char* groupName = attribute_get_string( xmlGroupChild, "name" );
-		if (!groupName)
+		pugi::xml_node xmlChildGroup;
+		for ( const pugi::xml_node& xmlGroupChild : xmlGroup.children( "group" ) )
 		{
-			seLogError( "initRecurse: Group must have 'name' attribute! Skipping... (%s)", filename_.c_str() );
-			continue;
-		}
-
-		_Struct* groupChild = group->getNestedGroup( groupName );
-		if (groupChild != nullptr)
-		{
-			ires = initRecurse( xmlGroupChild, groupChild );
-			if (ires)
+			const char* groupName = attribute_get_string( xmlGroupChild, "name" );
+			if ( !groupName )
 			{
-				//return ires;
-				seLogError( "initRecurse: Nested group '%s' initialization failed! State may be incosistent... (%s)", groupName, filename_.c_str() );
+				seLogError( "initRecurse: Group must have 'name' attribute! Skipping... (%s)", filename_.c_str() );
+				break;
+			}
+
+			if ( !strcmp( childGroup->desc_->name_, groupName ) )
+			{
+				xmlChildGroup = xmlGroupChild;
+				break;
 			}
 		}
-		else
+
+		if ( !xmlChildGroup )
+			seLogError( "initRecurse: Group '%s' not found! It will keep it's default values! (%s)", childGroup->desc_->name_, filename_.c_str() );
+
+		ires = initRecurse( xmlChildGroup, childGroup.get() );
+		if ( ires )
 		{
-			seLogError( "initRecurse: Group '%s' not found! It will keep it's default values! (%s)", groupName, filename_.c_str() );
+			//return ires;
+			seLogError( "initRecurse: Nested group '%s' initialization failed! State may be inconsistent... (%s)", childGroup->desc_->name_, filename_.c_str() );
 		}
 	}
 
@@ -1204,6 +1296,26 @@ float evaluateAnimCurve( const void* curve, float time )
 	const MayaAnimCurve* mac = reinterpret_cast<const MayaAnimCurve*>(curve);
 	EtCurveEvalCache cache;
 	return mac->evaluate( time, &cache );
+}
+
+size_t stringArraySize( const void* impl )
+{
+	const _StringArrayImpl* sa = reinterpret_cast<const _StringArrayImpl*>( impl );
+	return sa->strings_.size();
+}
+
+const char* stringArrayString( const void* impl, size_t index )
+{
+	const _StringArrayImpl* sa = reinterpret_cast<const _StringArrayImpl*>( impl );
+	SETTINGS_EDITOR_ASSERT( index < sa->strings_.size() );
+	return sa->strings_[index].c_str();
+}
+
+size_t stringArrayStringLength( const void* impl, size_t index )
+{
+	const _StringArrayImpl* sa = reinterpret_cast<const _StringArrayImpl*>( impl );
+	SETTINGS_EDITOR_ASSERT( index < sa->strings_.size() );
+	return sa->strings_[index].length();
 }
 
 void* allocGroup( size_t size, size_t alignment )

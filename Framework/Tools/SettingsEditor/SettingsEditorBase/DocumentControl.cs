@@ -180,15 +180,10 @@ namespace SettingsEditor
         /// <param name="domNode">Group or Preset to select</param>
         public void SetSelectedDomNode( DomNode domNode )
         {
-            var paths = m_filteredTreeControlEditor.TreeControlAdapter.GetPaths( domNode );
+            var paths = m_filteredTreeControlEditor.TreeControlAdapter.GetPaths(domNode);
             var list = paths.ToList();
-            if ( list.Count > 0 )
-            {
-                //TreeControl.Node n = m_treeControlAdapter.ExpandPath( list[0] );
-                TreeControl.Node n = m_filteredTreeControlEditor.TreeControlAdapter.ExpandPath( list[0] );
-                //m_treeControl.SetSelection( n );
-                m_filteredTreeControlEditor.TreeControl.SetSelection( n );
-            }
+            if (list.Count > 0)
+                RootNode.As<DocumentEditingContext>().Selection.SetRange(list);
         }
 
         public void SetSearchPattern( string searchPattern )

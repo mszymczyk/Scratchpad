@@ -69,12 +69,16 @@
     <xs:attribute name="xLabel" type="xs:string" default="X - Axis" />
     <xs:attribute name="yLabel" type="xs:string" default="Y - Axis" />
   </xs:complexType>
-
-
+  
+  <xs:complexType name="stringType">
+    <xs:attribute name="str" type="xs:string" default=""/>
+  </xs:complexType>
+      
   <xs:complexType name="dynamicPropertyType">
 
     <xs:sequence>
       <xs:element name="curve" type="curveType" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="saval" type="stringType" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
     
     <xs:attribute name="name" type="xs:string" />

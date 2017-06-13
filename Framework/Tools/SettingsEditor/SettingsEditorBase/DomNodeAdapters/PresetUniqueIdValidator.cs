@@ -20,7 +20,8 @@ namespace SettingsEditor
         {
             Preset preset = node.As<Preset>();
             if ( preset != null )
-                return preset.Group.DomNode;
+                //return preset.Group.DomNode;
+                return preset.GroupName;
 
             return null;
         }
