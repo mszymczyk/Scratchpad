@@ -456,6 +456,10 @@ namespace Sce.Atf.Controls.PropertyEditing
             /// <param name="e">Item changed event args</param>
             void observableContext_ItemChanged(object sender, ItemChangedEventArgs<object> e)
             {
+				// misz/pico: SettingsEditor crashed here, e.Item can be null sometimes
+                if (e.Item == null)
+                    return;
+
                 ItemControl itemControl;
                 if (m_itemControls.TryGetValue(e.Item, out itemControl))
                     OnItemChanged(e.Item);
