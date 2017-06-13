@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ColorHelp.cs" />
+    <Compile Include="Controls\PropertyEditing\ChildOfChildPropertyDescriptor.cs" />
     <Compile Include="Controls\PropertyEditing\CustomEnableAttributePropertyDescriptor.cs" />
     <Compile Include="Controls\PropertyEditing\CustomPropertyDescriptor.cs" />
     <Compile Include="Controls\PropertyEditing\EditButton.cs">

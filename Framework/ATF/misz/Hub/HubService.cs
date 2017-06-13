@@ -72,6 +72,13 @@ namespace misz
         public static void SetImpl( IHubServiceImplementation impl )
         {
             m_impl = impl;
+
+            m_impl.MessageReceived += MessageReceivedHandler;
+        }
+
+        private static void MessageReceivedHandler( object sender, MessagesReceivedEventArgs e )
+        {
+            MessageReceived.Raise( sender, e );
         }
 
         static IHubServiceImplementation m_impl;

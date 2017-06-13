@@ -56,7 +56,9 @@ namespace misz
 			}
 		}
 
-		static ZContext m_context;
+        public event EventHandler<MessagesReceivedEventArgs> MessageReceived;
+
+        static ZContext m_context;
 		static ZSocket m_publisher;
 	}
 }

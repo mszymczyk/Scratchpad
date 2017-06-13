@@ -88,6 +88,7 @@ namespace misz
 
     public class HubMessageIn
     {
+        public string tag;
         public byte[] payload_;
         public int payloadSize_;
         public int payloadSizeReceived_;

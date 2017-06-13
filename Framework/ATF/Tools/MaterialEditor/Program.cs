@@ -59,6 +59,14 @@ namespace CircuitEditorSample
             Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
 
+            string SCRATCHPAD_DIR = System.Environment.GetEnvironmentVariable("SCRATCHPAD_DIR");
+            if (string.IsNullOrEmpty(SCRATCHPAD_DIR))
+                throw new InvalidOperationException("Couldn't read 'SCRATCHPAD_DIR' environment variable");
+
+            // setup paths and hub
+            misz.HubService.SetImpl(new misz.ZMQHubService());
+            misz.Paths.SetupPaths(SCRATCHPAD_DIR, SCRATCHPAD_DIR);
+
             Localizer.SetStringLocalizer(new EmbeddedResourceStringLocalizer());
 
             // Enable metadata driven property editing for the DOM
@@ -137,7 +145,7 @@ namespace CircuitEditorSample
                 typeof(MaterialInstancesLister),
                 typeof(ShaderSourceCodeEditor),
 
-                typeof(misz.Gui.ZMQHubService),
+                //typeof(misz.Gui.ZMQHubService),
 
                 typeof(AnnotatingCommands),             // annotating commands
                 typeof(DynamicPropertyCommands),        // context commands for user-defined properties in the property editors

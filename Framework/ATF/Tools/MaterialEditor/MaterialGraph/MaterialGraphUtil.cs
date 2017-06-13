@@ -12,11 +12,14 @@ namespace CircuitEditorSample
     {
         public static MaterialModule GetMaterialModule( Circuit circuit )
         {
-            foreach ( Module m in circuit.Elements )
-                if ( m.DomNode.Type.Equals( MaterialModule.materialType ) )
+            foreach (Element e in circuit.Elements)
+            {
+                Module m = e.As<Module>();
+                if (m != null && m.DomNode.Type.Equals(MaterialModule.materialType))
                 {
                     return m.Cast<MaterialModule>();
                 }
+            }
 
             return null;
         }
