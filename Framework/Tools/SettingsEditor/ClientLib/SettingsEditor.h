@@ -3,6 +3,7 @@
 #include "SettingsEditorConfig.h"
 #include <stdint.h>
 #include <math.h>
+#include <new>
 
 namespace SettingsEditor
 {

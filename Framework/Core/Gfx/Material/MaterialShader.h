@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../Dx11/Dx11DeviceContext.h"
-#include <FxLib/FxLib.h>
+//#include <FxLib/FxLib.h>
+#include <Tools/FxCompiler/FxCompilerLib/FxTypes.h>
 #include "../Dx11/Dx11Wrappers.h"
 #include <Util/ReferenceCounting.h>
 #include <unordered_set>
@@ -93,7 +94,7 @@ public:
 	struct Tex
 	{
 		u16 index_;
-		FxLib::e_ProgramType stage_;
+		fxlib::ShaderStage::Type stage_;
 		u16 bindingPoint_;
 	};
 
@@ -102,7 +103,7 @@ public:
 	struct Samp
 	{
 		u16 index_;
-		FxLib::e_ProgramType stage_;
+		fxlib::ShaderStage::Type stage_;
 		u16 bindingPoint_;
 	};
 

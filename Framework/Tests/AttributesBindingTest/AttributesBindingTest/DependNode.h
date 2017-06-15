@@ -20,18 +20,23 @@ public:
 	//	: DependencyNode( DependencyNode::sDependencyNodeAttrSet )
 	//{	}
 
-	DependencyNode( const AttrSet& attrSet )
-		: attrSet_( attrSet )
+	//DependencyNode( const AttrSet& attrSet )
+	//	: attrSet_( attrSet )
+	//{	}
+
+	DependencyNode( const NodeTypeDesc& ntd )
+		: typeDesc_( ntd )
 	{	}
 
 private:
 	//const AttributeSet& attrSet_;
-	const AttrSet& attrSet_;
+	//const AttrSet& attrSet_;
+	const NodeTypeDesc& typeDesc_;
 	NodeAttrNetwork* network_ = nullptr;
 
 public:
 
-	const AttrSet& getAttrSet() const { return attrSet_; }
+	const AttrSet& getAttrSet() const { return typeDesc_.attrSet_; }
 
 	//DECLARE_ATTRIBUTES_BEGIN( DependencyNode );
 	//DECLARE_BOOL_ATTRIBUTE( visibility, pvis );

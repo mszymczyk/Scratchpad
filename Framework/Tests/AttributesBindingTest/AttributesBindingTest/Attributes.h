@@ -35,6 +35,9 @@ enum Type : uint8_t
 	Vec4,
 	Distance, // 3 floats
 	Color, // 3 floats
+	NodeList,
+	Ramp,
+	ColorRamp,
 	Count,
 };
 
@@ -75,54 +78,54 @@ enum Type : uint8_t
 
 };
 
-struct BoolAttribute
-{
-	static const size_t size = 1;
-	static const size_t alignment = 1;
-	static const AttributeType::Type type = AttributeType::Bool;
-};
-
-struct FloatAttribute
-{
-	static const size_t size = 4;
-	static const size_t alignment = 4;
-	static const AttributeType::Type type = AttributeType::Float;
-};
-
-struct DistanceAttribute
-{
-	static const size_t size = 12;
-	static const size_t alignment = 4;
-	static const AttributeType::Type type = AttributeType::Distance;
-};
-
-struct AttributeBase
-{
-	AttributeBase( const char* _shortName, size_t _dataOffset, AttributeType::Type aType )
-		: shortName( _shortName )
-		, doffset( (unsigned int)_dataOffset )
-		, attrType_( aType )
-	{	}
-
-	const char* shortName = nullptr;
-	const unsigned int doffset = 0;
-	AttributeType::Type attrType_ = AttributeType::Count;
-};
-
-template<size_t dataOffset, class T, size_t attrNo>
-struct Attribute : public AttributeBase
-{
-	Attribute( const char* _shortName, size_t _dataOffset )
-		: AttributeBase( _shortName, _dataOffset, T::type )
-	{	}
-
-	static constexpr const size_t offset = dataOffset;
-	static constexpr const size_t size = T::size;
-	static constexpr const size_t offsetPlusSize = offset + size;
-	static constexpr const size_t attrNumber = attrNo;
-	static constexpr const AttributeType::Type aType = T::type;
-	//constexpr std::size_t offset() const { return ( dataOffset ); }
-};
+//struct BoolAttribute
+//{
+//	static const size_t size = 1;
+//	static const size_t alignment = 1;
+//	static const AttributeType::Type type = AttributeType::Bool;
+//};
+//
+//struct FloatAttribute
+//{
+//	static const size_t size = 4;
+//	static const size_t alignment = 4;
+//	static const AttributeType::Type type = AttributeType::Float;
+//};
+//
+//struct DistanceAttribute
+//{
+//	static const size_t size = 12;
+//	static const size_t alignment = 4;
+//	static const AttributeType::Type type = AttributeType::Distance;
+//};
+//
+//struct AttributeBase
+//{
+//	AttributeBase( const char* _shortName, size_t _dataOffset, AttributeType::Type aType )
+//		: shortName( _shortName )
+//		, doffset( (unsigned int)_dataOffset )
+//		, attrType_( aType )
+//	{	}
+//
+//	const char* shortName = nullptr;
+//	const unsigned int doffset = 0;
+//	AttributeType::Type attrType_ = AttributeType::Count;
+//};
+//
+//template<size_t dataOffset, class T, size_t attrNo>
+//struct Attribute : public AttributeBase
+//{
+//	Attribute( const char* _shortName, size_t _dataOffset )
+//		: AttributeBase( _shortName, _dataOffset, T::type )
+//	{	}
+//
+//	static constexpr const size_t offset = dataOffset;
+//	static constexpr const size_t size = T::size;
+//	static constexpr const size_t offsetPlusSize = offset + size;
+//	static constexpr const size_t attrNumber = attrNo;
+//	static constexpr const AttributeType::Type aType = T::type;
+//	//constexpr std::size_t offset() const { return ( dataOffset ); }
+//};
 
 struct AttrSet;
 
@@ -238,6 +241,57 @@ struct AttrSet
 };
 
 
+
+struct NodeTypeDesc
+{
+	NodeTypeDesc( const AttributeDesc** storage, const AttributeDesc** storageSorted, size_t nAttributes
+				, const char* name
+				, uint32_t typeId
+				)
+		: attrSet_( storage, storageSorted, nAttributes )
+		, name_( name )
+		, typeId_( typeId )
+	{	}
+
+	AttrSet attrSet_;
+	const char* name_ = nullptr;
+	uint32_t typeId_ = 0;
+
+	bool hasLoadGraphicsData_ = false;
+	bool hasEvaluateNode_ = false;
+
+	void initializeType( NodeTypeDesc* inheritFrom );
+	virtual void* createNode() = 0;
+};
+
+//template<size_t N_attr>
+template<class T>
+struct NodeTypeDescImpl : public NodeTypeDesc
+{
+	//typedef AttrSetStorage<N_attr> AttrSetType;
+	//AttrSetType attrSet_;
+
+	static constexpr size_t N_attr = T::__nAttributes;
+
+	NodeTypeDescImpl( const char* name, uint32_t typeId )
+		: NodeTypeDesc( attributeDescStore_, attributeDescStoreSorted_, N_attr
+			, name
+			, typeId
+		)
+	{	}
+
+	void* createNode() override
+	{
+		T* n = new T();
+		return n;
+	}
+
+	const AttributeDesc* attributeDescStore_[N_attr];
+	const AttributeDesc* attributeDescStoreSorted_[N_attr];
+};
+
+
+
 inline AttributeDesc::AttributeDesc( AttrSet* aset, size_t descNo, const char* name, const char* shortName, AttributeType::Type type, size_t offset, bool hasNetwork )
 	: name_( name )
 	, shortName_( shortName )
@@ -254,6 +308,7 @@ inline AttributeDesc::AttributeDesc( AttrSet* aset, size_t descNo, const char* n
 		//aset->networkOffset_ += sizeof( AttrNetwork );
 		++ aset->attrNetworkIndex_;
 }
+
 
 //struct AttrSetFinisher
 //{

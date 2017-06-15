@@ -82,7 +82,7 @@ namespace CircuitEditorSample
                 {
                     if ( !uri.IsAbsoluteUri )
                     {
-                        uri = new Uri( misz.Gui.Paths.SCRATCHPAD_DIR_Uri, uri );
+                        uri = new Uri( misz.Paths.DATA_ROOT_DIR_Uri, uri );
                         node.SetAttribute( attributeInfo, uri );
                     }
 
@@ -102,7 +102,7 @@ namespace CircuitEditorSample
                     Uri ur = (Uri)value;
                     if ( !ur.IsAbsoluteUri )
                     {
-                        value = new Uri( misz.Gui.Paths.SCRATCHPAD_DIR_Uri, ur );
+                        value = new Uri( misz.Paths.DATA_ROOT_DIR_Uri, ur );
                     }
                 }
                 node.SetAttribute( attributeInfo, value );

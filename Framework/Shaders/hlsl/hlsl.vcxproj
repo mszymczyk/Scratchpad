@@ -62,20 +62,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SCRATCHPAD_DIR)\.build\$(SolutionName)\$(ProjectName)\</OutDir>
-    <IntDir>$(SCRATCHPAD_DIR)\.build\$(SolutionName)\$(ProjectName)\</IntDir>
+    <OutDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</OutDir>
+    <IntDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Diagnostic|x64'">
-    <OutDir>$(SCRATCHPAD_DIR)\.build\$(SolutionName)\$(ProjectName)\</OutDir>
-    <IntDir>$(SCRATCHPAD_DIR)\.build\$(SolutionName)\$(ProjectName)\</IntDir>
+    <OutDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</OutDir>
+    <IntDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SCRATCHPAD_DIR)\.build\$(SolutionName)\$(ProjectName)\</OutDir>
-    <IntDir>$(SCRATCHPAD_DIR)\.build\$(SolutionName)\$(ProjectName)\</IntDir>
+    <OutDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</OutDir>
+    <IntDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|x64'">
-    <OutDir>$(SCRATCHPAD_DIR)\.build\$(SolutionName)\$(ProjectName)\</OutDir>
-    <IntDir>$(SCRATCHPAD_DIR)\.build\$(SolutionName)\$(ProjectName)\</IntDir>
+    <OutDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</OutDir>
+    <IntDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

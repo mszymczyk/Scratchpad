@@ -153,7 +153,9 @@
     <ClInclude Include="TransformNode.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AttributesBindingTest.cpp" />
+    <ClCompile Include="AttributesBindingTest.cpp">
+      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AssemblyAndSourceCode</AssemblerOutput>
+    </ClCompile>
     <ClCompile Include="DagNode.cpp" />
     <ClCompile Include="DependNode.cpp" />
     <ClCompile Include="stdafx.cpp">

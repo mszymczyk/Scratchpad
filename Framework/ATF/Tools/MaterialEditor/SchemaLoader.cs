@@ -83,7 +83,8 @@ namespace CircuitEditorSample
                 // ReferenceValidator should be the last validator attached to the root DomNode to fully track
                 // all the DOM editings of all other validators to update references properly 
                 Schema.circuitDocumentType.Type.Define(new ExtensionInfo<ReferenceValidator>());        // tracks references and targets
-                
+                Schema.circuitDocumentType.Type.Define(new ExtensionInfo<MaterialGraphChangeTracker>());
+
 
                 // decorate circuit type
                 Schema.circuitType.Type.Define(new ExtensionInfo<GlobalHistoryContext>());
@@ -91,7 +92,7 @@ namespace CircuitEditorSample
                 Schema.circuitType.Type.Define(new ExtensionInfo<LayeringContext>());                   // circuit layer hierarchy
                 Schema.circuitType.Type.Define(new ExtensionInfo<PrintableDocument>());                 // printing
                 Schema.circuitType.Type.Define(new ExtensionInfo<ExpressionManager>());                 // printing
-                Schema.circuitType.Type.Define( new ExtensionInfo<MaterialGraphChangeTracker>() );
+                //Schema.circuitType.Type.Define( new ExtensionInfo<MaterialGraphChangeTracker>() );
 
                 // decorate group type
                 Schema.groupType.Type.Define(new ExtensionInfo<CircuitEditingContext>());                    // main editable circuit adapter

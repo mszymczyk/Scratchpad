@@ -280,13 +280,13 @@
       <Project>{d1a78912-9ad2-4555-8560-b251a4d751dc}</Project>
       <Name>Atf.SyntaxEditorControl.vs2010</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\misz\misz.csproj">
+      <Project>{d53ebe16-9dfd-428a-bf51-d723b642c196}</Project>
+      <Name>misz</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Samples\pico\pico.csproj">
       <Project>{78c1e637-8be0-46e0-89c1-517659588d9a}</Project>
       <Name>pico</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\misz.Gui\misz.Gui.csproj">
-      <Project>{d53ebe16-9dfd-428a-bf51-d723b642c196}</Project>
-      <Name>misz.Gui</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

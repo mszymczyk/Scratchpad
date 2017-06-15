@@ -6,6 +6,8 @@
 #include <initializer_list>
 #include <array>
 #include "TransformNode.h"
+#include <stddef.h>
+#include <type_traits>
 
 #pragma region test
 
@@ -338,8 +340,73 @@ void printAttrInfo( const char* name, const DependencyNode& nod )
 
 //void setBoolAttribute( DependencyNode& dn, const AttributeDesc& ad
 
+//template <typename T, typename M> M get_member_type( M T::* );
+//template <typename T, typename M> T get_class_type( M T::* );
+//
+//template <typename T,
+//	typename R,
+//	R T::*M
+//>
+//constexpr std::size_t offset_of()
+//{
+//	//return reinterpret_cast<std::size_t>( &( ( (T*)0 )->*M ) );
+//	return (std::size_t)( &( ( (T*)0 )->*M ) );
+//}
+//
+//#define OFFSET_OF(mm) offset_of<decltype(get_class_type(mm)), decltype( get_member_type( mm ) ), mm>()
+
+//#define OFFSET_OF(TYPE, MEMBER) __builtin_offsetof (TYPE, MEMBER)
+//
+//struct Str
+//{
+//	int x;
+//	int y;
+//};
+
+//size_t offsetOfTranslate()
+//{
+//	return offsetof( TransformNode, translate ) + offsetof( TransformNode::Attribute_translate, valueX );
+//}
+
+template<class T, class Base>
+struct RegisterType
+{
+	static_assert( std::is_base_of<T, Base>::value, "" );
+};
+
+struct Bit1
+{
+	unsigned char bit : 1;
+};
+
+struct Bit2
+{
+	unsigned char bit : 1;
+};
+
+struct Bit12
+{
+	Bit1 b1;
+	Bit2 b2;
+};
+
+
 int main()
 {
+	size_t s = sizeof( Bit12 );
+
+	DagNode::getDagNodeTypeDesc().initializeType( nullptr );
+	TransformNode::getTransformNodeTypeDesc().initializeType( &DagNode::getDagNodeTypeDesc() );
+
+	DagNode* dn2 = reinterpret_cast<DagNode*>( DagNode::getDagNodeTypeDesc().createNode() );
+
+	//static_assert( std::is_base_of<TransformNode, DagNode>::value, "" );
+	//static_assert( std::is_base_of<DagNode, TransformNode>::value, "" );
+	//static_assert( true, "" );
+
+	//static_assert( OFFSET_OF( &S::x ) == 0, "" );
+	//static_assert( OFFSET_OF( Str, x ) == 0, "" );
+
 	//TransformNode::translateX::offset;
 	//std::cout << "visibility::offset " << TransformNode::visibility.offset << std::endl;
 	//std::cout << "sortingPriority::offset " << TransformNode::sortingPriority.offset << std::endl;

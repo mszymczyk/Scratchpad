@@ -75,6 +75,9 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <BuildLog />
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

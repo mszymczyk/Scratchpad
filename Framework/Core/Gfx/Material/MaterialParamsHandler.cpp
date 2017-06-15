@@ -10,7 +10,7 @@ void MaterialParamsHandler::Init( const tinyxml2::XMLElement* xmlModule, Materia
 	if ( xmlModule->Attribute( "xsi:type", "colorParameterType" ) )
 	{
 		const char* name = xmlModule->Attribute( "name" );
-		FR_ASSERT( name );
+		SPAD_ASSERT( name );
 
 		u16 index = materialShader->getUniformIndex( name );
 		if ( index != 0xffff )
@@ -25,7 +25,7 @@ void MaterialParamsHandler::Init( const tinyxml2::XMLElement* xmlModule, Materia
 	else if ( xmlModule->Attribute( "xsi:type", "floatParameterType" ) )
 	{
 		const char* name = xmlModule->Attribute( "name" );
-		FR_ASSERT( name );
+		SPAD_ASSERT( name );
 
 		u16 index = materialShader->getUniformIndex( name );
 		if ( index != 0xffff )

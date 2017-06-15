@@ -459,10 +459,23 @@ void _SettingsFileImpl::updateParamInt( const char* groupName, const char* prese
 	if (findGroupPresetAndField( groupName, presetName, paramName, group, preset, field ))
 	{
 		if ( preset )
+		{
 			setInt( groupName, field, preset->memory_, newValues, nNewValues );
 
-		if ( !preset || group->activePreset_ == preset )
-			setInt( groupName, field, group->absoluteAddress_, newValues, nNewValues );
+			if ( group->activePreset_ == preset )
+				// modify also group memory - this is how active preset works
+				// could use memcpy here...
+				setInt( groupName, field, group->absoluteAddress_, newValues, nNewValues );
+		}
+		else
+		{
+			if ( group->activePreset_ )
+				// preset is selected but user changes orig group
+				setInt( groupName, field, group->memoryCopy_, newValues, nNewValues );
+			else
+				// no selected preset
+				setInt( groupName, field, group->absoluteAddress_, newValues, nNewValues );
+		}
 	}
 }
 
@@ -497,10 +510,23 @@ void _SettingsFileImpl::updateParamFloat( const char* groupName, const char* pre
 	if (findGroupPresetAndField( groupName, presetName, paramName, group, preset, field ))
 	{
 		if ( preset )
+		{
 			setFloat( groupName, field, preset->memory_, newValues, nNewValues );
 
-		if ( !preset || group->activePreset_ == preset )
-			setFloat( groupName, field, group->absoluteAddress_, newValues, nNewValues );
+			if ( preset == group->activePreset_ )
+				// modify also group memory - this is how active preset works
+				// could use memcpy here...
+				setFloat( groupName, field, group->absoluteAddress_, newValues, nNewValues );
+		}
+		else
+		{
+			if ( group->activePreset_ )
+				// preset is selected but user changes orig group
+				setFloat( groupName, field, group->memoryCopy_, newValues, nNewValues );
+			else
+				// no selected preset
+				setFloat( groupName, field, group->absoluteAddress_, newValues, nNewValues );
+		}
 	}
 }
 
@@ -659,15 +685,26 @@ void _SettingsFileImpl::updateParamString( const char* groupName, const char* pr
 	if (findGroupPresetAndField( groupName, presetName, paramName, group, preset, field ))
 	{
 		if ( preset )
+		{
 			setString( groupName, field, preset->memory_, newVal );
 
-		if ( preset && group->activePreset_ == preset )
-			// strings and anim curves are different from POD types
-			// we need to just copy the address from preset
-			// don't free/allocate any memory
-			memcpy( group->absoluteAddress_ + field->offset_, preset->memory_ + field->offset_, sizeof( void* ) );
-		else if ( ! preset )
-			setString( groupName, field, group->absoluteAddress_, newVal );
+			if ( group->activePreset_ == preset )
+			{
+				// strings and anim curves are different from POD types
+				// we need to just copy the address from preset
+				// don't free/allocate any memory
+				memcpy( group->absoluteAddress_ + field->offset_, preset->memory_ + field->offset_, sizeof( void* ) );
+			}
+		}
+		else
+		{
+			if ( group->activePreset_ )
+				// preset is selected but user changes orig group
+				setString( groupName, field, group->memoryCopy_, newVal );
+			else
+				// no selected preset
+				setString( groupName, field, group->absoluteAddress_, newVal );
+		}
 	}
 }
 

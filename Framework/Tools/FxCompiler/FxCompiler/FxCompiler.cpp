@@ -4,6 +4,7 @@
 #include "Options.h"
 #include <Util/Threading.h>
 #include <Util/Timer.h>
+//#include <direct.h>
 
 using namespace spad;
 
@@ -105,12 +106,14 @@ int _tmain( int argc, char* argv[] )
 
 	std::string programName = argv[0];
 
-	std::string SCRATCHPAD_DIR = getenv( "SCRATCHPAD_DIR" );
-	if (SCRATCHPAD_DIR.empty())
+	const char* SCRATCHPAD_DIR_env = getenv( "SCRATCHPAD_DIR" );
+	if ( !SCRATCHPAD_DIR_env || strlen(SCRATCHPAD_DIR_env) == 0 )
 	{
 		std::cerr << programName << ": " << "SCRATCHPAD_DIR env variable is not defined!" << std::endl;
 		return 100;
 	}
+
+	std::string SCRATCHPAD_DIR = SCRATCHPAD_DIR_env;
 
 	// make those vars to look nice
 	SCRATCHPAD_DIR = GetAbsolutePath( SCRATCHPAD_DIR );
@@ -160,7 +163,7 @@ int _tmain( int argc, char* argv[] )
 
 	// setup output dirs
 	hlslOptions.outputDirectory_ = SCRATCHPAD_DIR + "dataWin\\Shaders\\hlsl\\";
-	hlslOptions.intermediateDirectory_ = SCRATCHPAD_DIR + ".build\\dataWin\\Shaders\\hlsl\\";
+	hlslOptions.intermediateDirectory_ = SCRATCHPAD_DIR + "Build\\dataWin\\Shaders\\hlsl\\";
 
 	if (cleanOutputFiles)
 	{
@@ -180,6 +183,15 @@ int _tmain( int argc, char* argv[] )
 	std::string shadersDir = SCRATCHPAD_DIR + "Framework\\Shaders\\hlsl\\";
 	includeCache.AddSearchPath( shadersDir );
 
+	//char cwdBuffer[MAX_PATH];
+	//const char* currentWorkingDir = _getcwd( cwdBuffer, MAX_PATH );
+	//if ( !currentWorkingDir )
+	//{
+	//	std::cerr << programName << ": " << "_getcwd failed!" << std::endl;
+	//	return 200;
+	//}
+	//includeCache.AddSearchPath( currentWorkingDir );
+
 	ires = includeCache.Load_AlwaysIncludedByCompiler();
 	if (ires)
 	{
@@ -187,8 +199,17 @@ int _tmain( int argc, char* argv[] )
 		return ires > 0 ? ires : -ires;
 	}
 
+	//char compilerFilename[MAX_PATH];
+	//DWORD compilerFilenameLen = GetModuleFileName( NULL, compilerFilename, MAX_PATH );
+	//if ( compilerFilenameLen == 0 || compilerFilenameLen >= MAX_PATH )
+	//{
+	//	std::cerr << programName << ": " << "GetModuleFileName failed!" << std::endl;
+	//	return 300;
+	//}
+
 	bool compilerFound = false;
 	options.compilerTimestamp_ = spad::GetFileTimestamp( SCRATCHPAD_DIR + "Framework\\bin\\FxCompiler.exe", compilerFound );
+	//options.compilerTimestamp_ = spad::GetFileTimestamp( compilerFilename, compilerFound );
 	//compileOptions.compilerTimestamp_ = spad::GetFileTimestamp( programName, compilerFound ); // program name must not necesarilly be path to our exe (it can be for instance, FxCompiler - without .exe)
 	SPAD_ASSERT( compilerFound );
 

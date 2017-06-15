@@ -28,7 +28,7 @@ namespace spad
 		void logSetCallback( LogCallbackType callback );
 	}
 
-#ifndef ENABLE_LOGGER
+#ifdef FR_ENABLE_LOGGER
 
 	/**
 	 *	Macro for displaying warning and error on all builds.

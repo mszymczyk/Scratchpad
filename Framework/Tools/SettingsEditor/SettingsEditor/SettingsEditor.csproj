@@ -17,7 +17,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\bin\Debug.vs2010\</OutputPath>
+    <BaseIntermediateOutputPath>$(SCRATCHPAD_DIR)\Framework\Build\$(SolutionName)\$(ProjectName)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\obj\</IntermediateOutputPath>
+    <OutputPath>$(BaseIntermediateOutputPath)$(Configuration)\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DebugType>full</DebugType>
@@ -28,7 +30,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>..\..\bin\Release.vs2010\</OutputPath>
+    <BaseIntermediateOutputPath>$(SCRATCHPAD_DIR)\Framework\Build\$(SolutionName)\$(ProjectName)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\obj\</IntermediateOutputPath>
+    <OutputPath>$(SCRATCHPAD_DIR)\Framework\Bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

@@ -764,8 +764,6 @@ evaluateInfinities (const EtCurve *animCurve, EtCurveEvalCache* animCurveEvalCac
 static EtBoolean
 find (const EtCurve *animCurve, EtTime time, EtInt *index)
 {
-	EtInt len, mid, low, high;
-
 	/* make sure we have something to search */
 	if ((animCurve == kEngineNULL) || (index == kEngineNULL)) {
 		return (kEngineFALSE);
@@ -773,8 +771,10 @@ find (const EtCurve *animCurve, EtTime time, EtInt *index)
 
 	/* use a binary search to find the key */
 	*index = 0;
-	len = animCurve->numKeys;
+	EtInt len = animCurve->numKeys;
 	if (len > 0) {
+		EtInt mid, low, high;
+
 		low = 0;
 		high = len - 1;
 		do {

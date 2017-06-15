@@ -77,3 +77,15 @@ uint64_t AttributeDesc::packAttributeShorName( const char* shortName )
 	return res;
 }
 
+void NodeTypeDesc::initializeType( NodeTypeDesc* inheritFrom )
+{
+	if ( inheritFrom )
+	{
+		for ( size_t i = 0; i < inheritFrom->attrSet_.nAttributes_; ++i )
+			attrSet_.attributesDesc_[i] = attrSet_.attributesDescSorted_[i] = inheritFrom->attrSet_.attributesDesc_[i];
+
+		hasLoadGraphicsData_ = inheritFrom->hasLoadGraphicsData_ || hasLoadGraphicsData_;
+	}
+
+	attrSet_.finishAttrSetInitialization();
+}

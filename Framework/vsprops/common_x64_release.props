@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir>$(SCRATCHPAD_DIR)\Framework\bin\</OutDir>
-    <IntDir>$(SCRATCHPAD_DIR)\Framework\Build\$(SolutionName)\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <_PropertySheetDisplayName>common_x64_release</_PropertySheetDisplayName>
     <TargetName>$(ProjectName)_$(Platform)_$(Configuration)</TargetName>
   </PropertyGroup>
@@ -18,8 +18,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)$(TargetName)_$(Platform)_$(Configuration).pdb</ProgramDatabaseFile>
       <AdditionalDependencies>$(SCRATCHPAD_DIR)\Framework\3rdParty\libconfig\x64\ReleaseStatic\libconfig.lib;$(SCRATCHPAD_DIR)\Framework\3rdParty\tinyxml2\tinyxml2\bin\x64-Release-Lib\tinyxml2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SCRATCHPAD_DIR)\Framework\3rdParty\zeromq\bin\x64\Release\v120\dynamic;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

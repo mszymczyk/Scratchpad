@@ -6,7 +6,7 @@ using System;
 using Sce.Atf.Dom;
 using Sce.Atf.Adaptation;
 using Sce.Atf;
-using misz.Gui;
+using misz;
 using System.Linq;
 
 namespace CircuitEditorSample
@@ -142,74 +142,74 @@ namespace CircuitEditorSample
 
             if ( m_reloadNeeded )
             {
-                CircuitDocument document = DomNode.GetRoot().Cast<CircuitDocument>();
-                Circuit circuit = document.Cast<Circuit>();
+                //CircuitDocument document = DomNode.GetRoot().Cast<CircuitDocument>();
+                //Circuit circuit = document.Cast<Circuit>();
 
-                MaterialGenerator matGen = new MaterialGenerator( circuit );
-                matGen.Generate();
+                //MaterialGenerator matGen = new MaterialGenerator( circuit );
+                //matGen.Generate();
 
-                ZMQHubMessage msg = new ZMQHubMessage( "material" );
-                msg.appendString( "reload" );
-                string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
-                msg.appendString( relativeUri );
+                //ZMQHubMessage msg = new ZMQHubMessage( "material" );
+                //msg.appendString( "reload" );
+                //string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
+                //msg.appendString( relativeUri );
 
-                ZMQHubService.send( msg );
+                //ZMQHubService.send( msg );
             }
 
             if ( m_modulesToRefresh.Count > 0 )
             {
-                CircuitDocument document = DomNode.GetRoot().Cast<CircuitDocument>();
+                //CircuitDocument document = DomNode.GetRoot().Cast<CircuitDocument>();
 
-                ZMQHubMessage msg = new ZMQHubMessage( "material" );
-                msg.appendString( "refreshNodes" );
-                string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
-                msg.appendString( relativeUri );
-                msg.appendInt( m_modulesToRefresh.Count );
+                //ZMQHubMessage msg = new ZMQHubMessage( "material" );
+                //msg.appendString( "refreshNodes" );
+                //string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
+                //msg.appendString( relativeUri );
+                //msg.appendInt( m_modulesToRefresh.Count );
 
-                foreach ( MaterialGraphModuleAdapter m in m_modulesToRefresh )
-                {
-                    Module module = m.Cast<Module>();
-                    DomNodeType type = m.DomNode.Type;
-                    int index = type.Name.LastIndexOf( ':' );
-                    string typeName = type.Name.Substring( index + 1, type.Name.Length - index - 1 );
-                    msg.appendString( typeName );
-                    msg.appendString( module.Id );
-                }
+                //foreach ( MaterialGraphModuleAdapter m in m_modulesToRefresh )
+                //{
+                //    Module module = m.Cast<Module>();
+                //    DomNodeType type = m.DomNode.Type;
+                //    int index = type.Name.LastIndexOf( ':' );
+                //    string typeName = type.Name.Substring( index + 1, type.Name.Length - index - 1 );
+                //    msg.appendString( typeName );
+                //    msg.appendString( module.Id );
+                //}
 
-                MemoryStream stream = new MemoryStream();
-                var writer = new CircuitWriter( MaterialModulePlugin.SchemaLoader.TypeCollection );
-                writer.Write( document.DomNode, stream, document.Uri );
+                //MemoryStream stream = new MemoryStream();
+                //var writer = new CircuitWriter( MaterialModulePlugin.SchemaLoader.TypeCollection );
+                //writer.Write( document.DomNode, stream, document.Uri );
 
-                msg.appendInt( (int)stream.Length );
-                msg.appendBytes( stream.ToArray() );
+                //msg.appendInt( (int)stream.Length );
+                //msg.appendBytes( stream.ToArray() );
 
-                ZMQHubService.send( msg );
+                //ZMQHubService.send( msg );
             }
 
             if ( m_instancesToRefresh.Count > 0 )
             {
-                CircuitDocument document = DomNode.GetRoot().Cast<CircuitDocument>();
+                //CircuitDocument document = DomNode.GetRoot().Cast<CircuitDocument>();
 
-                ZMQHubMessage msg = new ZMQHubMessage( "material" );
-                msg.appendString( "refreshInstances" );
-                string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
-                msg.appendString( relativeUri );
-                msg.appendInt( m_instancesToRefresh.Count );
+                //ZMQHubMessage msg = new ZMQHubMessage( "material" );
+                //msg.appendString( "refreshInstances" );
+                //string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
+                //msg.appendString( relativeUri );
+                //msg.appendInt( m_instancesToRefresh.Count );
 
-                foreach ( IMaterialInstance m in m_instancesToRefresh )
-                {
-                    MaterialInstance mi = m.Cast<MaterialInstance>();
-                    msg.appendString( mi.Name );
-                }
+                //foreach ( IMaterialInstance m in m_instancesToRefresh )
+                //{
+                //    MaterialInstance mi = m.Cast<MaterialInstance>();
+                //    msg.appendString( mi.Name );
+                //}
 
-                MemoryStream stream = new MemoryStream();
-                var writer = new CircuitWriter( MaterialModulePlugin.SchemaLoader.TypeCollection );
-                writer.Write( document.DomNode, stream, document.Uri );
+                //MemoryStream stream = new MemoryStream();
+                //var writer = new CircuitWriter( MaterialModulePlugin.SchemaLoader.TypeCollection );
+                //writer.Write( document.DomNode, stream, document.Uri );
 
-                msg.appendInt( (int)stream.Length );
-                msg.appendBytes( stream.ToArray() );
+                //msg.appendInt( (int)stream.Length );
+                //msg.appendBytes( stream.ToArray() );
 
-                ZMQHubService.send( msg );
+                //ZMQHubService.send( msg );
             }
 
             m_reloadNeeded = false;

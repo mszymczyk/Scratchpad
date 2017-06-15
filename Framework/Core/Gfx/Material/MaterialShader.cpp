@@ -64,7 +64,7 @@ u16 MaterialShader::getUniformIndex( const char* name ) const
 void MaterialShader::setUniform1f( u16 index, float x )
 {
 	Uniform& u = m_uniforms[index];
-	FR_ASSERT( u.size == 4 );
+	SPAD_ASSERT( u.size == 4 );
 	float* f = reinterpret_cast<float*>( uniformsBuf_.data + u.offset );
 	if ( *f != x )
 	{
@@ -77,7 +77,7 @@ void MaterialShader::setUniform1f( u16 index, float x )
 void MaterialShader::setUniform3f( u16 index, const float* xyz )
 {
 	Uniform& u = m_uniforms[index];
-	FR_ASSERT( u.size == 12 );
+	SPAD_ASSERT( u.size == 12 );
 	float* f = reinterpret_cast<float*>( uniformsBuf_.data + u.offset );
 	if ( f[0] != xyz[0] || f[1] != xyz[1] || f[2] != xyz[2] )
 	{
@@ -106,7 +106,7 @@ u16 MaterialShader::getTextureIndex( const char* name ) const
 void MaterialShader::setTexture( const char* name, ID3D11ShaderResourceView* srv )
 {
 	u16 texId = getTextureIndex( name );
-	FR_ASSERT( texId != 0xffff );
+	SPAD_ASSERT( texId != 0xffff );
 	if ( texId == 0xffff )
 		return;
 
@@ -117,7 +117,7 @@ void MaterialShader::setTexture( const char* name, ID3D11ShaderResourceView* srv
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srv->GetDesc( &srvDesc );
 
-		FR_ASSERT( srvDesc.ViewDimension == t.dimension );
+		SPAD_ASSERT( srvDesc.ViewDimension == t.dimension );
 
 		t.srv = srv;
 	}
@@ -144,7 +144,7 @@ u16 MaterialShader::getSamplerIndex( const char* name ) const
 void MaterialShader::setSampler( const char* name, ID3D11SamplerState* samp )
 {
 	u16 sampId = getSamplerIndex( name );
-	FR_ASSERT( sampId != 0xffff );
+	SPAD_ASSERT( sampId != 0xffff );
 	if ( sampId == 0xffff )
 		return;
 
@@ -194,7 +194,7 @@ void MaterialShader::bindMaterialParamsUniformsVSPS( Dx11DeviceContext& deviceCo
 void MaterialShader::fill( ContextShaderBindings& c, const MaterialShaderPass& pass ) const
 {
 	//const MaterialShaderPass* pass = getPass( passName );
-	//FR_ASSERT( pass );
+	//SPAD_ASSERT( pass );
 
 	c.vs_ = pass.vs_;
 	c.gs_ = pass.gs_;
@@ -224,9 +224,9 @@ void MaterialShader::fill( ContextShaderBindings& c, const MaterialShaderPass& p
 
 void MaterialShader::_Release( MaterialShaderInstance* materialInstance )
 {
-	FR_ASSERT( materialInstance->GetRefCount() == 1 );
+	SPAD_ASSERT( materialInstance->GetRefCount() == 1 );
 	MaterialShaderInstanceSet::iterator it = m_materialInstances.find( materialInstance );
-	FR_ASSERT( it != m_materialInstances.end() );
+	SPAD_ASSERT( it != m_materialInstances.end() );
 	m_materialInstances.erase( it );
 }
 
@@ -238,7 +238,7 @@ MaterialShaderInstance::~MaterialShaderInstance()
 void MaterialShaderInstance::setUniform1f( u16 index, float x )
 {
 	const MaterialShader::Uniform& u = m_materialShader->m_uniforms[index];
-	FR_ASSERT( u.size == 4 );
+	SPAD_ASSERT( u.size == 4 );
 	m_uniforms[index] = true;
 	uniformsBufDirty_ = true;
 	*reinterpret_cast<float*>(uniformsBuf_.data + u.offset) = x;
@@ -247,7 +247,7 @@ void MaterialShaderInstance::setUniform1f( u16 index, float x )
 void MaterialShaderInstance::setUniform3f( u16 index, const float* xyz )
 {
 	const MaterialShader::Uniform& u = m_materialShader->m_uniforms[index];
-	FR_ASSERT( u.size == 12 );
+	SPAD_ASSERT( u.size == 12 );
 	m_uniforms[index] = true;
 	uniformsBufDirty_ = true;
 	float* f = reinterpret_cast<float*>( uniformsBuf_.data + u.offset );
@@ -259,7 +259,7 @@ void MaterialShaderInstance::setUniform3f( u16 index, const float* xyz )
 void MaterialShaderInstance::setTexture( const char* name, ID3D11ShaderResourceView* srv )
 {
 	u16 texId = getTextureIndex( name );
-	FR_ASSERT( texId != 0xffff );
+	SPAD_ASSERT( texId != 0xffff );
 	if ( texId == 0xffff )
 		return;
 
@@ -268,7 +268,7 @@ void MaterialShaderInstance::setTexture( const char* name, ID3D11ShaderResourceV
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 		srv->GetDesc( &srvDesc );
 
-		FR_ASSERT( srvDesc.ViewDimension == m_materialShader->m_textures[texId].dimension );
+		SPAD_ASSERT( srvDesc.ViewDimension == m_materialShader->m_textures[texId].dimension );
 
 		m_textures[texId] = srv;
 	}
@@ -320,7 +320,7 @@ void MaterialShaderInstance::bindMaterialInstanceUniformsVSPS( Dx11DeviceContext
 void MaterialShaderInstance::fill( ContextShaderBindings& c, const MaterialShaderPass& pass ) const
 {
 	//const MaterialShaderPass* pass = m_materialShader->getPass( passName );
-	//FR_ASSERT( pass );
+	//SPAD_ASSERT( pass );
 
 	c.vs_ = pass.vs_;
 	c.gs_ = pass.gs_;
@@ -430,7 +430,7 @@ void MaterialShaderInstance::_RefreshParams( const tinyxml2::XMLDocument* doc, I
 					}
 					else
 					{
-						FR_NOT_IMPLEMENTED;
+						SPAD_NOT_IMPLEMENTED;
 					}
 				}
 				else

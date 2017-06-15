@@ -52,7 +52,6 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
       <OutputFile>$(SCRATCHPAD_DIR)\Framework\bin\$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>

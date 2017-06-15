@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../Dx11/Dx11DeviceContext.h"
-#include <FxLib/FxLib.h>
+//#include <FxLib/FxLib.h>
+#include "../Dx11/Dx11Shader.h"
 #include "MaterialShader.h"
 #include "IModuleHandler.h"
 #include <tinyxml2/tinyxml2.h>
@@ -18,8 +19,8 @@ public:
 private:
 	void _CreateMaterialShaderImpl( const char* filePath, MaterialShader* materialShader );
 	void _SetupMaterialShader( MaterialShader* materialShader, const tinyxml2::XMLDocument& doc );
-	void _ExtractPassTextures( const MaterialShader* materialShader, const FxLib::FxProgram& prog, MaterialShaderPass& pass );
-	void _ExtractPassSamplers( const MaterialShader* materialShader, const FxLib::FxProgram& prog, MaterialShaderPass& pass );
+	void _ExtractPassTextures( const MaterialShader* materialShader, const HlslUniqueProgram& prog, MaterialShaderPass& pass );
+	void _ExtractPassSamplers( const MaterialShader* materialShader, const HlslUniqueProgram& prog, MaterialShaderPass& pass );
 
 	void _RefreshMaterialShader( MaterialShader* materialShader, const tinyxml2::XMLDocument& doc, const std::string& moduleType, const std::string& moduleId );
 
@@ -50,7 +51,7 @@ private:
 		SamplerBindingMap samplers_;
 	};
 
-	void _ReflectShader( const FxLib::FxProgram& prog, _ReflectionData& refData );
+	void _ReflectShader( const HlslUniqueProgram& prog, _ReflectionData& refData );
 
 	ID3D11Device* m_device = nullptr;
 

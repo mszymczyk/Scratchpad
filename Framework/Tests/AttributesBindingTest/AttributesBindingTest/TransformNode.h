@@ -3,9 +3,10 @@
 #include "DagNode.h"
 //#include "generated/TransformNode.generated.h"
 
-#define DECLARE_ATTRIBUTES_BEGIN_INHERIT(inheritFrom) \
+#define DECLARE_ATTRIBUTES_BEGIN_INHERIT(nodeName, inheritFrom) \
 static constexpr const size_t __firstAttributeIndex = __COUNTER__; \
 static constexpr const size_t __nInheritedAttributes = inheritFrom::__nAttributes; \
+typedef TransformNode ThisNodeType; \
 
 
 #define __DECLARE_ATTRIBUTE_DISTANCE_IMPL(attrName, defValueX, defValueY, defValueZ, networked) \
@@ -36,12 +37,15 @@ struct Attribute_##attrName \
 class TransformNode : public DagNode
 {
 public:
+	static const uint32_t typeID = 0x3;
+
 	//TransformNode()
 	//	: DependencyNode( NodeAttributesNS::TransformNodeAttributes::getAttributeSet() )
 	//{	}
 
 	TransformNode()
-		: DagNode( getTransformNodeAttrSet() )
+		//: DagNode( getTransformNodeAttrSet() )
+		: DagNode( __sTransformNodeTypeDesc )
 	{	}
 
 	////DECLARE_FIRST_ATTRIBUTE_DEPENDENCY_NODE( visibility, BoolAttribute )
@@ -139,9 +143,14 @@ public:
 //public:
 //	static const AttrSet& getTransformNodeAttrSet() { return sTransformNodeAttrSet; }
 
-	DECLARE_ATTRIBUTES_BEGIN_INHERIT(DagNode);
+	DECLARE_ATTRIBUTES_BEGIN_INHERIT(TransformNode, DagNode);
 
 	//DECLARE_ATTRIBUTE_DISTANCE_NETWORKED( translate, 0, 0, 0 );
+
+	//static auto helper()->std::remove_reference<decltype( *this )>::type;
+	//typedef decltype( helper() ) ThisNodeType;
+
+	//typedef TransformNode ThisNodeType;
 
 	struct Attribute_translate
 	{
@@ -168,7 +177,8 @@ public:
 		void setX( float val )
 		{
 			valueX = val;
-			TransformNode* dn = reinterpret_cast<TransformNode*>( reinterpret_cast<uint8_t*>( &valueX ) - ( offsetof( TransformNode, translate ) + offsetof( Attribute_translate, valueX ) ) );
+			//TransformNode* dn = reinterpret_cast<TransformNode*>( reinterpret_cast<uint8_t*>( &valueX ) - ( offsetof( TransformNode, translate ) + offsetof( Attribute_translate, valueX ) ) );
+			ThisNodeType* dn = reinterpret_cast<ThisNodeType*>( reinterpret_cast<uint8_t*>( &valueX ) - ( offsetof( ThisNodeType, translate ) + offsetof( Attribute_translate, valueX ) ) );
 			if ( hasNetwork )
 				dn->_SetFloat_destinations( descX, val );
 		}

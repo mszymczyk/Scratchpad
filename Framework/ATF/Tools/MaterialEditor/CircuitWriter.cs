@@ -53,7 +53,7 @@ namespace CircuitEditorSample
                     //ur = new Uri( Uri.UnescapeDataString( ur.ToString() ), UriKind.Relative );
                     //string valueString = ur.ToString();
                     //return valueString;
-                    string relativeDir = misz.Gui.Paths.MakePathRelativeToScratchpad( ur );
+                    string relativeDir = misz.Paths.AbsoluteUriToDataPath( ur );
                     return relativeDir;
                 }
             }

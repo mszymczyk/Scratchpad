@@ -14,7 +14,7 @@ MaterialManager* gMaterialManager;
 
 int MaterialManager::Initialize( ID3D11Device* device )
 {
-	FR_ASSERT( !gMaterialManager );
+	SPAD_ASSERT( !gMaterialManager );
 	gMaterialManager = new MaterialManager( device );
 	try
 	{
@@ -95,13 +95,13 @@ spad::MaterialShaderInstancePtr MaterialManager::LoadMaterialShaderInstance( con
 
 void MaterialManager::_Release( MaterialShader* materialShader )
 {
-	FR_ASSERT( materialShader->GetRefCount() == 1 );
-	FR_ASSERT( materialShader->m_materialInstances.empty() );
+	SPAD_ASSERT( materialShader->GetRefCount() == 1 );
+	SPAD_ASSERT( materialShader->m_materialInstances.empty() );
 	if ( !materialShader->m_filename.empty() )
 	{
 		// we sometimes delete fake materials - required for reloading
 		MaterialShaderSet::iterator it = m_materials.find( materialShader );
-		FR_ASSERT( it != m_materials.end() );
+		SPAD_ASSERT( it != m_materials.end() );
 		m_materials.erase( it );
 	}
 }
@@ -129,12 +129,12 @@ void MaterialManager::_Reload( const std::string& filePathOrig )
 	std::string filePath = CanonicalizePathSimple( filePathOrig );
 	MaterialShaderFilename msFake( std::move( filePath ) );
 	MaterialShaderSet::iterator it = m_materials.find( &msFake );
-	FR_ASSERT( it != m_materials.end() );
+	SPAD_ASSERT( it != m_materials.end() );
 
 	MaterialShader* msNew = materialFactory_.CreateMaterialShader( msFake.m_filename.c_str() );
 	if ( !msNew )
 	{
-		FR_NOT_IMPLEMENTED;
+		SPAD_NOT_IMPLEMENTED;
 	}
 
 	MaterialShader* msOld = static_cast<MaterialShader*>( *it );
@@ -162,7 +162,7 @@ void MaterialManager::_RefreshNodes( const std::string& filePathOrig, const ZMQH
 	std::string filePath = CanonicalizePathSimple( filePathOrig );
 	MaterialShaderFilename msFake( std::move( filePath ) );
 	MaterialShaderSet::iterator it = m_materials.find( &msFake );
-	FR_ASSERT( it != m_materials.end() );
+	SPAD_ASSERT( it != m_materials.end() );
 	MaterialShader* ms = static_cast<MaterialShader*>( *it );
 
 	bool ok = true;
@@ -203,7 +203,7 @@ void MaterialManager::_RefreshInstances( const std::string& filePathOrig, const 
 	std::string filePath = CanonicalizePathSimple( filePathOrig );
 	MaterialShaderFilename msFake( std::move( filePath ) );
 	MaterialShaderSet::iterator it = m_materials.find( &msFake );
-	FR_ASSERT( it != m_materials.end() );
+	SPAD_ASSERT( it != m_materials.end() );
 	MaterialShader* ms = static_cast<MaterialShader*>( *it );
 
 	bool ok = true;
@@ -232,7 +232,7 @@ void MaterialManager::_RefreshInstances( const std::string& filePathOrig, const 
 	{
 		MaterialShaderInstanceName msin( std::move( instanceName ) );
 		MaterialShader::MaterialShaderInstanceSet::iterator iit = ms->m_materialInstances.find( &msin );
-		FR_ASSERT( iit != ms->m_materialInstances.end() );
+		SPAD_ASSERT( iit != ms->m_materialInstances.end() );
 		MaterialShaderInstance* msi = static_cast<MaterialShaderInstance*>( *iit );
 		msi->_RefreshParams( &doc, m_device );
 	}

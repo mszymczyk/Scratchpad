@@ -137,7 +137,7 @@ namespace CircuitEditorSample
                 typeof(MaterialInstancesLister),
                 typeof(ShaderSourceCodeEditor),
 
-                typeof(misz.Gui.ZMQHubService),
+                //typeof(misz.Gui.ZMQHubService),
 
                 typeof(AnnotatingCommands),             // annotating commands
                 typeof(DynamicPropertyCommands),        // context commands for user-defined properties in the property editors
@@ -152,6 +152,12 @@ namespace CircuitEditorSample
 
             // enable use of the system clipboard
             StandardEditCommands.UseSystemClipboard = true;
+
+            string SCRATCHPAD_DIR = System.Environment.GetEnvironmentVariable( "SCRATCHPAD_DIR" );
+            if ( string.IsNullOrEmpty( SCRATCHPAD_DIR ) )
+                throw new InvalidOperationException( "Couldn't read 'SCRATCHPAD_DIR' environment variable" );
+
+            misz.Paths.SetupPaths( SCRATCHPAD_DIR, SCRATCHPAD_DIR );
 
             // Set up the MEF container with these components
             var container = new CompositionContainer(catalog);

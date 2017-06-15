@@ -2,6 +2,7 @@
 using System.Linq;
 using Sce.Atf.Controls.Adaptable.Graphs;
 using Sce.Atf.Adaptation;
+using Sce.Atf.Dom;
 
 namespace CircuitEditorSample
 {
@@ -21,21 +22,72 @@ namespace CircuitEditorSample
             return null;
         }
 
+        public static IList<Connection> GetAllConnections( Circuit circuit )
+        {
+            List<Connection> allConnections = new List<Connection>();
+
+            foreach ( DomNode dn in circuit.DomNode.Subtree )
+            {
+                Connection conn = dn.As<Connection>();
+                if ( conn != null )
+                    allConnections.Add( conn );
+            }
+
+            return allConnections;
+        }
+
         public static bool IsConnectedToMaterial( IMaterialGraphModule materialModule )
         {
             Module module = materialModule.As<Module>();
-            Circuit circuit = module.DomNode.GetRoot().As<Circuit>();
-            if ( circuit != null )
-                return IsConnectedToMaterialRecurse( module, circuit );
 
-            Group group = module.DomNode.GetRoot().As<Group>();
+            Group group = module.DomNode.Parent.As<Group>();
             if ( group != null )
-                return IsConnectedToMaterialRecurse( module, group );
+            {
+                IList<Connection> allConnections = GetAllConnections( group.DomNode.GetRoot().Cast<Circuit>() );
+                //return IsConnectedToMaterialRecurse( module, group );
+                return IsConnectedToMaterialRecurse( module, allConnections );
+            }
+
+            Circuit circuit = module.DomNode.Parent.As<Circuit>();
+            if ( circuit != null )
+            {
+                IList<Connection> allConnections = GetAllConnections( circuit );
+                //return IsConnectedToMaterialRecurse( module, circuit );
+                return IsConnectedToMaterialRecurse( module, allConnections );
+            }
 
             return false;
         }
 
-        private static bool IsConnectedToMaterialRecurse( Module module, Circuit circuit )
+        //private static bool IsConnectedToMaterialRecurse( Module module, Circuit circuit )
+        //{
+        //    foreach ( ICircuitPin pin in module.AllOutputPins )
+        //    {
+        //        MaterialGraphPin mgpin = pin as MaterialGraphPin;
+        //        if ( mgpin != null )
+        //        {
+        //            Module dstModule;
+        //            MaterialGraphPin dstPin;
+        //            if ( GetDstModule( circuit, module, mgpin, out dstModule, out dstPin ) )
+        //            {
+        //                IMaterialGraphModule mm = dstModule.As<IMaterialGraphModule>();
+        //                if ( mm != null )
+        //                {
+        //                    if ( mm.Is<MaterialModule>() )
+        //                        return true;
+
+        //                    bool connectedToMaterial = IsConnectedToMaterialRecurse( dstModule, circuit );
+        //                    if ( connectedToMaterial )
+        //                        return true;
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return false;
+        //}
+
+        private static bool IsConnectedToMaterialRecurse( Module module, IList<Connection> connections )
         {
             foreach ( ICircuitPin pin in module.AllOutputPins )
             {
@@ -44,7 +96,7 @@ namespace CircuitEditorSample
                 {
                     Module dstModule;
                     MaterialGraphPin dstPin;
-                    if ( GetDstModule( circuit, module, mgpin, out dstModule, out dstPin ) )
+                    if ( GetDstModule( connections, module, mgpin, out dstModule, out dstPin ) )
                     {
                         IMaterialGraphModule mm = dstModule.As<IMaterialGraphModule>();
                         if ( mm != null )
@@ -52,7 +104,7 @@ namespace CircuitEditorSample
                             if ( mm.Is<MaterialModule>() )
                                 return true;
 
-                            bool connectedToMaterial = IsConnectedToMaterialRecurse( dstModule, circuit );
+                            bool connectedToMaterial = IsConnectedToMaterialRecurse( dstModule, connections );
                             if ( connectedToMaterial )
                                 return true;
                         }
@@ -63,33 +115,33 @@ namespace CircuitEditorSample
             return false;
         }
 
-        private static bool IsConnectedToMaterialRecurse( Module module, Group group )
-        {
-            foreach ( ICircuitPin pin in module.AllOutputPins )
-            {
-                MaterialGraphPin mgpin = pin as MaterialGraphPin;
-                if ( mgpin != null )
-                {
-                    Module dstModule;
-                    MaterialGraphPin dstPin;
-                    if ( GetDstModule( group, module, mgpin, out dstModule, out dstPin ) )
-                    {
-                        IMaterialGraphModule mm = dstModule.As<IMaterialGraphModule>();
-                        if ( mm != null )
-                        {
-                            if ( mm.Is<MaterialModule>() )
-                                return true;
+        //private static bool IsConnectedToMaterialRecurse( Module module, Group group )
+        //{
+        //    foreach ( ICircuitPin pin in module.AllOutputPins )
+        //    {
+        //        MaterialGraphPin mgpin = pin as MaterialGraphPin;
+        //        if ( mgpin != null )
+        //        {
+        //            Module dstModule;
+        //            MaterialGraphPin dstPin;
+        //            if ( GetDstModule( group, module, mgpin, out dstModule, out dstPin ) )
+        //            {
+        //                IMaterialGraphModule mm = dstModule.As<IMaterialGraphModule>();
+        //                if ( mm != null )
+        //                {
+        //                    if ( mm.Is<MaterialModule>() )
+        //                        return true;
 
-                            bool connectedToMaterial = IsConnectedToMaterialRecurse( dstModule, group );
-                            if ( connectedToMaterial )
-                                return true;
-                        }
-                    }
-                }
-            }
+        //                    bool connectedToMaterial = IsConnectedToMaterialRecurse( dstModule, group );
+        //                    if ( connectedToMaterial )
+        //                        return true;
+        //                }
+        //            }
+        //        }
+        //    }
 
-            return false;
-        }
+        //    return false;
+        //}
 
         public static IList<IMaterialParameterModule> GetMaterialParameterModules( MaterialModule material )
         {
@@ -143,21 +195,21 @@ namespace CircuitEditorSample
             return false;
         }
 
-        public static bool GetDstModule( Circuit circuit, Module module, MaterialGraphPin pin, out Module dstModule, out MaterialGraphPin dstPin )
-        {
-            return GetDstModule( circuit.Wires, module, pin, out dstModule, out dstPin );
-        }
+        //public static bool GetDstModule( Circuit circuit, Module module, MaterialGraphPin pin, out Module dstModule, out MaterialGraphPin dstPin )
+        //{
+        //    return GetDstModule( circuit.Wires, module, pin, out dstModule, out dstPin );
+        //}
 
-        public static bool GetDstModule( Group group, Module module, MaterialGraphPin pin, out Module dstModule, out MaterialGraphPin dstPin )
-        {
-            return GetDstModule( group.Wires, module, pin, out dstModule, out dstPin );
-        }
+        //public static bool GetDstModule( Group group, Module module, MaterialGraphPin pin, out Module dstModule, out MaterialGraphPin dstPin )
+        //{
+        //    return GetDstModule( group.Wires, module, pin, out dstModule, out dstPin );
+        //}
 
-        public static bool GetDstModule( IList<Wire> wires, Module module, MaterialGraphPin pin, out Module dstModule, out MaterialGraphPin dstPin )
+        public static bool GetDstModule( IList<Connection> wires, Module module, MaterialGraphPin pin, out Module dstModule, out MaterialGraphPin dstPin )
         {
             foreach ( Connection conn in wires )
             {
-                if ( conn.OutputPin == pin && conn.OutputPinTarget.LeafDomNode == module.DomNode )
+                if ( conn.OutputPinTarget.LeafPinIndex == pin.Index && conn.OutputPinTarget.LeafDomNode == module.DomNode )
                 {
                     // can't just use conn.InputElement and conn.InputPin
                     // to handle grouping we need to use conn.InputPinTarget

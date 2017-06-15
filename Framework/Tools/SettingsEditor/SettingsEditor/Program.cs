@@ -1,19 +1,6 @@
-﻿//Copyright © 2014 Sony Computer Entertainment America LLC. See License.txt.
-
-using System;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
-using System.Threading;
-using System.Windows.Forms;
-
-
-using Sce.Atf;
-using Sce.Atf.Adaptation;
-using Sce.Atf.Applications;
-using Sce.Atf.Controls.CurveEditing;
-using Sce.Atf.Dom;
-
-using HelpAboutCommand = Sce.Atf.Applications.HelpAboutCommand;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
 
 namespace SettingsEditor
 {
@@ -36,18 +23,44 @@ namespace SettingsEditor
             string SCRATCHPAD_DIR = System.Environment.GetEnvironmentVariable( "SCRATCHPAD_DIR" );
             if ( string.IsNullOrEmpty( SCRATCHPAD_DIR ) )
                 throw new InvalidOperationException( "Couldn't read 'SCRATCHPAD_DIR' environment variable" );
+//            string exePath = System.Reflection.Assembly.GetEntryAssembly().Location;
+//            string exeDir = System.IO.Path.GetDirectoryName( exePath );
+//#if DEBUG
+//            string SCRATCHPAD_DIR = System.IO.Path.GetFullPath( exeDir + "..\\..\\..\\..\\..\\" );
+//#else
+//            string SCRATCHPAD_DIR = System.IO.Path.GetFullPath( exeDir + "..\\..\\..\\" );
+//#endif
 
-            Program prog = new Program();
+            LaunchHubIfNotRunning( SCRATCHPAD_DIR );
 
             // setup paths and hub
             misz.HubService.SetImpl(new misz.ZMQHubService());
             misz.Paths.SetupPaths( SCRATCHPAD_DIR, SCRATCHPAD_DIR );
+
+            Program prog = new Program();
 
             prog.StartUpBase(args);
 
             prog.Run();
 
             prog.ShutDownBase();
+        }
+
+        public static void LaunchHubIfNotRunning( string SCRATCHPAD_DIR )
+        {
+            Process[] localAll = Process.GetProcesses();
+            var HubList = localAll.Where( p => p.ProcessName == "ZMQHub.exe" ).ToList();
+            if ( HubList.Count == 0 )
+            {
+                // launch ZmqHub.exe
+                Process process = new Process();
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                startInfo.FileName = SCRATCHPAD_DIR + "Framework\\Bin\\ZMQHub.exe";
+                process.StartInfo = startInfo;
+                process.Start();
+                process.WaitForExit( 1000 );
+            }
+
         }
     }
 }

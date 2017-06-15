@@ -228,7 +228,7 @@ namespace CircuitEditorSample
 
             if ( m_resourceLister != null )
             {
-                m_resourceLister.SetRootFolder( new FileSystemResourceFolder( misz.Gui.Paths.SCRATCHPAD_DIR ) );
+                m_resourceLister.SetRootFolder( new FileSystemResourceFolder( misz.Paths.DATA_ROOT_DIR ) );
             }
 
             D2dGradientStop[] gradstops = 

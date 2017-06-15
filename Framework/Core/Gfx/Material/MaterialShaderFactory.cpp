@@ -3,7 +3,7 @@
 #include "TextureModulesHandler.h"
 #include "MaterialParamsHandler.h"
 #include <Util/FileIO.h>
-#include <FxLib/FxLib.h>
+//#include <FxLib/FxLib.h>
 
 #if defined(_MSC_VER) && defined(_DEBUG)
 #define new _DEBUG_NEW
@@ -14,7 +14,7 @@ using namespace tinyxml2;
 namespace spad
 {
 
-using namespace FxLib;
+using namespace fxlib;
 
 MaterialShaderFactory::MaterialShaderFactory( ID3D11Device* device )
 	: m_device( device )
@@ -182,7 +182,7 @@ void MaterialShaderFactory::_SetupMaterialShader( MaterialShader* materialShader
 	for ( module = rootElement->FirstChildElement( "module" ); module; module = module->NextSiblingElement( "module" ) )
 	{
 		const char* moduleType = module->Attribute( "xsi:type" );
-		FR_ASSERT( moduleType );
+		SPAD_ASSERT( moduleType );
 		ModuleHandlerMap::const_iterator it = m_moduleHandlers.find( moduleType );
 		if ( it != m_moduleHandlers.cend() )
 		{
@@ -207,13 +207,13 @@ void MaterialShaderFactory::_ExtractPassTextures( const MaterialShader* material
 		if ( bindDesc.Type == D3D10_SIT_TEXTURE )
 		{
 			u16 index = materialShader->getTextureIndex( bindDesc.Name );
-			FR_ASSERT( index != 0xffff );
+			SPAD_ASSERT( index != 0xffff );
 			MaterialShaderPass::Tex t;
 			t.index_ = index;
 			t.stage_ = prog.profile;
-			FR_ASSERT( bindDesc.BindPoint < 0xffff );
+			SPAD_ASSERT( bindDesc.BindPoint < 0xffff );
 			t.bindingPoint_ = (u16)bindDesc.BindPoint;
-			FR_ASSERT( bindDesc.BindCount == 1 );
+			SPAD_ASSERT( bindDesc.BindCount == 1 );
 			pass.textures_.push_back( t );
 		}
 	}
@@ -234,13 +234,13 @@ void MaterialShaderFactory::_ExtractPassSamplers( const MaterialShader* material
 		if ( bindDesc.Type == D3D10_SIT_SAMPLER )
 		{
 			u16 index = materialShader->getSamplerIndex( bindDesc.Name );
-			FR_ASSERT( index != 0xffff );
+			SPAD_ASSERT( index != 0xffff );
 			MaterialShaderPass::Samp s;
 			s.index_ = index;
 			s.stage_ = prog.profile;
-			FR_ASSERT( bindDesc.BindPoint < 0xffff );
+			SPAD_ASSERT( bindDesc.BindPoint < 0xffff );
 			s.bindingPoint_ = (u16)bindDesc.BindPoint;
-			FR_ASSERT( bindDesc.BindCount == 1 );
+			SPAD_ASSERT( bindDesc.BindCount == 1 );
 			pass.samplers_.push_back( s );
 		}
 	}
@@ -257,8 +257,8 @@ void MaterialShaderFactory::_RefreshMaterialShader( MaterialShader* materialShad
 		if ( moduleIdOrig == name )
 		{
 			const char* moduleType = module->Attribute( "xsi:type" );
-			FR_ASSERT( moduleType );
-			FR_ASSERT( moduleTypeOrig == moduleType );
+			SPAD_ASSERT( moduleType );
+			SPAD_ASSERT( moduleTypeOrig == moduleType );
 
 			ModuleHandlerMap::const_iterator it = m_moduleHandlers.find( moduleType );
 			if ( it != m_moduleHandlers.cend() )
@@ -318,7 +318,7 @@ void MaterialShaderFactory::_ReflectShader( const FxLib::FxProgram& prog, _Refle
 		}
 		else if ( desc.Type == D3D_SIT_CBUFFER && desc.BindPoint == 2 )
 		{
-			FR_ASSERT( !strcmp( desc.Name, "MaterialParams" ) );
+			SPAD_ASSERT( !strcmp( desc.Name, "MaterialParams" ) );
 			if ( refData.materialParams_.empty() )
 			{
 				ID3D11ShaderReflectionConstantBuffer* cbuf = reflection->GetConstantBufferByName( desc.Name );

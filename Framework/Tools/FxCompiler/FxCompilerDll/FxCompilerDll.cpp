@@ -108,7 +108,7 @@ FXCOMPILERDLL_API int __stdcall FxCompilerDll_CompileFile( const char* filePathW
 
 	// setup output dirs
 	hlslOptions.outputDirectory_ = SCRATCHPAD_DIR + "dataWin\\Materials\\hlsl\\";
-	hlslOptions.intermediateDirectory_ = SCRATCHPAD_DIR + ".build\\dataWin\\Materials\\hlsl\\";
+	hlslOptions.intermediateDirectory_ = SCRATCHPAD_DIR + "Build\\dataWin\\Materials\\hlsl\\";
 
 	// hlsl
 	hlslOptions.generateDisassembly = false;
