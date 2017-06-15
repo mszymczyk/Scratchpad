@@ -282,6 +282,12 @@
     </ProjectReference>
     <ProjectReference Include="..\..\misz\misz.csproj">
       <Project>{d53ebe16-9dfd-428a-bf51-d723b642c196}</Project>
+    <ProjectReference Include="..\..\misz.scratchpad\misz.scratchpad.csproj">
+      <Project>{1818170e-067a-4cf4-a19d-cc868aed14a9}</Project>
+      <Name>misz.scratchpad</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\misz\misz.csproj">
+      <Project>{a2242318-ad28-47b9-a8f8-4e34acbc2aae}</Project>
       <Name>misz</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Samples\pico\pico.csproj">

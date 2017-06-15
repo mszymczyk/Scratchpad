@@ -5,6 +5,9 @@ using System.Xml.Schema;
 
 using Sce.Atf;
 using Sce.Atf.Dom;
+using Sce.Atf.Controls.PropertyEditing;
+using System.Collections.Generic;
+using Sce.Atf.Adaptation;
 
 namespace SettingsEditor
 {
@@ -98,7 +101,20 @@ namespace SettingsEditor
 
                 Schema.settingsFileType.Type.SetTag( paramFileDescriptors );
 
-				// only one namespace
+                {
+                    var descriptors = new PropertyDescriptorCollection(null);
+                    descriptors.Add(new AttributePropertyDescriptor(
+                               "S",
+                               Schema.stringType.strAttribute,
+                               "General",
+                               "String value",
+                               false
+                        ));
+
+                    Schema.stringType.Type.SetTag(descriptors);
+                }
+
+                // only one namespace
                 break;
             }            
         }

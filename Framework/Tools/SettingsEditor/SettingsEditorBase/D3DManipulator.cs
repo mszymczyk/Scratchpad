@@ -471,10 +471,26 @@ namespace SettingsEditor
                     m_vs = null;
                 }
 
-                m_blendState.Dispose();
-                m_rasterizerState.Dispose();
-                m_depthStencilState.Dispose();
-                m_constantBuffer.Dispose();
+                if (m_blendState != null)
+                {
+                    m_blendState.Dispose();
+                    m_blendState = null;
+                }
+                if (m_rasterizerState != null)
+                {
+                    m_rasterizerState.Dispose();
+                    m_rasterizerState = null;
+                }
+                if (m_depthStencilState != null)
+                {
+                    m_depthStencilState.Dispose();
+                    m_depthStencilState = null;
+                }
+                if (m_constantBuffer != null)
+                {
+                    m_constantBuffer.Dispose();
+                    m_constantBuffer = null;
+                }
             }
 
             private void CreateGrid()

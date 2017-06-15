@@ -41,7 +41,9 @@ namespace CircuitEditorSample
 
             ShaderSourceCode sourceCode = new ShaderSourceCode();
             //sourceCode.LoadMaterialTemplate( @"G:\_git\scratchpad\code\shaders\hlsl\MaterialTemplate.hlsl" );
-            sourceCode.LoadMaterialTemplate( @"G:\_Scratchpad\Assets\Materials\MaterialTemplate.hlsl" );
+            //sourceCode.LoadMaterialTemplate( @"G:\_Scratchpad\Assets\Materials\MaterialTemplate.hlsl" );
+            string templatePath = misz.Paths.DataPathToAbsolutePath("Assets\\Materials\\MaterialTemplate.hlsl");
+            sourceCode.LoadMaterialTemplate(templatePath);
 
             //StringBuilder materialEval = new StringBuilder();
             StringBuilder materialEval = sourceCode.ComputedValuesEval;
@@ -65,7 +67,9 @@ namespace CircuitEditorSample
             string outFile = System.IO.Path.ChangeExtension( documentPath, "hlsl" );
             sourceCode.WriteMaterialToFile( outFile );
 
-            FxCompiler.FxCompilerInterop.CompileFile(outFile);
+            string outFileRelative = misz.Paths.AbsolutePathToDataPath(outFile);
+
+            FxCompiler.FxCompilerInterop.CompileFile(outFileRelative);
         }
 
         //private Module GetConnectedModule( Module module, MaterialGraphPin pin )

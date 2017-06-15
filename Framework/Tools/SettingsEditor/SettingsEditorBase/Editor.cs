@@ -142,6 +142,7 @@ namespace SettingsEditor
 
         Document CreateNewParamFile( Uri settingsFile, string descFile, string shaderOutputPath, bool createNew )
         {
+            //Outputs.WriteLine(OutputMessageType.Info, "CreateNewParamFile: " + descFile );
             string descFullPath = Path.GetFullPath( descFile );
 
             SettingsCompiler compiler;
@@ -241,8 +242,6 @@ namespace SettingsEditor
             if ( m_reloadInfo == null )
                 m_controlHostService.RegisterControl( control, controlInfo, this );
 
-            m_fileWatcherService.Register( descFullPath );
-
             DocumentPersistedInfo dgei = GetDocumentPersistedInfo( document.Uri );
             HashSet<string> expandedGroups = dgei.m_expandedGroups;
             dgei.m_expandedGroups = new HashSet<string>();
@@ -286,6 +285,10 @@ namespace SettingsEditor
             document.SaveImpl();
 
             document.LoadTime = DateTime.Now;
+
+            Outputs.WriteLine(OutputMessageType.Info, "  FileWatchRegister: " + descFullPath);
+            m_fileWatcherService.Register( descFullPath );
+            Outputs.WriteLine(OutputMessageType.Info, "  FileWatchRegister: " + settingsFile.LocalPath);
             m_fileWatcherService.Register( settingsFile.LocalPath );
 
             document.Control.TreeControl.NodeExpandedChanged += documentControl_treeControl_NodeExpandedChanged;
@@ -348,7 +351,7 @@ namespace SettingsEditor
                 return document;
             }
 
-            return null;
+            throw new InvalidOperationException("Unexpected error when trying to open: " + filePath);
         }
 
         /// <summary>
@@ -386,8 +389,9 @@ namespace SettingsEditor
             if ( m_reloadInfo == null )
                 m_controlHostService.UnregisterControl( doc.Control );
             m_contextRegistry.RemoveContext( document );
-            m_documentRegistry.Remove( document );
 
+            Outputs.WriteLine(OutputMessageType.Info, "    FileWatchUnregister: " + doc.DescFilePath);
+            Outputs.WriteLine(OutputMessageType.Info, "    FileWatchUnregister: " + doc.Uri.LocalPath);
             m_fileWatcherService.Unregister( doc.DescFilePath );
             m_fileWatcherService.Unregister( doc.Uri.LocalPath );
         }
@@ -521,23 +525,63 @@ namespace SettingsEditor
                 return;
             }
 
-            m_reloadInfo = new ReloadInfo();
-            m_reloadInfo.m_compiler = compiler;
-            m_reloadInfo.m_documentControl = document.Control;
-
-            m_documentService.Close( document );
-            m_descFileToUseWhenCreatingNewDocument = descFilePath;
-            ISelectionContext selectionContext = document.As<ISelectionContext>();
-            if ( selectionContext != null )
+            try
             {
-                Group group = selectionContext.LastSelected.As<Group>();
-                if ( group != null )
-                    m_reloadInfo.m_selectedGroupName = group.Name;
-            }
+                m_reloadInfo = new ReloadInfo();
+                m_reloadInfo.m_compiler = compiler;
+                m_reloadInfo.m_documentControl = document.Control;
 
-            m_documentService.OpenExistingDocument( this, settingsFile );
-            m_descFileToUseWhenCreatingNewDocument = null;
-            m_reloadInfo = null;
+                int docCount = 0;
+                foreach (var d in m_documentRegistry.Documents)
+                    docCount += 1;
+
+                try
+                {
+
+                    m_documentService.Close(document);
+                }
+                catch (Exception ex)
+                {
+                    Outputs.WriteLine(OutputMessageType.Error, string.Format("m_documentService.Close failed. '{0}': {1}", descFilePath, ex.Message));
+                }
+
+                int docCount2 = 0;
+                foreach (var d in m_documentRegistry.Documents)
+                    docCount2 += 1;
+
+                if (docCount == docCount2)
+                {
+                    Outputs.WriteLine(OutputMessageType.Error, "document not closed?" );
+                }
+
+                // There is an error where Close() doesn't seem to work properly and OpenExistingDocument() finds the 'closed' document
+                // on list of open documents (StandardFileCommands.cs::174 -> if (openDocument != null) is true ).
+                // Close() removes FileWatcher, while OpenExistingDocument() adds FileWatcher, so if this bug occurs
+                // we lose the FileWatch on the file that is being reloaded, I've added sleep to test if this will help.
+                //System.Threading.Thread.Sleep( 10 );
+
+                m_descFileToUseWhenCreatingNewDocument = descFilePath;
+                ISelectionContext selectionContext = document.As<ISelectionContext>();
+                if (selectionContext != null)
+                {
+                    Group group = selectionContext.LastSelected.As<Group>();
+                    if (group != null)
+                        m_reloadInfo.m_selectedGroupName = group.Name;
+                }
+
+                //Outputs.WriteLine(OutputMessageType.Info, "OpenExistingDocument: " + settingsFile);
+                m_documentService.OpenExistingDocument(this, settingsFile);
+            }
+            catch (System.Exception ex)
+            {
+                Outputs.WriteLine(OutputMessageType.Error, string.Format("Reload failed! Exception while processing '{0}': {1}", descFilePath, ex.Message));
+                Outputs.WriteLine(OutputMessageType.Error, ex.StackTrace);
+            }
+            finally
+            {
+                m_descFileToUseWhenCreatingNewDocument = null;
+                m_reloadInfo = null;
+            }
         }
 
         private void mainForm_DragEnter( object sender, DragEventArgs e )
@@ -585,6 +629,7 @@ namespace SettingsEditor
         void fileWatcherService_FileChanged( object sender, FileSystemEventArgs e )
         {
             Uri fileUri = new Uri( e.FullPath );
+            Outputs.WriteLine( OutputMessageType.Info, "FileChanged: " + fileUri.LocalPath);
 
             foreach ( Document doc in m_documentRegistry.Documents )
             {

@@ -1,12 +1,8 @@
-//Copyright © 2014 Sony Computer Entertainment America LLC. See License.txt.
-
 using System.Collections.Generic;
 using System.IO;
 using System;
 using Sce.Atf.Dom;
 using Sce.Atf.Adaptation;
-using Sce.Atf;
-using misz;
 using System.Linq;
 
 namespace CircuitEditorSample
@@ -148,23 +144,23 @@ namespace CircuitEditorSample
                 //MaterialGenerator matGen = new MaterialGenerator( circuit );
                 //matGen.Generate();
 
-                //ZMQHubMessage msg = new ZMQHubMessage( "material" );
-                //msg.appendString( "reload" );
-                //string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
-                //msg.appendString( relativeUri );
+                misz.HubMessageOut msg = new misz.HubMessageOut( "material" );
+                msg.appendString( "reload" );
+                string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
+                msg.appendString( relativeUri );
 
-                //ZMQHubService.send( msg );
+                misz.HubService.Send( msg );
             }
 
             if ( m_modulesToRefresh.Count > 0 )
             {
                 //CircuitDocument document = DomNode.GetRoot().Cast<CircuitDocument>();
 
-                //ZMQHubMessage msg = new ZMQHubMessage( "material" );
-                //msg.appendString( "refreshNodes" );
-                //string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
-                //msg.appendString( relativeUri );
-                //msg.appendInt( m_modulesToRefresh.Count );
+                misz.HubMessageOut msg = new misz.HubMessageOut( "material" );
+                msg.appendString( "refreshNodes" );
+                string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
+                msg.appendString( relativeUri );
+                msg.appendInt( m_modulesToRefresh.Count );
 
                 //foreach ( MaterialGraphModuleAdapter m in m_modulesToRefresh )
                 //{
@@ -183,18 +179,18 @@ namespace CircuitEditorSample
                 //msg.appendInt( (int)stream.Length );
                 //msg.appendBytes( stream.ToArray() );
 
-                //ZMQHubService.send( msg );
+                misz.HubService.Send( msg );
             }
 
             if ( m_instancesToRefresh.Count > 0 )
             {
                 //CircuitDocument document = DomNode.GetRoot().Cast<CircuitDocument>();
 
-                //ZMQHubMessage msg = new ZMQHubMessage( "material" );
-                //msg.appendString( "refreshInstances" );
-                //string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
-                //msg.appendString( relativeUri );
-                //msg.appendInt( m_instancesToRefresh.Count );
+                misz.HubMessageOut msg = new misz.HubMessageOut( "material" );
+                msg.appendString( "refreshInstances" );
+                string relativeUri = misz.Gui.Paths.MakePathRelativeToScratchpad( document.Uri );
+                msg.appendString( relativeUri );
+                msg.appendInt( m_instancesToRefresh.Count );
 
                 //foreach ( IMaterialInstance m in m_instancesToRefresh )
                 //{
@@ -209,7 +205,7 @@ namespace CircuitEditorSample
                 //msg.appendInt( (int)stream.Length );
                 //msg.appendBytes( stream.ToArray() );
 
-                //ZMQHubService.send( msg );
+                misz.HubService.Send( msg );
             }
 
             m_reloadNeeded = false;

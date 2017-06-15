@@ -6,7 +6,8 @@ using System.Collections.Generic;
 namespace Sce.Atf
 {
     /// <summary>
-    /// Class to assign unique names</summary>
+    /// Class to assign unique names
+    /// misz/pico extension: allow suffix separator to be empty</summary>
     public class UniqueNamer
     {
         /// <summary>
@@ -39,6 +40,7 @@ namespace Sce.Atf
                 suffixSeparator != '_' &&
                 suffixSeparator != '/' &&
                 suffixSeparator != '\\' &&
+                suffixSeparator != 0 &&
                 suffixSeparator != '(')
                 throw new ArgumentException("Invalid suffix separator");
 
@@ -81,7 +83,8 @@ namespace Sce.Atf
                 // desired name is taken, generate a unique modification by adding a suffix
                 for (int i = 1; ; ++i)
                 {
-                    result = root + m_separator;
+                    if ( m_separator != 0 )
+                        result = root + m_separator;
 
                     string iAsString = i.ToString();
                     if (m_minNumDigits > 1)
@@ -142,6 +145,9 @@ namespace Sce.Atf
             root = name;
             suffixNumber = 0;
 
+            if (m_separator != 0)
+                return;
+            
             int separatorIndex = name.LastIndexOf(m_separator);
             if (separatorIndex >= 0)
             {

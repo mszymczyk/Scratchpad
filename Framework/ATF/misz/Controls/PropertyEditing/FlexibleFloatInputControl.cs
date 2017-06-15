@@ -126,7 +126,7 @@ namespace misz.Controls.PropertyEditing
             set
             {
                 if ( value > m_softMax )
-                    throw new ArgumentException( "SoftMin" );
+                    value = m_softMax;
                 m_softMin = MathUtil.Max<float>( value, m_min );
                 if ( m_value < m_softMin )
                     Value = m_softMin;
@@ -142,7 +142,7 @@ namespace misz.Controls.PropertyEditing
             set
             {
                 if ( value < m_softMin )
-                    throw new ArgumentException( "SoftMax" );
+                    value = m_softMin;
                 m_softMax = MathUtil.Min<float>( value, m_max );
                 if ( m_value > m_softMax )
                     Value = m_softMax;

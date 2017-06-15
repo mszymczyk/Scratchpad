@@ -14,7 +14,8 @@ namespace SettingsEditor
         {
             DomNode presetNode = new DomNode( Schema.presetType.Type );
             Preset preset = presetNode.Cast<Preset>(); // OnNodeSet is called at this point with DomNode.Parent == null
-            preset.Group = group;
+            //preset.Group = group;
+            preset.m_groupName = group.AbsoluteName;
             presetNode.SetAttribute( Schema.presetType.Type.IdAttribute, group.Name + "Preset" );
 
             // preset is also a Group
@@ -26,6 +27,13 @@ namespace SettingsEditor
                 dpNodeCopy.InitializeExtensions();
                 DynamicProperty dpCopy = dpNodeCopy.Cast<DynamicProperty>();
                 presetGroup.Properties.Add( dpCopy );
+            }
+
+            foreach ( var ch in group.DomNode.GetChildList(Schema.groupType.groupChild) )
+            {
+                DomNode chCopy = DomNode.Copy(ch);
+                chCopy.InitializeExtensions();
+                preset.DomNode.GetChildList(Schema.groupType.groupChild).Add(chCopy);
             }
 
 			// add preset to group, child added gets called with all preset props ready
@@ -48,8 +56,9 @@ namespace SettingsEditor
         {
             // when creating new preset with CreatePreset, DomNode.Parent will be null
             // it won't be null when reading from file, for instance
-            if ( DomNode.Parent != null )
-                Group = DomNode.Parent.Cast<Group>();
+            if (DomNode.Parent != null)
+                //Group = DomNode.Parent.Cast<Group>();
+                m_groupName = DomNode.Parent.Cast<Group>().AbsoluteName;
 
             base.OnNodeSet();
         }
@@ -60,8 +69,19 @@ namespace SettingsEditor
         {
             // can't use "get { return DomNode.Parent.As<Group>(); }" because PresetUniqueIdValidator uses Preset's Group as a category
             // when Preset is deleted, then it's parent is cleared and validator crashes with null pointer exception
-            get;
-            private set;
+            // update: now using GroupName as a category in PresetUniqueIdValidator
+            //get;
+            //private set;
+            get { return DomNode.Parent.As<Group>(); }
+        }
+
+        /// <summary>
+        /// GroupName is used as a category in PresetUniqueIdValidator
+        /// </summary>
+        public string GroupName
+        {
+            get { return m_groupName; }
+            set { m_groupName = value; }
         }
 
         /// <summary>
@@ -73,6 +93,8 @@ namespace SettingsEditor
             get { return (string)DomNode.GetAttribute( Schema.groupType.nameAttribute ); }
             set { DomNode.SetAttribute( Schema.groupType.nameAttribute, value ); }
         }
+
+        private string m_groupName;
     }
 }
 

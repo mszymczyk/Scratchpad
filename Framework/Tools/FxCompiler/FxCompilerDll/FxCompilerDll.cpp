@@ -27,15 +27,15 @@ FXCOMPILERDLL_API int __stdcall FxCompilerDll_Initialize( spad::log::LogCallback
 	log::logStartUp();
 	log::logSetCallback( logCallback );
 
-	SCRATCHPAD_DIR = getenv( "SCRATCHPAD_DIR" );
-	if (SCRATCHPAD_DIR.empty() )
+	const char* SCRATCHPAD_DIR_env = getenv( "SCRATCHPAD_DIR" );
+	if ( !SCRATCHPAD_DIR_env )
 	{
 		logErrorAlways( "SCRATCHPAD_DIR env variable is not defined!" );
 		return 100;
 	}
 
 	// make those vars to look nice
-	SCRATCHPAD_DIR = GetAbsolutePath( SCRATCHPAD_DIR );
+	SCRATCHPAD_DIR = GetAbsolutePath( SCRATCHPAD_DIR_env );
 	AppendBackslashToDirectoryName( SCRATCHPAD_DIR );
 
 	logInfo( "FxCompilerDll_Initialize successfull" );

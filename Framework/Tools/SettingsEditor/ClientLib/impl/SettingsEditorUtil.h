@@ -4,9 +4,10 @@
 #include <mutex>
 #include <memory>
 #include <vector>
+#include <new>
 #include <stdarg.h>
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_MSC_VER)
 #define _CRTDBG_MAP_ALLOC
 //#define _CRTDBG_MAP_ALLOC_NEW
 #include <stdlib.h>
@@ -53,7 +54,7 @@ namespace _internal
 	extern _internal::AllocFunc gAllocFunc;
 extern _internal::FreeFunc gFreeFunc;
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(_MSC_VER)
 
 inline void* aligned_malloc_dbg( size_t size, size_t align, const char * szFileName, int nLine )
 {
@@ -122,7 +123,7 @@ inline void aligned_free_rel( void * p )
 
 #endif //
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) && defined(_MSC_VER)
 
 #define DECLARE_ALIGNED_NEW(boundary)			\
 	inline void* operator new (size_t size, const char * szFileName, int nLine) {		\

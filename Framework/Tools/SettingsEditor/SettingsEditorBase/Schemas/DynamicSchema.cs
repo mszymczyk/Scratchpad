@@ -22,7 +22,6 @@ namespace SettingsEditor
             group.Properties.Clear();
 
             // add properties in correct order, creating missing ones along the way
-            //
             foreach ( Setting s in settingGroup.Settings )
             {
                 DynamicProperty dpOld = propertiesCopy.Find( p => p.Name == s.Name );
@@ -34,7 +33,6 @@ namespace SettingsEditor
         public void CreateNodesRecurse( DomNode parent, SettingGroup parentStructure )
         {
             // clear children list
-            //
             IList<DomNode> childList = null;
             if ( parent.Type == Schema.settingsFileType.Type )
                 childList = parent.GetChildList( Schema.settingsFileType.groupChild );
@@ -48,11 +46,9 @@ namespace SettingsEditor
             childList.Clear();
 
             // add groups in correct order, creating missing groups along the way
-            //
             foreach ( SettingGroup structure in parentStructure.NestedStructures)
             {
                 DomNode group = childrenCopy.Find( n => n.As<Group>().Name == structure.Name );
-
                 Group g = null;
 
                 if ( group == null )
@@ -109,45 +105,4 @@ namespace SettingsEditor
 
         SettingsCompiler m_compiler;
     }
-
-    //public class DependsOnNodes : ICustomEnableAttributePropertyDescriptorCallback
-    //{
-    //    public DependsOnNodes()
-    //    {
-    //        m_dependsOnList = new List<Tuple<DomNodeType, AttributeInfo, bool>>();
-    //    }
-
-    //    public DependsOnNodes( List<Tuple<DomNodeType, AttributeInfo, bool>> dependsOn )
-    //    {
-    //        m_dependsOnList = dependsOn;
-    //    }
-
-    //    public void Add( DomNodeType dnt, AttributeInfo attrInfo, bool condition )
-    //    {
-    //        m_dependsOnList.Add( new Tuple<DomNodeType, AttributeInfo, bool>( dnt, attrInfo, condition ) );
-    //    }
-
-    //    public bool IsReadOnly( DomNode domNode, AttributePropertyDescriptor descriptor )
-    //    {
-    //        DomNode root = domNode.GetRoot();
-
-    //        foreach( Tuple<DomNodeType, AttributeInfo, bool> p in m_dependsOnList )
-    //        {
-    //            foreach( DomNode dn in root.Subtree )
-    //            {
-    //                if ( dn.Type == p.Item1 )
-    //                {
-    //                    bool bval = (bool)dn.GetAttribute( p.Item2 );
-    //                    if ( bval != p.Item3 )
-    //                        return true;
-    //                }
-    //            }
-    //        }
-
-    //        return false;
-    //    }
-
-    //    List<Tuple<DomNodeType, AttributeInfo, bool>> m_dependsOnList;
-    //}
-
 }
