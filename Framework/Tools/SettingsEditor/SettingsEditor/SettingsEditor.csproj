@@ -17,7 +17,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <BaseIntermediateOutputPath>$(SCRATCHPAD_DIR)\Framework\Build\$(SolutionName)\$(ProjectName)\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\obj\</IntermediateOutputPath>
     <OutputPath>$(BaseIntermediateOutputPath)$(Configuration)\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
@@ -30,7 +30,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <BaseIntermediateOutputPath>$(SCRATCHPAD_DIR)\Framework\Build\$(SolutionName)\$(ProjectName)\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>$(SCRATCHPAD_DIR)\Build\$(SolutionName)\$(ProjectName)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\obj\</IntermediateOutputPath>
     <OutputPath>$(SCRATCHPAD_DIR)\Framework\Bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
