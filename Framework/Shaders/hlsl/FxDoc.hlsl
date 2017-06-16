@@ -142,7 +142,6 @@ float4 ps_Color( in vs_output_ScreenQuad IN ) : SV_Target
 }
 
 
-
 vs_output_ScreenQuad vs_ScreenQuad2(
 float2 position : POSITION
 , float2 texCoord0 : TEXCOORD0
