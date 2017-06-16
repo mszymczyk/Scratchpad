@@ -49,11 +49,12 @@ FXCOMPILERDLL_API void __stdcall FxCompilerDll_Shutdown()
 }
 
 
-int doIt( const fxlib::CompileContext& compileContext
+int doIt(
+	  const fxlib::CompileContext& compileContext
 	, const fxlib::FxFileCompileOptions& options
 	, const fxlib::hlsl::FxFileHlslCompileOptions& hlslOptions
 	, const std::vector<std::string>& files
-)
+	)
 {
 	std::vector<int> results( files.size(), 0 );
 
@@ -66,7 +67,7 @@ int doIt( const fxlib::CompileContext& compileContext
 		const std::string& file = files[index];
 
 		int ires = 0;
-		std::unique_ptr<fxlib::FxFile> fxFile = ParseFxFile( file.c_str(), options, *compileContext.includeCache, &ires );
+		std::unique_ptr<fxlib::FxFile> fxFile = ParseFxFile( file.c_str(), nullptr, options, *compileContext.includeCache, &ires );
 		if (fxFile)
 			ires = fxlib::hlsl::CompileFxHlsl( *fxFile.get(), compileContext, options, hlslOptions );
 
@@ -86,13 +87,11 @@ int doIt( const fxlib::CompileContext& compileContext
 	return 0;
 }
 
-
-FXCOMPILERDLL_API int __stdcall FxCompilerDll_CompileFile( const char* filePathWithinDataRoot )
+int CompileFiles( const std::vector<std::string>& files )
 {
-
 	//fxlib::FxCompileConfiguration::Type configuration = fxlib::FxCompileConfiguration::shipping;
-	//fxlib::FxCompileConfiguration::Type configuration = fxlib::FxCompileConfiguration::release;
-	fxlib::FxCompileConfiguration::Type configuration = fxlib::FxCompileConfiguration::diagnostic;
+	fxlib::FxCompileConfiguration::Type configuration = fxlib::FxCompileConfiguration::release;
+	//fxlib::FxCompileConfiguration::Type configuration = fxlib::FxCompileConfiguration::diagnostic;
 
 	fxlib::FxFileCompileOptions options;
 	options.configuration_ = configuration;
@@ -103,6 +102,20 @@ FXCOMPILERDLL_API int __stdcall FxCompilerDll_CompileFile( const char* filePathW
 	options.multithreaded_ = false;
 	options.multithreadedFiles_ = false;
 #endif //
+
+	fxlib::IncludeCache includeCache;
+
+	std::string shadersDir = SCRATCHPAD_DIR + "Framework\\shaders\\";
+	includeCache.AddSearchPath( shadersDir );
+	std::string commonDir = shadersDir + "common\\";
+	includeCache.AddSearchPath( commonDir );
+
+	int ires = includeCache.Load_AlwaysIncludedByFxCompiler();
+	if ( ires )
+	{
+		logError( "Couldn't read 'AlwaysIncludedByFxCompiler.h'" );
+		return ires > 0 ? ires : -ires;
+	}
 
 	fxlib::hlsl::FxFileHlslCompileOptions hlslOptions;
 
@@ -129,27 +142,37 @@ FXCOMPILERDLL_API int __stdcall FxCompilerDll_CompileFile( const char* filePathW
 		options.compileForDebugging_ = true;
 	}
 
-	std::vector<std::string> files;
-	files.emplace_back( filePathWithinDataRoot );
-
-	// recreate cache with each compilation
-	// this way, external changes of include files will be included in compilation
-	// IncludeCache doesn't check timestamps of included files
-	fxlib::IncludeCache includeCache;
-
-	std::string shadersDir = SCRATCHPAD_DIR + "Framework\\Shaders\\hlsl\\";
-	includeCache.AddSearchPath( shadersDir );
-
-	int ires = includeCache.Load_AlwaysIncludedByCompiler();
-	if (ires)
-	{
-		std::cerr << "Couldn't read 'AlwaysIncludedByCompiler.h'" << std::endl;
-		return ires > 0 ? ires : -ires;
-	}
-
 	fxlib::CompileContext compileContext;
 	compileContext.includeCache = &includeCache;
 
-	ires = doIt( compileContext, options, hlslOptions, files );
+	ires = doIt( compileContext, options
+		, hlslOptions
+		, files );
+
+	return ires;
+}
+
+
+FXCOMPILERDLL_API int __stdcall FxCompilerDll_CompileFile( const char* filePathWithinDataRoot )
+{
+	std::vector<std::string> files;
+	files.emplace_back( filePathWithinDataRoot );
+	return CompileFiles( files );
+}
+
+FXCOMPILERDLL_API int __stdcall FxCompilerDll_CompileFiles( const char* const* fileFullPaths, int nFilePaths, spad::log::LogCallbackType logCallback )
+{
+	spad::log::LogCallbackType prevCallback = log::logGetCallback();
+	log::logSetCallback( logCallback );
+
+	std::vector<std::string> files;
+	files.reserve( nFilePaths );
+	for ( int i = 0; i < nFilePaths; ++i )
+		files.emplace_back( fileFullPaths[i] );
+
+	int ires = CompileFiles( files );
+
+	log::logSetCallback( prevCallback );
+
 	return ires;
 }

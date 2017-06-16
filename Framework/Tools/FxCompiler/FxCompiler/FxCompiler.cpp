@@ -49,7 +49,7 @@ int doIt( const std::string& programName
 		const std::string& file = files[index];
 
 		int ires = 0;
-		std::unique_ptr<fxlib::FxFile> fxFile = ParseFxFile( file.c_str(), options, *compileContext.includeCache, &ires );
+		std::unique_ptr<fxlib::FxFile> fxFile = ParseFxFile( file.c_str(), nullptr, options, *compileContext.includeCache, &ires );
 		if (fxFile)
 			ires = fxlib::hlsl::CompileFxHlsl( *fxFile.get(), compileContext, options, hlslOptions );
 
@@ -107,7 +107,7 @@ int _tmain( int argc, char* argv[] )
 	std::string programName = argv[0];
 
 	const char* SCRATCHPAD_DIR_env = getenv( "SCRATCHPAD_DIR" );
-	if ( !SCRATCHPAD_DIR_env || strlen(SCRATCHPAD_DIR_env) == 0 )
+	if ( !SCRATCHPAD_DIR_env )
 	{
 		std::cerr << programName << ": " << "SCRATCHPAD_DIR env variable is not defined!" << std::endl;
 		return 100;
@@ -192,10 +192,10 @@ int _tmain( int argc, char* argv[] )
 	//}
 	//includeCache.AddSearchPath( currentWorkingDir );
 
-	ires = includeCache.Load_AlwaysIncludedByCompiler();
+	ires = includeCache.Load_AlwaysIncludedByFxCompiler();
 	if (ires)
 	{
-		std::cerr << "Couldn't read 'AlwaysIncludedByCompiler.h'" << std::endl;
+		std::cerr << "Couldn't read 'AlwaysIncludedByFxCompiler.h'" << std::endl;
 		return ires > 0 ? ires : -ires;
 	}
 

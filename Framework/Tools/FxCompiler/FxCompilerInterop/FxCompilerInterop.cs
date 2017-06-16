@@ -29,8 +29,10 @@ namespace FxCompiler
         private static extern int NativeShutDown();
 
         [DllImportAttribute( FxCompilerDll, EntryPoint = "FxCompilerDll_CompileFile", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi )]
-        public static extern void CompileFile( string filePathWithinDataRoot );
+        public static extern int CompileFile( string filePathWithinDataRoot );
 
+        [DllImportAttribute( FxCompilerDll, EntryPoint = "FxCompilerDll_CompileFiles", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi )]
+        public static extern int CompileFiles( string[] filePathsWithinDataRoot, int nFilePaths, LogCallbackType logCallback );
 
         public static bool StartUp( LogCallbackType logCallback )
         {

@@ -3,7 +3,6 @@
 #include <libconfig/lib/libconfig.h>
 #include <Util/MultiDimensionalArray.h>
 #include "FxState.h"
-#include "FxTypes.h"
 #include "IncludeCache.h"
 
 namespace spad
@@ -12,6 +11,15 @@ namespace fxlib
 {
 
 class FxFile;
+
+enum e_ProgramType : u8
+{
+	eProgramType_vertexShader,
+	eProgramType_pixelShader,
+	eProgramType_geometryShader,
+	eProgramType_computeShader,
+	eProgramType_count
+};
 
 struct FxProgDefine
 {
@@ -52,10 +60,10 @@ public:
 	template<class T>
 	void setFullName( T&& val ) { fullName_ = std::forward<T>( val ); }
 
-	u32 getUniqueProgramIndex( ShaderStage::Type progType ) const { return entryIdx_[progType]; }
-	void setUniqueProgramIndex( ShaderStage::Type progType, u32 idx )
+	u32 getUniqueProgramIndex( e_ProgramType progType ) const { return entryIdx_[progType]; }
+	void setUniqueProgramIndex( e_ProgramType progType, u32 idx )
 	{
-		SPAD_ASSERT( progType < ShaderStage::count );
+		SPAD_ASSERT( progType < eProgramType_count );
 		entryIdx_[progType] = idx;
 	}
 
@@ -63,7 +71,7 @@ public:
 
 private:
 	std::string fullName_; // for debug
-	u32 entryIdx_[ShaderStage::count];
+	u32 entryIdx_[eProgramType_count];
 };
 
 typedef MultiDimensionalArray<FxPassCombination> FxPassCombinationsMatrix;
@@ -103,7 +111,7 @@ typedef std::vector<std::unique_ptr<FxPass>> FxPassArray;
 class FxProgram
 {
 public:
-	static std::string MakeUniqueName( const std::string& entryName, ShaderStage::Type type, const std::string& cflags, const std::vector<FxProgDefine>& cdefines )
+	static std::string MakeUniqueName( const std::string& entryName, e_ProgramType type, const std::string& cflags, const std::vector<FxProgDefine>& cdefines )
 	{
 		std::stringstream ss;
 		ss << entryName << ';';
@@ -115,7 +123,7 @@ public:
 		return ss.str();
 	}
 
-	FxProgram( const std::string& entryName, ShaderStage::Type type, u32 index, const std::string& cflags, const std::vector<FxProgDefine>& cdefines, const config_setting_t* setting )
+	FxProgram( const std::string& entryName, e_ProgramType type, u32 index, const std::string& cflags, const std::vector<FxProgDefine>& cdefines, const config_setting_t* setting )
 		: entryName_( entryName )
 		, type_( type )
 		, refCount_( 1 )
@@ -134,7 +142,7 @@ public:
 	//FxProgram& operator= ( FxProgram&& rhs ) = delete;
 
 	const std::string&			getEntryName()			const { return entryName_; }
-	ShaderStage::Type				getProgramType()		const { return type_; }
+	e_ProgramType				getProgramType()		const { return type_; }
 	u32							getIndex()				const { return index_; }
 
 	const FxProgDefineArray&	getCdefines()			const { return cdefines_; }
@@ -146,7 +154,7 @@ public:
 
 private:
 	std::string entryName_;
-	ShaderStage::Type type_ = ShaderStage::count;
+	e_ProgramType type_ = eProgramType_count;
 	// padding
 	u32 refCount_ = 0;
 	u32 index_ = 0xffffffff; // index within FxFile
@@ -218,7 +226,7 @@ public:
 
 	const std::string& getFilename() const { return filename_; }
 	const std::string& getFileAbsolutePath() const { return fileAbsolutePath_; }
-	// returns source code with AlwaysIncludedByCompiler.h prepended
+	// returns source code with AlwaysIncludedByFxCompiler.h prepended
 	const std::string& getSourceCode() const { return sourceCode_; }
 	//void getFxHeader( const char*& fxHeader, size_t& fxHeaderLength ) const
 	//{
@@ -226,7 +234,7 @@ public:
 	//	fxHeaderLength = fxHeaderLength_;
 	//}
 
-	// returns source code WITHOUT AlwaysIncludedByCompiler.h prepended
+	// returns source code WITHOUT AlwaysIncludedByFxCompiler.h prepended
 	void getOrigSourceCode( const char*& sourceCode, size_t& sourceCodeLength ) const
 	{
 		sourceCode = sourceCode_.c_str() + fileSourceCodeOffset_;
@@ -234,7 +242,7 @@ public:
 	}
 
 private:
-	void _ReadAndParseFxFile( const char* srcFile, const FxFileCompileOptions& options, IncludeCache& includeCache );
+	void _ReadAndParseFxFile( const char* srcFile, const char* srcFileDir, const FxFileCompileOptions& options, IncludeCache& includeCache );
 
 	std::string _ReadSourceFile( const char* filename, IncludeCache& includeCache );
 	void _Parse();
@@ -243,7 +251,7 @@ private:
 	void _ExtractPasses();
 	void _ReadPasses( const void* configPtr );
 	void _ReadProgram( const config_setting_t* prog, std::string& dstCflags, std::string& dstEntryName, std::vector<FxProgDefineMultiValue>& dstProgCDefines );
-	int _FindMatchingProgram( std::string& entryName, ShaderStage::Type programProfile, const std::string& cflags, const std::vector<FxProgDefine>& cdefines );
+	int _FindMatchingProgram( std::string& entryName, e_ProgramType programProfile, const std::string& cflags, const std::vector<FxProgDefine>& cdefines );
 	bool _ReadBoolState( const config_setting_t* sett, const char* passName );
 	void _EnsureSettingIsString( const config_setting_t* sett, const char* passName );
 	void _ReadState( const config_setting_t* pass, RenderState& rs, const char* passName );
@@ -263,7 +271,7 @@ private:
 	FxPassArray passes_;
 	FxProgramArray uniquePrograms_;
 
-	friend std::unique_ptr<spad::fxlib::FxFile> ParseFxFile( const char* srcFilePathAbsolute, const FxFileCompileOptions& options, IncludeCache& includeCache, int* err /*= nullptr */ );
+	friend std::unique_ptr<spad::fxlib::FxFile> ParseFxFile( const char* srcFile, const char* srcFileDir, const FxFileCompileOptions& options, IncludeCache& includeCache, int* err /*= nullptr*/ );
 };
 
 
@@ -273,9 +281,10 @@ struct CompileContext
 	IncludeCache* includeCache = nullptr;
 };
 
-
-std::unique_ptr<FxFile> ParseFxFile( const char* srcFilePathAbsolute, const FxFileCompileOptions& options, IncludeCache& includeCache, int* err = nullptr );
-
+// srcFilePath is relative to current working directory
+// srcFileDir is directory relative to current working directory where srcFile physically resides
+// this is for MaterialEditor generated files, that are placed outside demo directory
+std::unique_ptr<FxFile> ParseFxFile( const char* srcFile, const char* srcFileDir, const FxFileCompileOptions& options, IncludeCache& includeCache, int* err = nullptr );
 
 // util
 bool CheckIfRecompilationIsRequired( const char* srcPath, const char* dependPath, const char* outputPaths[], size_t nOutputPaths, u64 compilerTimestamp, FxCompileConfiguration::Type configuration );

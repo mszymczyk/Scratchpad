@@ -181,10 +181,10 @@ void FxFile::_ReadPasses( const void* configPtr )
 
 		int settingsOffset = 0;
 
-		std::vector<FxProgDefineMultiValue> cdefinesPerStage[ShaderStage::count];
-		std::string entryName[ShaderStage::count];
-		std::string cflags[ShaderStage::count];
-		const config_setting_t* progSett[ShaderStage::count] = { nullptr };
+		std::vector<FxProgDefineMultiValue> cdefinesPerStage[eProgramType_count];
+		std::string entryName[eProgramType_count];
+		std::string cflags[eProgramType_count];
+		const config_setting_t* progSett[eProgramType_count] = { nullptr };
 
 		bool haveAnyProgram = false;
 
@@ -196,26 +196,26 @@ void FxFile::_ReadPasses( const void* configPtr )
 			if ( 0 == strcmp( settName, "VertexProgram" ) )
 			{
 				haveAnyProgram = true;
-				progSett[ShaderStage::vertex] = sett;
-				_ReadProgram( sett, cflags[ShaderStage::vertex], entryName[ShaderStage::vertex], cdefinesPerStage[ShaderStage::vertex] );
+				progSett[eProgramType_vertexShader] = sett;
+				_ReadProgram( sett, cflags[eProgramType_vertexShader], entryName[eProgramType_vertexShader], cdefinesPerStage[eProgramType_vertexShader] );
 			}
 			else if ( 0 == strcmp( settName, "FragmentProgram" ) )
 			{
 				haveAnyProgram = true;
-				progSett[ShaderStage::pixel] = sett;
-				_ReadProgram( sett, cflags[ShaderStage::pixel], entryName[ShaderStage::pixel], cdefinesPerStage[ShaderStage::pixel] );
+				progSett[eProgramType_pixelShader] = sett;
+				_ReadProgram( sett, cflags[eProgramType_pixelShader], entryName[eProgramType_pixelShader], cdefinesPerStage[eProgramType_pixelShader] );
 			}
 			else if ( 0 == strcmp( settName, "GeometryProgram" ) )
 			{
 				haveAnyProgram = true;
-				progSett[ShaderStage::geometry] = sett;
-				_ReadProgram( sett, cflags[ShaderStage::geometry], entryName[ShaderStage::geometry], cdefinesPerStage[ShaderStage::geometry] );
+				progSett[eProgramType_geometryShader] = sett;
+				_ReadProgram( sett, cflags[eProgramType_geometryShader], entryName[eProgramType_geometryShader], cdefinesPerStage[eProgramType_geometryShader] );
 			}
 			else if ( 0 == strcmp( settName, "ComputeProgram" ) )
 			{
 				haveAnyProgram = true;
-				progSett[ShaderStage::compute] = sett;
-				_ReadProgram( sett, cflags[ShaderStage::compute], entryName[ShaderStage::compute], cdefinesPerStage[ShaderStage::compute] );
+				progSett[eProgramType_computeShader] = sett;
+				_ReadProgram( sett, cflags[eProgramType_computeShader], entryName[eProgramType_computeShader], cdefinesPerStage[eProgramType_computeShader] );
 			}
 		}
 
@@ -226,48 +226,55 @@ void FxFile::_ReadPasses( const void* configPtr )
 		_ReadState( pas, passRenderState, passName );
 
 		// generate pass combinations
-		std::vector<FxProgDefineMultiValue> defines;
-		u32 typeFirstDefine[ShaderStage::count];
-		for ( u32 i = 0; i < ShaderStage::count; ++i ) typeFirstDefine[i] = 0xffffffff;
-		u32 typeNDefines[ShaderStage::count] = { 0 };
-		bool typeEntryWithNoDefines[ShaderStage::count] = { false };
-		for ( u32 itype = 0; itype < ShaderStage::count; ++itype )
+		std::vector<FxProgDefineMultiValue> mvDefines; // multi-value defines, used to generate pass combinations
+		u32 typeFirstMvDefine[fxlib::eProgramType_count];
+		for ( u32 i = 0; i < eProgramType_count; ++i ) typeFirstMvDefine[i] = 0xffffffff;
+		u32 typeNMvDefines[fxlib::eProgramType_count] = { 0 };
+		for ( u32 itype = 0; itype < fxlib::eProgramType_count; ++itype )
 		{
-			if ( cdefinesPerStage[itype].empty() && !entryName[itype].empty() )
-				typeEntryWithNoDefines[itype] = true;
-
 			if ( cdefinesPerStage[itype].size() )
 			{
-				typeNDefines[itype] = (u32)cdefinesPerStage[itype].size();
-				typeFirstDefine[itype] = (u32)defines.size();
-				defines.insert( defines.end(), cdefinesPerStage[itype].begin(), cdefinesPerStage[itype].end() );
+				for ( size_t i = 0; i < cdefinesPerStage[itype].size(); ++i )
+				{
+					// take into account only defines that have more than one value
+					// treat defines with one value as regular defines (won't be included in combinations generation)
+					const FxProgDefineMultiValue& mvd = cdefinesPerStage[itype][i];
+					if ( mvd.values_.size() > 1 )
+					{
+						typeNMvDefines[itype] += 1;
+						if ( typeFirstMvDefine[itype] == 0xffffffff )
+							typeFirstMvDefine[itype] = (u32)mvDefines.size();
+
+						mvDefines.push_back( mvd );
+					}
+				}
 			}
 		}
 
-		// fake define when there are no user defined cdefines
+		// fake define when there are no user multi-value defined cdefines
 		// required for combinations generation
-		if ( defines.empty() )
+		if ( mvDefines.empty() )
 		{
 			FxProgDefineMultiValue d;
 			d.values_.emplace_back( "" );
-			defines.push_back( std::move( d ) );
+			mvDefines.push_back( std::move( d ) );
 		}
 
-		dims.resize( defines.size() );
-		for ( size_t idim = 0; idim < defines.size(); ++idim )
-			dims[idim] = (u32)defines[idim].values_.size();
+		dims.resize( mvDefines.size() );
+		for ( size_t idim = 0; idim < mvDefines.size(); ++idim )
+			dims[idim] = (u32)mvDefines[idim].values_.size();
 
 		FxPassCombinationsMatrix combinations;
 		combinations.grow( &dims[0], (u32)dims.size() );
 
 		// 'generate combinations' loop
-		std::vector<u32> indices( defines.size() );
+		std::vector<u32> indices( mvDefines.size() );
 		bool done = false;
 		while ( !done )
 		{
-			// assemble 'defines.size()' index for accessing combination from 'defines.size()' dimensional array
-			index.resize( defines.size() );
-			for ( size_t idim = 0; idim < defines.size(); ++idim )
+			// assemble 'mvDefines.size()' index for accessing combination from 'mvDefines.size()' dimensional array
+			index.resize( mvDefines.size() );
+			for ( size_t idim = 0; idim < mvDefines.size(); ++idim )
 				index[idim] = indices[idim];
 
 			FxPassCombination& comb = combinations.element( &index[0], (u32)index.size() );
@@ -275,36 +282,42 @@ void FxFile::_ReadPasses( const void* configPtr )
 			std::stringstream fullPassName; // for debug
 			fullPassName << passName;
 
-			for ( u32 itype = 0; itype < ShaderStage::count; ++itype )
+			for ( u32 itype = 0; itype < fxlib::eProgramType_count; ++itype )
 			{
-				if ( typeFirstDefine[itype] != 0xffffffff || typeEntryWithNoDefines[itype] )
-				{
+				if ( entryName[itype].empty() )
+					continue;
+
 					thisCombinationDefines.clear();
-					if ( typeFirstDefine[itype] != 0xffffffff )
+					if ( typeFirstMvDefine[itype] != 0xffffffff )
 					{
-						for ( u32 i = typeFirstDefine[itype]; i < typeFirstDefine[itype] + typeNDefines[itype]; ++i )
+						for ( u32 i = typeFirstMvDefine[itype]; i < typeFirstMvDefine[itype] + typeNMvDefines[itype]; ++i )
 						{
-							const FxProgDefineMultiValue& d = defines[i];
+							const FxProgDefineMultiValue& mvd = mvDefines[i];
 
 							u32 idef = indices[i];
 
-							if ( !d.name_.empty() && !d.values_.empty() )
+							if ( !mvd.name_.empty() && !mvd.values_.empty() )
 							{
-								thisCombinationDefines.emplace_back( d.name_, d.values_[idef] );
-								fullPassName << '_' << d.name_ << '=' << d.values_[idef];
+								thisCombinationDefines.emplace_back( mvd.name_, mvd.values_[idef] );
+								fullPassName << '_' << mvd.name_ << '=' << mvd.values_[idef];
 							}
 						}
 					}
 
-					//if ( defineFxHeaderForAllPrograms )
-					//	thisCombinationDefines.emplace_back( "FX_HEADER", "1" );
+					// add regular defines (with only one value)
+					for ( size_t i = 0; i < cdefinesPerStage[itype].size(); ++i )
+					{
+						const FxProgDefineMultiValue& mvd = cdefinesPerStage[itype][i];
+						if ( mvd.values_.size() == 1 )
+							thisCombinationDefines.emplace_back( mvd.name_, mvd.values_[0] );
+					}
 
-					int isp = _FindMatchingProgram( entryName[itype], static_cast<ShaderStage::Type> (itype), cflags[itype], thisCombinationDefines );
+					int isp = _FindMatchingProgram( entryName[itype], static_cast<e_ProgramType>(itype), cflags[itype], thisCombinationDefines );
 					if ( isp == -1 )
 					{
 						std::unique_ptr<FxProgram> fxProg = std::make_unique<FxProgram>(
 							entryName[itype],
-							static_cast<ShaderStage::Type>( itype ),
+							static_cast<e_ProgramType>( itype ),
 							(u32)uniquePrograms_.size(),
 							cflags[itype],
 							thisCombinationDefines,
@@ -320,23 +333,22 @@ void FxFile::_ReadPasses( const void* configPtr )
 						fxProg.incRefCount();
 					}
 
-					comb.setUniqueProgramIndex( static_cast<ShaderStage::Type>( itype ), (u32)isp );
-				}
+					comb.setUniqueProgramIndex( static_cast<e_ProgramType>( itype ), (u32)isp );
 			}
 
 			comb.setFullName( fullPassName.str() );
 
 			// next iteration
-			for ( size_t idim = 0; idim < defines.size(); ++idim )
+			for ( size_t idim = 0; idim < mvDefines.size(); ++idim )
 			{
 				indices[idim] += 1;
-				if ( indices[idim] < defines[idim].values_.size() )
+				if ( indices[idim] < mvDefines[idim].values_.size() )
 				{
 					// go to next combination
 					//
 					break;
 				}
-				else if ( idim == defines.size() - 1 )
+				else if ( idim == mvDefines.size() - 1 )
 				{
 					// last index is done
 					//
@@ -502,7 +514,7 @@ void FxFile::_ReadProgram( const config_setting_t* prog, std::string& cflags, st
 	}
 }
 
-int FxFile::_FindMatchingProgram( std::string& entryName, ShaderStage::Type programProfile, const std::string& cflags, const std::vector<FxProgDefine>& cdefines )
+int FxFile::_FindMatchingProgram( std::string& entryName, e_ProgramType programProfile, const std::string& cflags, const std::vector<FxProgDefine>& cdefines )
 {
 	const std::string uniqueName = FxProgram::MakeUniqueName( entryName, programProfile, cflags, cdefines );
 
@@ -676,7 +688,7 @@ void FxFile::_ReadState( const config_setting_t* pass, RenderState& rs, const ch
 			if ( df == CompareFunc::count )
 				THROW_MESSAGE( "%s: pass '%s', DepthFunc has unsupported value '%s'", getFileAbsolutePath().c_str(), passName, tokenValue );
 
-			rs.stencilFunc = df;
+			rs.depthFunc = df;
 		}
 		else if ( 0 == strcmp( settName, "StencilTestEnable" ) )
 		{
@@ -793,8 +805,35 @@ void FxFile::_ReadState( const config_setting_t* pass, RenderState& rs, const ch
 				if ( nElements != 2 )
 					THROW_MESSAGE( "%s: pass '%s', PolygonOffset must be list of two floats (float1, float2)", getFileAbsolutePath().c_str(), passName );
 
-				rs.polygonOffset[0] = (float)config_setting_get_float_elem( sett, 0 );
-				rs.polygonOffset[1] = (float)config_setting_get_float_elem( sett, 1 );
+				// special care must be taken for this one
+				// user can just write PolygonOffset = ( 100, 1 ) and libconfig will treat 100 and 1 as integers
+				// by default, libconfig won't convert int<->float automatically and will return zeros in this case
+				// we have to do detect it and convert manually
+				// see config_set_auto_convert
+
+				const config_setting_t* e0 = config_setting_get_elem( sett, 0 );
+				const config_setting_t* e1 = config_setting_get_elem( sett, 1 );
+
+				int e0Type = config_setting_type( e0 );
+				int e1Type = config_setting_type( e1 );
+				if (	( e0Type != CONFIG_TYPE_INT && e0Type != CONFIG_TYPE_FLOAT )
+					 || ( e1Type != CONFIG_TYPE_INT && e1Type != CONFIG_TYPE_FLOAT )
+					 )
+					THROW_MESSAGE( "%s: pass '%s', PolygonOffset must be list of two floats (float1, float2)", getFileAbsolutePath().c_str(), passName );
+
+				float f0, f1;
+				if( e0Type == CONFIG_TYPE_INT )
+					f0 = (float)config_setting_get_int( e0 );
+				else
+					f0 = (float)config_setting_get_float( e0 );
+
+				if ( e1Type == CONFIG_TYPE_INT )
+					f1 = (float)config_setting_get_int( e1 );
+				else
+					f1 = (float)config_setting_get_float( e1 );
+
+				rs.polygonOffset[0] = f0;
+				rs.polygonOffset[1] = f1;
 			}
 			else
 				THROW_MESSAGE( "%s: pass '%s', PolygonOffset must be list of two floats (float1, float2)", getFileAbsolutePath().c_str(), passName );
@@ -810,10 +849,19 @@ void FxFile::_ReadState( const config_setting_t* pass, RenderState& rs, const ch
 	}
 }
 
-void FxFile::_ReadAndParseFxFile( const char* srcFile, const FxFileCompileOptions& /*options*/, IncludeCache& includeCache )
+void FxFile::_ReadAndParseFxFile( const char* srcFile, const char* srcFileDir, const FxFileCompileOptions& /*options*/, IncludeCache& includeCache )
 {
 	filename_ = srcFile;
-	fileAbsolutePath_ = spad::GetAbsolutePath( filename_ );
+	if ( srcFileDir )
+	{
+		std::string sf = srcFileDir;
+		sf.append( srcFile );
+		fileAbsolutePath_ = spad::GetAbsolutePath( sf );
+	}
+	else
+	{
+		fileAbsolutePath_ = spad::GetAbsolutePath( filename_ );
+	}
 	const char* srcFilePathAbsolute = fileAbsolutePath_.c_str();
 
 	//std::string sourceCode = spad::ReadTextFileAsString( srcFilePathAbsolute );
@@ -853,7 +901,7 @@ std::string FxFile::_ReadSourceFile( const char* filename, IncludeCache& include
 	}
 
 	size_t writeOffset;
-	const fxlib::IncludeCache::File* fCompilerInclude = includeCache.Get_AlwaysIncludedByCompiler();
+	const fxlib::IncludeCache::File* fCompilerInclude = includeCache.Get_AlwaysIncludedByFxCompiler();
 	if ( fCompilerInclude )
 	{
 		writeOffset = fCompilerInclude->sourceCode_.size();
@@ -882,19 +930,19 @@ std::string FxFile::_ReadSourceFile( const char* filename, IncludeCache& include
 	return ret;
 }
 
-std::unique_ptr<spad::fxlib::FxFile> ParseFxFile( const char* srcFilePathAbsolute, const FxFileCompileOptions& options, IncludeCache& includeCache, int* err /*= nullptr */ )
+std::unique_ptr<FxFile> ParseFxFile( const char* srcFile, const char* srcFileDir, const FxFileCompileOptions& options, IncludeCache& includeCache, int* err /*= nullptr */ )
 {
 	try
 	{
 		std::unique_ptr<FxFile> fxFile = std::make_unique<FxFile>();
-		fxFile->_ReadAndParseFxFile( srcFilePathAbsolute, options, includeCache );
+		fxFile->_ReadAndParseFxFile( srcFile, srcFileDir, options, includeCache );
 		return fxFile;
 	}
-	catch (Exception ex)
+	catch ( Exception ex )
 	{
 		logError( "Compile failed!\n%s(1,1)", ex.GetMessage().c_str() );
 
-		if (err)
+		if ( err )
 			*err = -1;
 		return nullptr;
 	}
@@ -932,7 +980,6 @@ bool CheckIfRecompilationIsRequired( const char* srcPath, const char* dependPath
 	if ( compilerTimestamp && compilerTimestamp > dependTimestamp )
 	{
 		// compiler is newer than dependencies, source and destination files
-		//
 		return true;
 	}
 
@@ -1056,7 +1103,7 @@ void WriteCompiledFxFilePasses( FILE* ofs, const FxFile& fxFile )
 		for ( const auto& c : combinationsArray )
 		{
 			AppendString( ofs, c.getFullName() ); // for debug
-			AppendArray( ofs, c.getUniqeProgramIndices(), ShaderStage::count );
+			AppendArray( ofs, c.getUniqeProgramIndices(), eProgramType_count );
 		}
 	}
 }

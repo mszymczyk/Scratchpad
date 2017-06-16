@@ -106,11 +106,11 @@ void IncludeCache::AddSearchPath( const std::string& absolutePath )
 }
 
 
-int IncludeCache::Load_AlwaysIncludedByCompiler()
+int IncludeCache::Load_AlwaysIncludedByFxCompiler()
 {
 	SPAD_ASSERT( !compilerInclude_ );
 
-	const std::string& relativePath = "AlwaysIncludedByCompiler.h";
+	const std::string& relativePath = "AlwaysIncludedByFxCompiler.h";
 
 	const size_t nSearchPaths = searchPaths_.size();
 	for ( size_t isp = 0; isp < nSearchPaths; ++isp )
@@ -136,6 +136,13 @@ int IncludeCache::Load_AlwaysIncludedByCompiler()
 	return -1;
 }
 
+
+void IncludeCache::clearLoadedIncludes()
+{
+	for ( auto& f : loadedIncludes_ )
+		delete f.second;
+	loadedIncludes_.clear();
+}
 
 } // namespace fxlib
 } // namespace spad

@@ -143,6 +143,7 @@
     </ProjDoc>
   </ItemGroup>
   <ItemGroup>
+    <FxCompilerFile Include="FxDoc.hlsl" />
     <FxCompilerFile Include="texture.hlsl">
       <FileType>Document</FileType>
     </FxCompilerFile>

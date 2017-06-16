@@ -230,7 +230,7 @@ R binary_search( const Cont& c, const Val& val, const Pred& p, const R invalidIn
 	if ( it != cend( c ) && !p( val, *it ) )
 	{
 		size_t idx = it - cbegin( c );
-		PICO_ASSERT( idx < std::numeric_limits<R>::max() );
+		SPAD_ASSERT( idx < std::numeric_limits<R>::max() );
 		return (R)idx;
 	}
 

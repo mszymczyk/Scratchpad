@@ -30,8 +30,10 @@ struct IncludeCache
 	void AddSearchPath( const std::string& absolutePath );
 
 	// not thread safe, should be called during startup
-	int Load_AlwaysIncludedByCompiler();
-	const File* Get_AlwaysIncludedByCompiler() const { return compilerInclude_; }
+	int Load_AlwaysIncludedByFxCompiler();
+	const File* Get_AlwaysIncludedByFxCompiler() const { return compilerInclude_; }
+
+	void clearLoadedIncludes();
 
 private:
 	std::mutex mutex_;

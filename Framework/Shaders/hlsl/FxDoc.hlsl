@@ -39,7 +39,7 @@ passes :
 		StencilTestEnable = false;
 		StencilFunc = "LEqual";
 		StencilOp = "Keep"; // Keep, Replace, Incr, Decr, Invert
-		StencilRef = 0; // values in range <0,255>
+		StencilRef = 0; // integer values in range <0,255>
 		
 		ColorMask = ( true, true, true, true ); // color write for all render targets: red, green, blue, alpha
 
@@ -48,7 +48,7 @@ passes :
 		FrontFace = "CCW"; // CCW - counterclockwise, CW - clockwise
 		PolygonMode = "Fill"; // Fill, Line
 		PolygonOffsetEnable = false;
-		PolygonOffset = ( 0, 0 ) // two floats
+		PolygonOffset = ( 0, 0 ) // two floats, (SlopeScaledDepthBias, DepthBias), see https://msdn.microsoft.com/en-us/library/windows/desktop/cc308048(v=vs.85).aspx
 
 		VertexProgram = "vs_ScreenQuad"
 		FragmentProgram = "ps_Color"
@@ -67,6 +67,25 @@ passes :
 			cdefines = {
 				MSAA = ( "1", "2", "4" )
 				CLAMP = ( "0", "1" )
+			}
+		}
+	}
+
+	PassWithRegularDefinesAndCombinations = {
+		VertexProgram = {
+			// entry name must come first
+			EntryName = "vs_ScreenQuad2";
+			cdefines = {
+				SCALE = "1.5f" // treated as a regular define, doesn't affect number of combinations, can't be indexed when choosing pass at runtime
+				SHIFT = ( "0", "1" );
+			}
+		}
+
+		FragmentProgram = {
+			EntryName = "ps_Color2"
+			cdefines = {
+				CLAMP = "0" // treated as a regular define, doesn't affect number of combinations, can't be indexed when choosing pass at runtime
+				MSAA = ( "1", "2", "4" )
 			}
 		}
 	}

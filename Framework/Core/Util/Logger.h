@@ -26,6 +26,7 @@ namespace spad
 		void logShutDown();
 		void logToStdError( bool yesno );
 		void logSetCallback( LogCallbackType callback );
+		LogCallbackType logGetCallback();
 	}
 
 #ifdef FR_ENABLE_LOGGER

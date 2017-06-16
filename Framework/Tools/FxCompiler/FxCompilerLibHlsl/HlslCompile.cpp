@@ -47,7 +47,7 @@ int CompileFxHlsl( const FxFile& fxFile, const CompileContext& ctx, const FxFile
 			outPaths[nOutPaths++] = hlslContext.outputSourceFileAbsolute.c_str();
 
 		if (!options.forceRecompile_
-			&& !CheckIfRecompilationIsRequired( fxFile.getFilename().c_str(), hlslContext.outputDependFileAbsolute.c_str(), outPaths, nOutPaths, options.compilerTimestamp_, options.configuration_ ))
+			&& !CheckIfRecompilationIsRequired( fxFile.getFileAbsolutePath().c_str(), hlslContext.outputDependFileAbsolute.c_str(), outPaths, nOutPaths, options.compilerTimestamp_, options.configuration_ ) )
 		{
 			// all files are up-to-date
 			logInfo( "%s: hlsl output is up-to-date", fxFile.getFilename().c_str() );
@@ -128,7 +128,7 @@ void SetupHlslCompileContext( HlslCompileContext& ctx, const FxFileHlslCompileOp
 	ctx.outputDependFile = GetFilePathWithoutExtension( fxFile.getFilename() ) + ".hlsl_depend";
 	ctx.outputDependFileAbsolute = hlslOptions.intermediateDirectory_ + ctx.outputDependFile;
 
-	ctx.outputDiagnosticsDir = dstDir + "compiledDiag\\" + fxFile.getFilename();
+	ctx.outputDiagnosticsDir = dstDir + "compiledDiag\\" + GetFilePathWithoutExtension(fxFile.getFilename());
 }
 
 static std::string _FixHlslErrorMessage( const char* msg, const HlslShaderInclude& includes, IncludeCache* includeCache )
@@ -189,7 +189,7 @@ void CompileHlslProgram( HlslProgramData& outData, const HlslCompileContext& hls
 	if ( options.logProgress_ )
 		logInfo( "Compiling %s:%s", fxFile.getFileAbsolutePath().c_str(), fxProg.getUniqueName().c_str() );
 
-	const char* profiles[ShaderStage::count] = {
+	const char* profiles[eProgramType_count] = {
 		"vs_",
 		"ps_",
 		"gs_",
@@ -226,22 +226,22 @@ void CompileHlslProgram( HlslProgramData& outData, const HlslCompileContext& hls
 		defines.push_back( { entryDefine, "1" } );
 	}
 
-	if ( fxProg.getProgramType() == ShaderStage::vertex )
+	if ( fxProg.getProgramType() == eProgramType_vertexShader )
 	{
 		defines.push_back( { "progType_vp", "1" } );
 		defines.push_back( { "__VERTEX__", "1" } );
 	}
-	else if ( fxProg.getProgramType() == ShaderStage::pixel )
+	else if ( fxProg.getProgramType() == eProgramType_pixelShader )
 	{
 		defines.push_back( { "progType_fp", "1" } );
 		defines.push_back( { "__PIXEL__", "1" } );
 	}
-	else if ( fxProg.getProgramType() == ShaderStage::geometry )
+	else if ( fxProg.getProgramType() == eProgramType_geometryShader )
 	{
 		defines.push_back( { "progType_gp", "1" } );
 		defines.push_back( { "__GEOMETRY__", "1" } );
 	}
-	else if ( fxProg.getProgramType() == ShaderStage::compute )
+	else if ( fxProg.getProgramType() == eProgramType_computeShader )
 	{
 		defines.push_back( { "progType_cp", "1" } );
 		defines.push_back( { "__COMPUTE__", "1" } );
@@ -323,7 +323,7 @@ void CompileHlslProgram( HlslProgramData& outData, const HlslCompileContext& hls
 
 	outData.shaderBlob_ = shaderBlob;
 
-	if ( fxProg.getProgramType() == ShaderStage::vertex )
+	if ( fxProg.getProgramType() == eProgramType_vertexShader )
 	{
 		hr = D3DGetInputSignatureBlob( shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), &outData.vsSignatureBlob_ );
 		if ( FAILED( hr ) )
@@ -409,7 +409,7 @@ void CompileHlslProgram( HlslProgramData& outData, const HlslCompileContext& hls
 			THROW_HLSL_EXCEPTION( std::move( errMsg ), "", hr );
 		}
 
-		const std::string filename = CreateDebugFileName( hlslContext, fxFile, fxProg, ".hlslc_disassembly" );
+		const std::string filename = CreateDebugFileName( hlslContext, fxFile, fxProg, "_hlslc_disassembly" );
 		CreateDirectoryRecursive( filename );
 
 		CallResult( WriteFileSync( filename.c_str(), dissasemblyBlob->GetBufferPointer(), dissasemblyBlob->GetBufferSize() ) );
@@ -480,7 +480,7 @@ void WriteCompiledFx( const std::vector<HlslProgramData>& outData, const HlslCom
 			AppendU32( ofs, (u32)data.shaderBlob_->GetBufferSize() );
 			fwrite( data.shaderBlob_->GetBufferPointer(), data.shaderBlob_->GetBufferSize(), 1, ofs );
 
-			if ( prog.getProgramType() == ShaderStage::vertex )
+			if ( prog.getProgramType() == eProgramType_vertexShader )
 			{
 				AppendU32( ofs, (u32)data.vsSignatureBlob_->GetBufferSize() );
 				fwrite( data.vsSignatureBlob_->GetBufferPointer(), data.vsSignatureBlob_->GetBufferSize(), 1, ofs );

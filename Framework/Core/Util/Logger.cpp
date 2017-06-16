@@ -283,5 +283,10 @@ namespace spad
 			_gLog->callback_ = callback;
 		}
 
+		spad::log::LogCallbackType logGetCallback()
+		{
+			return _gLog->callback_;
+		}
+
 	} // namespace log
 } // namespace spad
